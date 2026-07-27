@@ -1,0 +1,120 @@
+<%- include('partials/header') %>
+
+<section class="section-padding" style="padding-top: 150px; min-height: 80vh;">
+    <div class="container">
+        <div class="text-center mb-5" data-aos="fade-up">
+            <h1 class="glitch" data-text="Download & Source Code">Download & Source Code</h1>
+            <p class="subtitle">Dapatkan kode sumber (source code) dan rilis terbaru dari Shiroko Project.</p>
+        </div>
+
+        <div class="download-grid">
+            <!-- Main Repository -->
+            <div class="download-card highlight-card" data-aos="fade-up" data-aos-delay="100">
+                <div class="card-icon"><i class="fab fa-github"></i></div>
+                <h3>Bot Shiroko (Utama)</h3>
+                <p>Repository utama untuk ekosistem AI Multi-Platform (WhatsApp, Discord, Minecraft, WebUI).</p>
+                <div class="tech-stack">
+                    <span class="tag">Node.js</span>
+                    <span class="tag">Baileys</span>
+                    <span class="tag">Discord.js</span>
+                </div>
+                <a href="https://github.com/ibnunurbarokah148-wq/bot-shiroko" target="_blank" class="btn btn-primary mt-4 w-100" style="justify-content: center;">
+                    Buka Repository GitHub
+                </a>
+            </div>
+
+            <!-- Other Apps (Placeholders based on user's concept) -->
+            <div class="download-card" data-aos="fade-up" data-aos-delay="200">
+                <div class="card-icon"><i class="fas fa-desktop"></i></div>
+                <h3>Shiroko Desktop AI</h3>
+                <p>Aplikasi desktop lokal untuk asisten AI terintegrasi dengan Ollama dan Gemini API.</p>
+                <div class="tech-stack">
+                    <span class="tag">Python</span>
+                    <span class="tag">HTML/CSS/JS</span>
+                </div>
+                <a href="#" class="btn btn-outline mt-4 w-100 disabled" style="justify-content: center;">
+                    Segera Hadir
+                </a>
+            </div>
+
+            <div class="download-card" data-aos="fade-up" data-aos-delay="300">
+                <div class="card-icon"><i class="fas fa-cube"></i></div>
+                <h3>Minecraft Server Plugin</h3>
+                <p>Plugin monitoring server untuk jembatan antara game Minecraft dan bot WhatsApp/Discord.</p>
+                <div class="tech-stack">
+                    <span class="tag">Mineflayer</span>
+                    <span class="tag">Express</span>
+                </div>
+                <a href="#" class="btn btn-outline mt-4 w-100 disabled" style="justify-content: center;">
+                    Segera Hadir
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+.mb-5 { margin-bottom: 3rem; }
+.mt-4 { margin-top: 2rem; }
+.w-100 { width: 100%; }
+.disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
+
+.download-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.download-card {
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-radius: 15px;
+    padding: 2.5rem 2rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.highlight-card {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 20px rgba(0, 176, 240, 0.1);
+}
+.highlight-card:hover {
+    box-shadow: 0 10px 30px rgba(0, 176, 240, 0.3);
+}
+
+.download-card:hover {
+    transform: translateY(-10px);
+}
+
+.download-card .card-icon {
+    font-size: 3rem;
+    color: var(--accent-color);
+    margin-bottom: 1.5rem;
+}
+
+.download-card h3 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+}
+
+.download-card p {
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+    flex-grow: 1;
+}
+
+.tech-stack {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+</style>
+
+<%- include('partials/footer') %>

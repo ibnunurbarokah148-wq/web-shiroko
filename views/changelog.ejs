@@ -1,0 +1,183 @@
+<%- include('partials/header') %>
+
+<section class="section-padding" style="padding-top: 150px; min-height: 80vh;">
+    <div class="container">
+        <div class="text-center mb-5" data-aos="fade-up">
+            <h1 class="glitch" data-text="Changelog">Changelog</h1>
+            <p class="subtitle">Catatan pembaruan, perbaikan, dan fitur baru di Ekosistem Shiroko Project.</p>
+        </div>
+
+        <div class="timeline" data-aos="fade-up" data-aos-delay="100">
+            <!-- Item 1 -->
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                    <span class="timeline-date">Juli 2026</span>
+                    <h3>v2.5.0 - The Ecosystem Portal</h3>
+                    <ul>
+                        <li><span class="tag feature">FEATURE</span> Peluncuran Web Dashboard (Portal Utama).</li>
+                        <li><span class="tag sync">SYNC</span> Integrasi API real-time dari bot WhatsApp VPS ke Web.</li>
+                        <li><span class="tag update">UPDATE</span> Penambahan mode "Nak Coba" via link khusus.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Item 2 -->
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                    <span class="timeline-date">Juni 2026</span>
+                    <h3>v2.0.0 - Local & Cloud AI Expansion</h3>
+                    <ul>
+                        <li><span class="tag feature">FEATURE</span> Rilis Shiroko Desktop AI dengan dukungan Ollama Lokal.</li>
+                        <li><span class="tag feature">FEATURE</span> Dukungan OpenRouter dan Cloudflare Workers AI.</li>
+                        <li><span class="tag update">UPDATE</span> Migrasi database ke SQLite (`bot.db`) via `sql.js` untuk stabilitas.</li>
+                        <li><span class="tag fix">FIX</span> Memperbaiki *memory leak* pada penanganan sesi chat panjang.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Item 3 -->
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                    <span class="timeline-date">Mei 2026</span>
+                    <h3>v1.5.0 - LMS & Academic Mode</h3>
+                    <ul>
+                        <li><span class="tag feature">FEATURE</span> Fitur evaluasi akademik (Role Guru & Siswa).</li>
+                        <li><span class="tag feature">FEATURE</span> Pembuatan draft makalah & artikel otomatis.</li>
+                        <li><span class="tag update">UPDATE</span> Penambahan sistem Kepanitiaan (Divisi & Jobdesk).</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Item 4 -->
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                    <span class="timeline-date">April 2026</span>
+                    <h3>v1.2.0 - Multi-Platform Bridge</h3>
+                    <ul>
+                        <li><span class="tag feature">FEATURE</span> Peluncuran Discord Bot Node.</li>
+                        <li><span class="tag feature">FEATURE</span> Sinkronisasi shared-memory antara WhatsApp dan Discord.</li>
+                        <li><span class="tag feature">FEATURE</span> Minecraft Server Monitor menggunakan Mineflayer.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Item 5 -->
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                    <span class="timeline-date">Maret 2026</span>
+                    <h3>v1.0.0 - Project Genesis</h3>
+                    <ul>
+                        <li><span class="tag release">RELEASE</span> Rilis perdana Shiroko WhatsApp Bot dengan library Baileys.</li>
+                        <li><span class="tag feature">FEATURE</span> Integrasi awal dengan Google Gemini API.</li>
+                        <li><span class="tag feature">FEATURE</span> Sistem Token Limit dan Registrasi Pengguna.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+.mb-5 { margin-bottom: 3rem; }
+
+.timeline {
+    position: relative;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px 0;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 20px;
+    height: 100%;
+    width: 2px;
+    background: var(--border-color);
+}
+
+.timeline-item {
+    position: relative;
+    padding-left: 60px;
+    margin-bottom: 3rem;
+}
+
+.timeline-item:last-child {
+    margin-bottom: 0;
+}
+
+.timeline-dot {
+    position: absolute;
+    left: 12px;
+    top: 0;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--accent-color);
+    box-shadow: 0 0 10px var(--accent-color);
+    z-index: 1;
+}
+
+.timeline-content {
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.5rem 2rem;
+    transition: transform 0.3s ease;
+}
+
+.timeline-content:hover {
+    transform: translateY(-5px);
+    border-color: var(--accent-color);
+    box-shadow: 0 5px 20px rgba(0, 176, 240, 0.15);
+}
+
+.timeline-date {
+    display: inline-block;
+    color: var(--accent-color);
+    font-weight: 700;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+    letter-spacing: 1px;
+}
+
+.timeline-content h3 {
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+}
+
+.timeline-content ul {
+    list-style: none;
+    padding: 0;
+}
+
+.timeline-content li {
+    margin-bottom: 0.8rem;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.tag.feature { background: rgba(76, 175, 80, 0.15); color: #4CAF50; border-color: #4CAF50; }
+.tag.update { background: rgba(243, 156, 18, 0.15); color: #f39c12; border-color: #f39c12; }
+.tag.fix { background: rgba(231, 76, 60, 0.15); color: #e74c3c; border-color: #e74c3c; }
+.tag.sync { background: rgba(155, 89, 182, 0.15); color: #9b59b6; border-color: #9b59b6; }
+.tag.release { background: rgba(0, 176, 240, 0.15); color: var(--accent-color); border-color: var(--accent-color); }
+
+@media (max-width: 600px) {
+    .timeline::before { left: 15px; }
+    .timeline-dot { left: 7px; }
+    .timeline-item { padding-left: 40px; }
+    .timeline-content { padding: 1.2rem; }
+}
+</style>
+
+<%- include('partials/footer') %>

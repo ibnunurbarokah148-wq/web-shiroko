@@ -1,0 +1,182 @@
+<%- include('partials/header') %>
+
+<section class="section-padding" style="padding-top: 150px; min-height: 80vh;">
+    <div class="container">
+        <div class="text-center mb-5" data-aos="fade-up">
+            <h1 class="glitch" data-text="Ecosystem Projects">Ecosystem Projects</h1>
+            <p class="subtitle">Detail lengkap mengenai setiap platform di dalam Shiroko Project.</p>
+        </div>
+
+        <div class="projects-wrapper">
+            <!-- WhatsApp Bot -->
+            <div class="project-detail-card" data-aos="fade-up" data-aos-delay="100">
+                <div class="project-icon"><i class="fab fa-whatsapp"></i></div>
+                <div class="project-content">
+                    <h2>WhatsApp Bot (Shiroko)</h2>
+                    <p class="desc">Bot WhatsApp cerdas yang dibangun menggunakan NodeJS dan Baileys. Memiliki fitur lengkap mulai dari percakapan AI, roleplay, hingga pembuatan gambar.</p>
+                    
+                    <div class="features-list">
+                        <span class="feature"><i class="fas fa-check"></i> AI Assistant</span>
+                        <span class="feature"><i class="fas fa-check"></i> Roleplay</span>
+                        <span class="feature"><i class="fas fa-check"></i> ComfyUI (Image Gen)</span>
+                        <span class="feature"><i class="fas fa-check"></i> Pembayaran QRIS Otomatis</span>
+                        <span class="feature"><i class="fas fa-check"></i> Mode Akademik</span>
+                    </div>
+
+                    <div class="project-links mt-3">
+                        <a href="/status" class="btn btn-outline"><i class="fas fa-signal"></i> Status</a>
+                        <a href="/docs" class="btn btn-outline"><i class="fas fa-book"></i> Demo/Docs</a>
+                        <a href="https://github.com/ibnunurbarokah148-wq/bot-shiroko" target="_blank" class="btn btn-primary"><i class="fab fa-github"></i> GitHub</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Discord Bot -->
+            <div class="project-detail-card" data-aos="fade-up" data-aos-delay="200">
+                <div class="project-icon" style="color: #5865F2;"><i class="fab fa-discord"></i></div>
+                <div class="project-content">
+                    <h2>Discord Bot</h2>
+                    <p class="desc">Bot Discord yang mendukung server komunitas, dengan ruang khusus waifu dan memori percakapan yang di-share dengan bot WhatsApp.</p>
+                    
+                    <div class="features-list">
+                        <span class="feature"><i class="fas fa-check"></i> Waifu Room</span>
+                        <span class="feature"><i class="fas fa-check"></i> Shared Memory (SQLite)</span>
+                        <span class="feature"><i class="fas fa-check"></i> Model Picker</span>
+                        <span class="feature"><i class="fas fa-check"></i> Voice / Music</span>
+                    </div>
+
+                    <div class="project-links mt-3">
+                        <a href="https://discord.gg/k33xPSwWyx" target="_blank" class="btn btn-secondary"><i class="fab fa-discord"></i> Join Server</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Minecraft Monitor -->
+            <div class="project-detail-card" data-aos="fade-up" data-aos-delay="300">
+                <div class="project-icon" style="color: #4CAF50;"><i class="fas fa-cube"></i></div>
+                <div class="project-content">
+                    <h2>Minecraft Monitor</h2>
+                    <p class="desc">Sistem monitoring server Minecraft menggunakan Mineflayer. Status TPS, RAM, dan pemain terhubung langsung ke WhatsApp melalui webhook.</p>
+                    
+                    <div class="features-list">
+                        <span class="feature"><i class="fas fa-check"></i> Server Monitor</span>
+                        <span class="feature"><i class="fas fa-check"></i> Cek TPS & RAM</span>
+                        <span class="feature"><i class="fas fa-check"></i> Player Logger</span>
+                        <span class="feature"><i class="fas fa-check"></i> Console Webhook</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Local AI WebUI -->
+            <div class="project-detail-card" data-aos="fade-up" data-aos-delay="400">
+                <div class="project-icon" style="color: #f39c12;"><i class="fas fa-laptop-code"></i></div>
+                <div class="project-content">
+                    <h2>Local AI WebUI</h2>
+                    <p class="desc">Antarmuka web untuk mengakses berbagai model AI secara lokal maupun Cloud. Memudahkan pengguna berinteraksi tanpa harus via terminal.</p>
+                    
+                    <div class="features-list">
+                        <span class="feature"><i class="fas fa-check"></i> Gemini API</span>
+                        <span class="feature"><i class="fas fa-check"></i> Cloudflare Workers AI</span>
+                        <span class="feature"><i class="fas fa-check"></i> Ollama (Local)</span>
+                        <span class="feature"><i class="fas fa-check"></i> OpenRouter (Cloud)</span>
+                        <span class="feature"><i class="fas fa-check"></i> Markdown Support</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+.mb-5 { margin-bottom: 3rem; }
+.mt-3 { margin-top: 1.5rem; }
+
+.projects-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.project-detail-card {
+    display: flex;
+    gap: 2rem;
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-radius: 15px;
+    padding: 2.5rem;
+    transition: all 0.3s ease;
+}
+
+.project-detail-card:hover {
+    border-color: var(--accent-color);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+.project-icon {
+    font-size: 5rem;
+    color: var(--accent-color);
+    flex-shrink: 0;
+    width: 100px;
+    text-align: center;
+}
+
+.project-content h2 {
+    font-size: 2rem;
+    margin-bottom: 10px;
+    color: var(--text-primary);
+}
+
+.desc {
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+}
+
+.features-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 1.5rem;
+}
+
+.feature {
+    background: rgba(255,255,255,0.05);
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid var(--border-color);
+}
+
+.feature i {
+    color: var(--accent-color);
+}
+
+.project-links {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+    .project-detail-card {
+        flex-direction: column;
+        text-align: center;
+    }
+    .project-icon {
+        margin: 0 auto;
+    }
+    .features-list {
+        justify-content: center;
+    }
+    .project-links {
+        justify-content: center;
+    }
+}
+</style>
+
+<%- include('partials/footer') %>

@@ -1,0 +1,333 @@
+<%- include('partials/header') %>
+
+<section class="section-padding" style="padding-top: 150px; min-height: 80vh;">
+    <div class="container">
+        <div class="text-center mb-5" data-aos="fade-up">
+            <h1 class="glitch" data-text="Documentation">Documentation</h1>
+            <p class="subtitle">Panduan penggunaan dan daftar perintah (commands) untuk Ekosistem Shiroko.</p>
+        </div>
+
+        <div class="docs-layout">
+            <!-- Sidebar Navigation -->
+            <aside class="docs-sidebar" data-aos="fade-right" data-aos-delay="100">
+                <nav class="docs-nav">
+                    <ul>
+                        <li><a href="#ai" class="active"><i class="fas fa-brain"></i> AI Assistant</a></li>
+                        <li><a href="#lms"><i class="fas fa-graduation-cap"></i> LMS & Evaluasi</a></li>
+                        <li><a href="#kepanitiaan"><i class="fas fa-users"></i> Kepanitiaan</a></li>
+                        <li><a href="#manajemen_tugas"><i class="fas fa-tasks"></i> Manajemen Tugas</a></li>
+                        <li><a href="#akademik"><i class="fas fa-book"></i> Akademik</a></li>
+                        <li><a href="#eksekusi_media"><i class="fas fa-photo-video"></i> Eksekusi Media</a></li>
+                        <li><a href="#data_intel"><i class="fas fa-search"></i> Data Intel</a></li>
+                        <li><a href="#layanan_premium"><i class="fas fa-gem"></i> Layanan Premium</a></li>
+                        <li><a href="#khusus_owner"><i class="fas fa-crown"></i> Khusus Owner</a></li>
+                        <li><a href="#discord"><i class="fab fa-discord"></i> Discord Bot</a></li>
+                    </ul>
+                </nav>
+            </aside>
+
+            <!-- Main Content Area -->
+            <div class="docs-content" data-aos="fade-left" data-aos-delay="200">
+                
+                <div class="alert-info mb-4" style="background: rgba(0, 176, 240, 0.1); padding: 15px; border-radius: 8px; border-left: 4px solid var(--accent-color);">
+                    <p style="margin: 0; color: var(--text-primary);"><i class="fas fa-info-circle"></i> <strong>Catatan:</strong> Command yang ditandai dengan backtick ( ` ) memakan Token Limit.</p>
+                </div>
+
+                <section id="ai" class="doc-section">
+                    <h2><i class="fas fa-brain"></i> AI Assistant</h2>
+                    <p>Perintah utama untuk berkomunikasi dan mengecek status AI.</p>
+                    <div class="command-list">
+                        <div class="command-item"><span class="cmd-badge">`!shiroko [pesan]`</span><p>Ngobrol dengan Shiroko (Menggunakan model default).</p></div>
+                        <div class="command-item"><span class="cmd-badge">`!shiroko_pintar [tanya]`</span><p>Bertanya dengan model penalaran tinggi.</p></div>
+                        <div class="command-item"><span class="cmd-badge">!aimode [mode]</span><p>Ganti Otak AI.</p></div>
+                        <div class="command-item"><span class="cmd-badge">!lupa</span><p>Reset Memori AI.</p></div>
+                        <div class="command-item"><span class="cmd-badge">!limit</span><p>Cek Sisa Limit.</p></div>
+                        <div class="command-item"><span class="cmd-badge">!ping</span><p>Cek Status Bot.</p></div>
+                        <div class="command-item"><span class="cmd-badge">!cekid</span><p>Cek ID WA & Role.</p></div>
+                    </div>
+                </section>
+
+                <section id="lms" class="doc-section mt-5">
+                    <h2><i class="fas fa-graduation-cap"></i> LMS & Evaluasi</h2>
+                    <div class="command-list">
+                        <div class="command-item"><span class="cmd-badge">!reg_guru</span><p>Mendaftar role sebagai Guru.</p></div>
+                        <div class="command-item"><span class="cmd-badge">!reg_siswa</span><p>Mendaftar role sebagai Siswa.</p></div>
+                        <div class="command-item"><span class="cmd-badge">!resign</span><p>Mencabut role saat ini.</p></div>
+                        <div class="command-item"><span class="cmd-badge">!tambah_soal</span><p>Menambahkan soal ujian.</p></div>
+                        <div class="command-item"><span class="cmd-badge">!list_soal</span><p>Melihat daftar ujian.</p></div>
+                        <div class="command-item"><span class="cmd-badge">!hapus_soal</span><p>Menghapus soal dari database.</p></div>
+                        <div class="command-item"><span class="cmd-badge">`!ujian [ID]`</span><p>Mulai mengerjakan soal evaluasi berdasarkan ID.</p></div>
+                    </div>
+                </section>
+
+                <section id="kepanitiaan" class="doc-section mt-5">
+                    <h2><i class="fas fa-users"></i> Kepanitiaan</h2>
+                    <div class="command-list">
+                        <div class="command-item"><span class="cmd-badge">!divisi [nama]</span><p>Mendaftar masuk ke divisi tertentu.</p></div>
+                        <div class="command-item"><span class="cmd-badge">!daftar_anggota</span><p>Melihat anggota kepanitiaan.</p></div>
+                        <div class="command-item"><span class="cmd-badge">!daftar_tugas</span><p>Melihat daftar tugas divisi.</p></div>
+                        <div class="command-item"><span class="cmd-badge">!tambah_panitia</span><p>Menambahkan panitia.</p></div>
+                        <div class="command-item"><span class="cmd-badge">!cabut_divisi</span><p>Mencabut anggota dari divisi.</p></div>
+                        <div class="command-item"><span class="cmd-badge">!tambah_tugas</span><p>Menambahkan tugas baru.</p></div>
+                        <div class="command-item"><span class="cmd-badge">!selesai_tugas</span><p>Menandai tugas selesai.</p></div>
+                    </div>
+                </section>
+
+                <section id="manajemen_tugas" class="doc-section mt-5">
+                    <h2><i class="fas fa-tasks"></i> Manajemen Tugas</h2>
+                    <div class="command-list">
+                        <div class="command-item"><span class="cmd-badge">!simpan_tugas</span><p>Menyimpan tugas baru.</p></div>
+                        <div class="command-item"><span class="cmd-badge">!tugas</span><p>Melihat tugas.</p></div>
+                        <div class="command-item"><span class="cmd-badge">!hapus_tugas</span><p>Menghapus tugas.</p></div>
+                    </div>
+                </section>
+
+                <section id="akademik" class="doc-section mt-5">
+                    <h2><i class="fas fa-book"></i> Akademik</h2>
+                    <div class="command-list">
+                        <div class="command-item"><span class="cmd-badge">`!karyailmiah`</span><p>Akses menu karya ilmiah.</p></div>
+                        <div class="command-item"><span class="cmd-badge">`!jurnal [topik]`</span><p>Cari jurnal.</p></div>
+                        <div class="command-item"><span class="cmd-badge">`!para [teks]`</span><p>Parafrase teks.</p></div>
+                        <div class="command-item"><span class="cmd-badge">`!ringkas`</span><p>Ringkas teks (dengan me-reply teks).</p></div>
+                        <div class="command-item"><span class="cmd-badge">`!ide`</span><p>Ide karya ilmiah.</p></div>
+                    </div>
+                </section>
+
+                <section id="eksekusi_media" class="doc-section mt-5">
+                    <h2><i class="fas fa-photo-video"></i> Eksekusi Media</h2>
+                    <div class="command-list">
+                        <div class="command-item"><span class="cmd-badge">`!gambar [prompt]`</span><p>AI Image Generator.</p></div>
+                        <div class="command-item"><span class="cmd-badge">`!tts [teks]`</span><p>Ubah Teks ke Suara/VN.</p></div>
+                        <div class="command-item"><span class="cmd-badge">`!pdf2jpg`</span><p>Konversi PDF ke gambar (Reply PDF).</p></div>
+                        <div class="command-item"><span class="cmd-badge">`!stiker`</span><p>Buat stiker (Kirim Gambar).</p></div>
+                        <div class="command-item"><span class="cmd-badge">`!toimg`</span><p>Ubah stiker ke gambar (Reply Stiker).</p></div>
+                        <div class="command-item"><span class="cmd-badge">`!meme [teks]`</span><p>Buat meme (Reply Gambar).</p></div>
+                        <div class="command-item"><span class="cmd-badge">`!tiktok [link]`</span><p>Download Video/Audio TikTok.</p></div>
+                        <div class="command-item"><span class="cmd-badge">`!dengar`</span><p>Transkripsi VN ke Teks (Reply VN).</p></div>
+                    </div>
+                </section>
+
+                <section id="data_intel" class="doc-section mt-5">
+                    <h2><i class="fas fa-search"></i> Data Intel</h2>
+                    <div class="command-list">
+                        <div class="command-item"><span class="cmd-badge">`!pixiv [query]`</span><p>Cari gambar di Pixiv.</p></div>
+                        <div class="command-item"><span class="cmd-badge">`!waifu [nama]`</span><p>Cari info waifu.</p></div>
+                        <div class="command-item"><span class="cmd-badge">`!gacha`</span><p>Gacha gambar.</p></div>
+                        <div class="command-item"><span class="cmd-badge">`!neko [kategori]`</span><p>Gambar anime neko.</p></div>
+                    </div>
+                </section>
+
+                <section id="layanan_premium" class="doc-section mt-5">
+                    <h2><i class="fas fa-gem"></i> Layanan Premium & Bot</h2>
+                    <div class="command-list">
+                        <div class="command-item"><span class="cmd-badge">!premium</span><p>Info VIP Premium.</p></div>
+                        <div class="command-item"><span class="cmd-badge">!topup</span><p>Beli Token Limit.</p></div>
+                        <div class="command-item"><span class="cmd-badge">!bukti</span><p>Upload Struk Topup.</p></div>
+                        <div class="command-item"><span class="cmd-badge">!jadibot</span><p>Sewa Bot Waifu.</p></div>
+                        <div class="command-item"><span class="cmd-badge">!stopbot</span><p>Hentikan Jadibot.</p></div>
+                        <div class="command-item"><span class="cmd-badge">`!kepo`</span><p>Ghost Mode Messages VIP.</p></div>
+                    </div>
+                </section>
+
+                <section id="khusus_owner" class="doc-section mt-5">
+                    <h2><i class="fas fa-crown"></i> Khusus Owner</h2>
+                    <div class="command-list">
+                        <div class="command-item"><span class="cmd-badge">!mc start</span><p>Nyalakan Bot MC.</p></div>
+                        <div class="command-item"><span class="cmd-badge">!mc stop</span><p>Matikan Bot MC.</p></div>
+                        <div class="command-item"><span class="cmd-badge">!mc status</span><p>Cek Status Bot MC.</p></div>
+                        <div class="command-item"><span class="cmd-badge">!mc chat [teks]</span><p>Kirim Chat MC.</p></div>
+                    </div>
+                </section>
+
+                <section id="discord" class="doc-section mt-5">
+                    <h2><i class="fab fa-discord"></i> Discord Bot Commands</h2>
+                    <div class="command-list">
+                        <div class="command-item"><span class="cmd-badge">!gambar</span><p>AI Image Generator.</p></div>
+                        <div class="command-item"><span class="cmd-badge">!mybini</span><p>Cek Waifu (Discord).</p></div>
+                        <div class="command-item"><span class="cmd-badge">!gacha</span><p>Gacha Karakter (Discord).</p></div>
+                        <div class="command-item"><span class="cmd-badge">!waifu</span><p>Cari Waifu (Discord).</p></div>
+                    </div>
+                </section>
+
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+.mb-5 { margin-bottom: 3rem; }
+.mt-5 { margin-top: 3rem; }
+
+.docs-layout {
+    display: flex;
+    gap: 3rem;
+    align-items: flex-start;
+}
+
+.docs-sidebar {
+    position: sticky;
+    top: 100px;
+    width: 250px;
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.5rem;
+    flex-shrink: 0;
+}
+
+.docs-nav ul {
+    list-style: none;
+    padding: 0;
+}
+
+.docs-nav li {
+    margin-bottom: 0.5rem;
+}
+
+.docs-nav a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--text-secondary);
+    padding: 10px 15px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.docs-nav a:hover, .docs-nav a.active {
+    background: rgba(0, 176, 240, 0.1);
+    color: var(--accent-color);
+}
+
+.docs-content {
+    flex-grow: 1;
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 2.5rem;
+}
+
+.doc-section h2 {
+    color: var(--text-primary);
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+    font-size: 1.8rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.doc-section p {
+    color: var(--text-secondary);
+    margin-bottom: 20px;
+}
+
+.command-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.command-item {
+    background: var(--bg-color);
+    border-left: 4px solid var(--accent-color);
+    padding: 15px 20px;
+    border-radius: 0 8px 8px 0;
+}
+
+.cmd-badge {
+    display: inline-block;
+    background: rgba(0, 176, 240, 0.15);
+    color: var(--accent-color);
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-family: monospace;
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin-bottom: 8px;
+}
+
+.command-item p {
+    margin-bottom: 0;
+    font-size: 0.95rem;
+}
+
+/* Tab Content Visibility & Animations */
+.doc-section {
+    display: none;
+    animation: fadeSlideUp 0.4s ease forwards;
+}
+
+.doc-section.active {
+    display: block;
+}
+
+@keyframes fadeSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 768px) {
+    .docs-layout {
+        flex-direction: column;
+    }
+    .docs-sidebar {
+        width: 100%;
+        position: static;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const navLinks = document.querySelectorAll('.docs-nav a');
+    const sections = document.querySelectorAll('.doc-section');
+
+    // Function to switch tab
+    function switchTab(targetId) {
+        // Update Nav
+        navLinks.forEach(l => {
+            if (l.getAttribute('href') === targetId) {
+                l.classList.add('active');
+            } else {
+                l.classList.remove('active');
+            }
+        });
+        
+        // Update Sections
+        sections.forEach(sec => sec.classList.remove('active'));
+        const targetSec = document.querySelector(targetId);
+        if(targetSec) {
+            targetSec.classList.add('active');
+        }
+    }
+
+    // Determine initial tab from URL hash or default to #ai
+    let currentHash = window.location.hash || '#ai';
+    if (!document.querySelector(currentHash)) {
+        currentHash = '#ai';
+    }
+    switchTab(currentHash);
+
+    // Event listener for clicks
+    navLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const targetId = this.getAttribute('href');
+            switchTab(targetId);
+            
+            // Update URL hash without jumping
+            history.pushState(null, null, targetId);
+        });
+    });
+});
+</script>
+
+<%- include('partials/footer') %>

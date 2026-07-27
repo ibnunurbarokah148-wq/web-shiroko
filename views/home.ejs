@@ -1,0 +1,153 @@
+<%- include('partials/header') %>
+
+<section class="hero">
+    <div class="hero-content" data-aos="fade-up">
+        <div class="status-badge" id="live-status">
+            <span class="pulse"></span>
+            <span id="typing-text">Shiroko lagi ngetik...</span>
+        </div>
+        
+        <h1 class="glitch" data-text="SHIROKO PROJECT">SHIROKO PROJECT</h1>
+        <p class="subtitle">One ecosystem. Many Platforms.</p>
+        
+        <div class="hero-buttons">
+            <a href="https://wa.me/6285134342695?text=nak%20coba" target="_blank" class="btn btn-primary"><i class="fab fa-whatsapp"></i> Try WhatsApp</a>
+            <a href="https://discord.gg/k33xPSwWyx" target="_blank" class="btn btn-secondary"><i class="fab fa-discord"></i> Join Discord</a>
+            <a href="https://github.com/ibnunurbarokah148-wq/bot-shiroko" target="_blank" class="btn btn-outline"><i class="fab fa-github"></i> GitHub</a>
+        </div>
+
+        <div class="ecosystem-tags" data-aos="fade-up" data-aos-delay="200">
+            <span class="tag"><span class="dot online"></span> WhatsApp</span>
+            <span class="tag"><span class="dot online"></span> Discord</span>
+            <span class="tag"><span class="dot online"></span> Minecraft</span>
+            <span class="tag"><span class="dot online"></span> AI WebUI</span>
+            <span class="tag"><span class="dot online"></span> Cloud</span>
+        </div>
+    </div>
+    
+    <div class="hero-image" data-aos="fade-left" data-aos-delay="400">
+        <!-- Chibi Logo Image floating -->
+        <img src="/assets/img/logo.jpeg" alt="Shiroko Chibi" class="floating-mascot">
+    </div>
+</section>
+
+<section class="statistics section-padding">
+    <div class="container">
+        <h2 class="section-title text-center" data-aos="fade-up">Ecosystem Statistics</h2>
+        <div class="stats-grid">
+            <div class="stat-card" data-aos="zoom-in" data-aos-delay="100">
+                <i class="fas fa-comment-dots"></i>
+                <h3 class="counter"><%= data.stats.totalChat %></h3>
+                <p>Total Chat</p>
+            </div>
+            <div class="stat-card" data-aos="zoom-in" data-aos-delay="200">
+                <i class="fas fa-image"></i>
+                <h3 class="counter"><%= data.stats.imageGenerated %></h3>
+                <p>Image Generated</p>
+            </div>
+            <div class="stat-card" data-aos="zoom-in" data-aos-delay="300">
+                <i class="fab fa-discord"></i>
+                <h3 class="counter"><%= data.stats.discordUsers %></h3>
+                <p>Discord Users</p>
+            </div>
+            <div class="stat-card" data-aos="zoom-in" data-aos-delay="400">
+                <i class="fab fa-whatsapp"></i>
+                <h3 class="counter"><%= data.stats.whatsappUsers %></h3>
+                <p>WhatsApp Users</p>
+            </div>
+            <div class="stat-card" data-aos="zoom-in" data-aos-delay="500">
+                <i class="fas fa-robot"></i>
+                <h3 class="counter"><%= data.stats.aiRequests %></h3>
+                <p>AI Requests Today</p>
+            </div>
+            <div class="stat-card" data-aos="zoom-in" data-aos-delay="600">
+                <i class="fas fa-terminal"></i>
+                <h3 class="counter"><%= data.stats.commands %></h3>
+                <p>Commands Today</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="featured-projects section-padding dark-bg">
+    <div class="container">
+        <h2 class="section-title" data-aos="fade-up">Featured Projects</h2>
+        <div class="project-grid">
+            <div class="project-card" data-aos="fade-up" data-aos-delay="100">
+                <div class="card-icon"><i class="fab fa-whatsapp"></i></div>
+                <h3>WhatsApp Bot</h3>
+                <p>AI Assistant, Roleplay, QRIS, Academic, ComfyUI Integration.</p>
+                <div class="card-footer">
+                    <span class="status online">ONLINE</span>
+                    <a href="/projects" class="btn-link">View Details &rarr;</a>
+                </div>
+            </div>
+            <div class="project-card" data-aos="fade-up" data-aos-delay="200">
+                <div class="card-icon"><i class="fab fa-discord"></i></div>
+                <h3>Discord Bot</h3>
+                <p>Waifu Room, Shared Memory, Voice features, and AI chat.</p>
+                <div class="card-footer">
+                    <span class="status online">ONLINE</span>
+                    <a href="/projects" class="btn-link">View Details &rarr;</a>
+                </div>
+            </div>
+            <div class="project-card" data-aos="fade-up" data-aos-delay="300">
+                <div class="card-icon"><i class="fas fa-cube"></i></div>
+                <h3>Minecraft Monitor</h3>
+                <p>Server monitoring, TPS, RAM, Player tracking, Webhook alerts.</p>
+                <div class="card-footer">
+                    <span class="status online">ONLINE</span>
+                    <a href="/projects" class="btn-link">View Details &rarr;</a>
+                </div>
+            </div>
+            <div class="project-card" data-aos="fade-up" data-aos-delay="400">
+                <div class="card-icon"><i class="fas fa-laptop-code"></i></div>
+                <h3>Local AI WebUI</h3>
+                <p>Gemini, Cloudflare, Ollama, OpenRouter integrated chat interface.</p>
+                <div class="card-footer">
+                    <span class="status online">ONLINE</span>
+                    <a href="/projects" class="btn-link">View Details &rarr;</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="roadmap section-padding">
+    <div class="container">
+        <h2 class="section-title text-center" data-aos="fade-up">Project Roadmap</h2>
+        <div class="timeline">
+            <div class="timeline-item" data-aos="fade-up">
+                <div class="timeline-dot completed"></div>
+                <div class="timeline-content">
+                    <h3>2025</h3>
+                    <p>✓ Bot Assalamualaikum</p>
+                    <p>✓ AI Chat Integration</p>
+                    <p>✓ Discord Bot Launch</p>
+                    <p>✓ Local AI Implementation</p>
+                </div>
+            </div>
+            <div class="timeline-item" data-aos="fade-up">
+                <div class="timeline-dot completed"></div>
+                <div class="timeline-content">
+                    <h3>2026</h3>
+                    <p>✓ Cloudflare AI Setup</p>
+                    <p>✓ Minecraft Monitoring</p>
+                    <p>✓ AI Academic Features</p>
+                </div>
+            </div>
+            <div class="timeline-item" data-aos="fade-up">
+                <div class="timeline-dot pending"></div>
+                <div class="timeline-content">
+                    <h3>Next Goals</h3>
+                    <p>□ Mobile App</p>
+                    <p>□ Public API</p>
+                    <p>□ Control Dashboard</p>
+                    <p>□ Plugin Marketplace</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<%- include('partials/footer') %>

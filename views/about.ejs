@@ -1,0 +1,133 @@
+<%- include('partials/header') %>
+
+<section class="section-padding" style="padding-top: 150px; min-height: 80vh;">
+    <div class="container" data-aos="fade-up">
+        <div class="about-container">
+            <!-- Developer Profile -->
+            <div class="cv-header text-center">
+                <img src="/assets/img/foto_ibnu.jpg" alt="Ibnu Nurbarokah" class="profile-photo-large">
+                <h2 class="glitch" data-text="Ibnu Nurbarokah" style="margin-top: 20px;">Ibnu Nurbarokah</h2>
+                <p class="cv-title">Mahasiswa | Guru Ngaji | AI Enthusiast</p>
+            </div>
+
+            <div class="cv-body mt-4">
+                <div class="cv-section" data-aos="fade-up" data-aos-delay="100">
+                    <h3 class="section-heading"><i class="fas fa-user-circle"></i> Profil Pribadi</h3>
+                    <p class="text-justify">
+                        Seorang mahasiswa yang memiliki dedikasi tinggi dalam menuntut ilmu dunia maupun akhirat. Aktif mengabdi sebagai Guru Ngaji, namun juga memiliki passion besar di bidang teknologi dan kecerdasan buatan (AI). Selalu penasaran untuk mencoba hal-hal baru.
+                    </p>
+                    <ul class="profile-list mt-2">
+                        <li><strong>Hobi:</strong> Random, apa bae dijabanin</li>
+                        <li><strong>Prinsip Makan:</strong> Apa aja sing penting wareg</li>
+                        <li><strong>Bahan Bakar:</strong> Air putih</li>
+                    </ul>
+                </div>
+
+                <div class="cv-section mt-4" data-aos="fade-up" data-aos-delay="200">
+                    <h3 class="section-heading"><i class="fas fa-briefcase"></i> Pengalaman & Proyek</h3>
+                    
+                    <div class="experience-item">
+                        <h4 class="exp-title">Solo Developer - Shiroko Assistant</h4>
+                        <span class="exp-subtitle">Aplikasi Desktop AI (Lokal & Cloud) & Ekosistem Multi-Platform</span>
+                        <p class="exp-desc">
+                            Membangun asisten cerdas berbasis desktop menggunakan Python, HTML, CSS, dan Javascript Vanilla. Serta mengembangkan ekosistem terpusat (Discord, WhatsApp, Minecraft) yang terintegrasi dengan Ollama (AI Lokal) dan Cloud AI (Google Gemini, OpenRouter).
+                        </p>
+                    </div>
+
+                    <div class="experience-item mt-3">
+                        <h4 class="exp-title">Pengajar / Guru Ngaji</h4>
+                        <span class="exp-subtitle">Pengabdian Masyarakat</span>
+                        <p class="exp-desc">
+                            Membimbing dan mengajarkan ilmu agama (membaca Al-Quran) dengan penuh kesabaran, yang juga melatih kemampuan komunikasi dan problem-solving.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="cv-section mt-4" data-aos="fade-up" data-aos-delay="300">
+                    <h3 class="section-heading"><i class="fas fa-tools"></i> Keahlian (Tech Stack)</h3>
+                    <div class="skills-flex">
+                        <span class="tag">Tilawatil Quran</span>
+                        <span class="tag">Ngajar Ngaji</span>
+                        <span class="tag">Node.js & Express</span>
+                        <span class="tag">Prompt Engineering</span>
+                        <span class="tag">Desain Grafis</span>
+                        <span class="tag">Editor Jedag Jedug</span>
+                        <span class="tag">Komikus</span>
+                        <span class="tag">Turu 24 Jam</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+.about-container {
+    max-width: 800px;
+    margin: 0 auto;
+    background: var(--surface-color);
+    padding: 3rem;
+    border-radius: 15px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+.profile-photo-large {
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid var(--accent-color);
+    box-shadow: 0 5px 20px rgba(0, 176, 240, 0.4);
+}
+.cv-title {
+    font-size: 1.2rem;
+    color: var(--accent-color);
+    font-weight: 600;
+    margin-top: 10px;
+}
+.section-heading {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+    color: var(--accent-color);
+}
+.text-justify {
+    text-align: justify;
+    line-height: 1.7;
+    color: var(--text-primary);
+}
+.profile-list {
+    margin-top: 15px;
+    padding-left: 20px;
+    color: var(--text-secondary);
+    line-height: 1.8;
+}
+.exp-title {
+    color: var(--accent-color);
+    font-size: 1.1rem;
+    margin-bottom: 5px;
+}
+.exp-subtitle {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    display: block;
+    margin-bottom: 10px;
+}
+.exp-desc {
+    color: var(--text-primary);
+    line-height: 1.6;
+}
+.skills-flex {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+.mt-2 { margin-top: 0.5rem; }
+.mt-3 { margin-top: 1.5rem; }
+.mt-4 { margin-top: 2rem; }
+</style>
+
+<%- include('partials/footer') %>

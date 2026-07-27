@@ -1,0 +1,188 @@
+<%- include('partials/header') %>
+
+<section class="section-padding" style="padding-top: 150px; min-height: 80vh;">
+    <div class="container">
+        <div class="text-center mb-5" data-aos="fade-up">
+            <h1 class="glitch" data-text="System Status">System Status</h1>
+            <p class="subtitle">Pantau status *uptime* dan ketersediaan layanan ekosistem Shiroko secara real-time.</p>
+        </div>
+
+        <div class="status-board" data-aos="fade-up" data-aos-delay="100">
+            <!-- Summary Header -->
+            <div class="status-summary">
+                <i class="fas fa-check-circle" style="color: #4CAF50; font-size: 3rem; margin-bottom: 1rem;"></i>
+                <h2>All Systems Operational</h2>
+                <p style="color: var(--text-secondary);">Last updated: <span id="time-now">Just now</span></p>
+            </div>
+
+            <!-- List of Services -->
+            <div class="status-list mt-4">
+                <div class="status-item">
+                    <div class="service-info">
+                        <i class="fab fa-whatsapp" style="color: #25D366; font-size: 1.5rem;"></i>
+                        <span class="service-name">WhatsApp Bot (Baileys)</span>
+                    </div>
+                    <div class="service-state online">
+                        <span class="dot"></span> ONLINE
+                    </div>
+                </div>
+
+                <div class="status-item">
+                    <div class="service-info">
+                        <i class="fab fa-discord" style="color: #5865F2; font-size: 1.5rem;"></i>
+                        <span class="service-name">Discord Bot Node</span>
+                    </div>
+                    <div class="service-state online">
+                        <span class="dot"></span> ONLINE
+                    </div>
+                </div>
+
+                <div class="status-item">
+                    <div class="service-info">
+                        <i class="fas fa-database" style="color: var(--accent-color); font-size: 1.5rem;"></i>
+                        <span class="service-name">SQLite Core Database</span>
+                    </div>
+                    <div class="service-state online">
+                        <span class="dot"></span> ONLINE
+                    </div>
+                </div>
+
+                <div class="status-item">
+                    <div class="service-info">
+                        <i class="fas fa-brain" style="color: #f39c12; font-size: 1.5rem;"></i>
+                        <span class="service-name">Google Gemini Flash</span>
+                    </div>
+                    <div class="service-state online">
+                        <span class="dot"></span> ONLINE
+                    </div>
+                </div>
+
+                <div class="status-item">
+                    <div class="service-info">
+                        <i class="fas fa-server" style="color: #e74c3c; font-size: 1.5rem;"></i>
+                        <span class="service-name">Local AI (Ollama)</span>
+                    </div>
+                    <div class="service-state offline">
+                        <span class="dot"></span> STANDBY
+                    </div>
+                </div>
+
+                <div class="status-item">
+                    <div class="service-info">
+                        <i class="fas fa-cube" style="color: #4CAF50; font-size: 1.5rem;"></i>
+                        <span class="service-name">Minecraft Monitor</span>
+                    </div>
+                    <div class="service-state online">
+                        <span class="dot"></span> ONLINE
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+.mb-5 { margin-bottom: 3rem; }
+.mt-4 { margin-top: 2rem; }
+
+.status-board {
+    max-width: 800px;
+    margin: 0 auto;
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-radius: 15px;
+    padding: 3rem 2rem;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+}
+
+.status-summary {
+    text-align: center;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 2rem;
+    margin-bottom: 2rem;
+}
+
+.status-summary h2 {
+    color: var(--text-primary);
+    font-size: 1.8rem;
+    margin-bottom: 0.5rem;
+}
+
+.status-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    background: var(--bg-color);
+    border-radius: 10px;
+    margin-bottom: 1rem;
+    border: 1px solid var(--border-color);
+    transition: transform 0.2s ease;
+}
+
+.status-item:hover {
+    transform: translateX(5px);
+    border-color: var(--accent-color);
+}
+
+.service-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.service-name {
+    font-size: 1.1rem;
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.service-state {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    letter-spacing: 1px;
+}
+
+.service-state.online { 
+    color: #4CAF50; 
+    background: transparent;
+    box-shadow: none;
+}
+.service-state.offline { 
+    color: #e74c3c; 
+    background: transparent;
+    box-shadow: none;
+}
+
+.service-state .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+.service-state.online .dot {
+    background-color: #4CAF50;
+    box-shadow: 0 0 10px #4CAF50;
+    animation: pulse-green 2s infinite;
+}
+
+.service-state.offline .dot {
+    background-color: #e74c3c;
+    box-shadow: 0 0 10px #e74c3c;
+}
+
+@keyframes pulse-green {
+    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); }
+    70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(76, 175, 80, 0); }
+    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
+}
+</style>
+
+<script>
+    document.getElementById('time-now').textContent = new Date().toLocaleString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' WIB';
+</script>
+
+<%- include('partials/footer') %>
