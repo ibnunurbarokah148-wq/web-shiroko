@@ -37,32 +37,32 @@
         <div class="stats-grid">
             <div class="stat-card" data-aos="zoom-in" data-aos-delay="100">
                 <i class="fas fa-comment-dots"></i>
-                <h3 class="counter"><%= data.stats.totalChat %></h3>
+                <h3 class="counter" id="stat-totalChat"><%= data.stats.totalChat %></h3>
                 <p>Total Chat</p>
             </div>
             <div class="stat-card" data-aos="zoom-in" data-aos-delay="200">
                 <i class="fas fa-image"></i>
-                <h3 class="counter"><%= data.stats.imageGenerated %></h3>
+                <h3 class="counter" id="stat-imageGenerated"><%= data.stats.imageGenerated %></h3>
                 <p>Image Generated</p>
             </div>
             <div class="stat-card" data-aos="zoom-in" data-aos-delay="300">
                 <i class="fab fa-discord"></i>
-                <h3 class="counter"><%= data.stats.discordUsers %></h3>
+                <h3 class="counter" id="stat-discordUsers"><%= data.stats.discordUsers %></h3>
                 <p>Discord Users</p>
             </div>
             <div class="stat-card" data-aos="zoom-in" data-aos-delay="400">
                 <i class="fab fa-whatsapp"></i>
-                <h3 class="counter"><%= data.stats.whatsappUsers %></h3>
+                <h3 class="counter" id="stat-whatsappUsers"><%= data.stats.whatsappUsers %></h3>
                 <p>WhatsApp Users</p>
             </div>
             <div class="stat-card" data-aos="zoom-in" data-aos-delay="500">
                 <i class="fas fa-robot"></i>
-                <h3 class="counter"><%= data.stats.aiRequests %></h3>
+                <h3 class="counter" id="stat-aiRequests"><%= data.stats.aiRequests %></h3>
                 <p>AI Requests Today</p>
             </div>
             <div class="stat-card" data-aos="zoom-in" data-aos-delay="600">
                 <i class="fas fa-terminal"></i>
-                <h3 class="counter"><%= data.stats.commands %></h3>
+                <h3 class="counter" id="stat-commands"><%= data.stats.commands %></h3>
                 <p>Commands Today</p>
             </div>
         </div>
@@ -149,5 +149,28 @@
         </div>
     </div>
 </section>
+
+<script>
+    // Live update statistics
+    async function updateStats() {
+        try {
+            const res = await fetch('/api/stats');
+            if (res.ok) {
+                const stats = await res.json();
+                document.getElementById('stat-totalChat').innerText = stats.totalChat;
+                document.getElementById('stat-imageGenerated').innerText = stats.imageGenerated;
+                document.getElementById('stat-discordUsers').innerText = stats.discordUsers;
+                document.getElementById('stat-whatsappUsers').innerText = stats.whatsappUsers;
+                document.getElementById('stat-aiRequests').innerText = stats.aiRequests;
+                document.getElementById('stat-commands').innerText = stats.commands;
+            }
+        } catch (err) {
+            console.error('Failed to update stats:', err);
+        }
+    }
+    
+    // Update every 5 seconds
+    setInterval(updateStats, 5000);
+</script>
 
 <%- include('partials/footer') %>

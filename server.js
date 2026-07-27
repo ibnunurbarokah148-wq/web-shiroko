@@ -305,6 +305,11 @@ app.post('/admin/api/reboot', (req, res) => {
 // ==========================================
 // PUBLIC ROUTES
 // ==========================================
+app.get('/api/stats', async (req, res) => {
+    const data = await getVPSData();
+    res.json(data.stats);
+});
+
 app.get('/', async (req, res) => {
     const data = await getVPSData();
     res.render('home', { title: 'Shiroko Project - AI Ecosystem', data });
