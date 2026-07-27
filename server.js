@@ -5,6 +5,7 @@ const axios = require('axios');
 const fs = require('fs');
 const multer = require('multer');
 const { exec } = require('child_process');
+const os = require('os');
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -241,6 +242,63 @@ app.get('/admin/api/files', (req, res) => {
         });
         
         res.json({ currentDir: targetDir, files: fileList });
+    });
+});
+
+// 5. VPS System Monitor
+app.get('/admin/api/vps-stats', (req, res) => {
+    if (!req.session.isAdmin) return res.status(401).json({ error: 'Unauthorized' });
+    
+    const totalMem = os.totalmem();
+    const freeMem = os.freemem();
+    const usedMem = totalMem - freeMem;
+    const memoryUsage = ((usedMem / totalMem) * 100).toFixed(2);
+    
+    const cpus = os.cpus();
+    let totalIdle = 0, totalTick = 0;
+    cpus.forEach(core => {
+        for (type in core.times) {
+            totalTick += core.times[type];
+        }
+        totalIdle += core.times.idle;
+    });
+    const idle = totalIdle / cpus.length;
+    const total = totalTick / cpus.length;
+    // Calculate simple CPU usage (this is an approximation for immediate read)
+    const cpuUsage = (100 - ~~(100 * idle / total)).toFixed(2);
+
+    res.json({
+        cpu: cpuUsage,
+        ram: memoryUsage,
+        totalRam: (totalMem / 1024 / 1024 / 1024).toFixed(2) + ' GB',
+        usedRam: (usedMem / 1024 / 1024 / 1024).toFixed(2) + ' GB',
+        uptime: (os.uptime() / 3600).toFixed(1) + ' Hours'
+    });
+});
+
+// 6. PM2 Logs Viewer
+app.get('/admin/api/logs', (req, res) => {
+    if (!req.session.isAdmin) return res.status(401).json({ error: 'Unauthorized' });
+    const { target } = req.query; // 'shiroko' or 'web-shiroko'
+    const appName = target === 'bot' ? 'shiroko' : 'web-shiroko';
+    
+    exec(`pm2 logs ${appName} --lines 50 --nostream`, (error, stdout, stderr) => {
+        if (error) {
+            return res.status(500).json({ error: 'Failed to fetch logs.' });
+        }
+        res.json({ logs: stdout });
+    });
+});
+
+// 7. Reboot VPS Server
+app.post('/admin/api/reboot', (req, res) => {
+    if (!req.session.isAdmin) return res.status(401).json({ error: 'Unauthorized' });
+    
+    exec('shutdown -r now', (error, stdout, stderr) => {
+        if (error) {
+            return res.status(500).json({ status: 'error', message: 'Reboot gagal: ' + error.message });
+        }
+        res.json({ status: 'ok', message: 'Server VPS sedang direstart. Koneksi akan terputus.' });
     });
 });
 

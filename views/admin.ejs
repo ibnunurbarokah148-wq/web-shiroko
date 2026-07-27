@@ -1,123 +1,98 @@
 <%- include('partials/header') %>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <style>
-    .admin-container {
-        max-width: 1200px;
-        margin: 0 auto;
+    /* Custom Scrollbar for the whole page and File Manager */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: var(--bg-color); }
+    ::-webkit-scrollbar-thumb { background: var(--accent-color); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--accent-hover); }
+
+    .admin-layout {
+        display: flex;
+        min-height: 80vh;
+        max-width: 1400px;
+        margin: 150px auto 2rem;
         background: var(--surface-color);
         border: 1px solid var(--border-color);
         border-radius: 12px;
-        padding: 2.5rem;
+        overflow: hidden;
         box-shadow: 0 10px 30px rgba(0,0,0,0.5);
     }
-    
-    .admin-login-box {
-        max-width: 400px;
-        margin: 0 auto;
-        text-align: center;
-    }
 
-    .form-group {
-        margin-bottom: 1.5rem;
-        text-align: left;
-    }
-
-    .form-group label {
-        display: block;
-        margin-bottom: 0.5rem;
-        color: var(--text-secondary);
-    }
-
-    .form-group input, .form-group select {
-        width: 100%;
-        padding: 0.8rem 1rem;
-        background: var(--bg-color);
-        border: 1px solid var(--border-color);
-        color: var(--text-primary);
-        border-radius: 8px;
-        font-family: inherit;
-        font-size: 1rem;
-    }
-
-    .form-group input:focus, .form-group select:focus {
-        outline: none;
-        border-color: var(--accent-color);
-    }
-
-    .btn-submit {
-        width: 100%;
-        padding: 1rem;
-        background: var(--accent-color);
-        color: #fff;
-        border: none;
-        border-radius: 8px;
-        font-weight: bold;
-        font-size: 1rem;
-        cursor: pointer;
-        transition: 0.3s;
-    }
-
-    .btn-submit:hover {
-        background: var(--accent-hover);
-    }
-
-    .alert {
-        padding: 1rem;
-        border-radius: 8px;
-        margin-bottom: 1.5rem;
-        text-align: center;
-    }
-    .alert-error {
-        background: rgba(248, 81, 73, 0.1);
-        border: 1px solid var(--offline-color);
-        color: var(--offline-color);
-    }
-    .alert-success {
-        background: rgba(46, 160, 67, 0.1);
-        border: 1px solid var(--online-color);
-        color: var(--online-color);
-    }
-
-    .dashboard-header {
+    /* Sidebar Styles */
+    .admin-sidebar {
+        width: 260px;
+        background: rgba(0,0,0,0.2);
+        border-right: 1px solid var(--border-color);
         display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 2rem;
-        padding-bottom: 1rem;
+        flex-direction: column;
+    }
+    
+    .sidebar-header {
+        padding: 1.5rem;
+        text-align: center;
         border-bottom: 1px solid var(--border-color);
     }
+    
+    .sidebar-menu {
+        list-style: none;
+        padding: 1rem 0;
+        margin: 0;
+        flex-grow: 1;
+    }
 
-    .btn-danger {
-        background: var(--offline-color);
-        padding: 0.5rem 1rem;
-        border: none;
-        border-radius: 6px;
-        color: white;
+    .sidebar-menu li {
+        padding: 0.8rem 1.5rem;
         cursor: pointer;
+        color: var(--text-secondary);
+        transition: 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        border-left: 3px solid transparent;
+    }
+
+    .sidebar-menu li:hover {
+        background: rgba(255,255,255,0.05);
+        color: var(--text-primary);
+    }
+
+    .sidebar-menu li.active {
+        background: rgba(0, 176, 240, 0.1);
+        color: var(--accent-color);
+        border-left-color: var(--accent-color);
         font-weight: bold;
     }
-    .btn-danger:hover {
-        background: #d63c3c;
+
+    /* Content Area */
+    .admin-content {
+        flex-grow: 1;
+        padding: 2rem;
+        position: relative;
     }
 
-    .dashboard-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 2rem;
-        margin-bottom: 2rem;
+    .tab-content {
+        display: none;
+        animation: fadeIn 0.3s ease-in-out;
+    }
+    .tab-content.active {
+        display: block;
     }
 
-    @media (max-width: 900px) {
-        .dashboard-grid {
-            grid-template-columns: 1fr;
-        }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
     }
 
+    /* Panel UI Elements */
     .panel-section {
         background: var(--bg-color);
         border: 1px solid var(--border-color);
         border-radius: 10px;
         padding: 1.5rem;
+        margin-bottom: 1.5rem;
     }
 
     .panel-section h3 {
@@ -126,175 +101,110 @@
         display: flex;
         align-items: center;
         gap: 0.5rem;
-    }
-
-    .service-status-list {
-        list-style: none;
-    }
-
-    .service-status-list li {
-        display: flex;
-        justify-content: space-between;
-        padding: 0.8rem 0;
-        border-bottom: 1px solid var(--border-color);
-    }
-    .service-status-list li:last-child {
-        border-bottom: none;
-    }
-
-    .badge-online {
-        background: rgba(46, 160, 67, 0.2);
-        color: var(--online-color);
-        padding: 0.2rem 0.5rem;
-        border-radius: 4px;
-        font-size: 0.8rem;
-        font-weight: bold;
-    }
-
-    .badge-offline {
-        background: rgba(248, 81, 73, 0.2);
-        color: var(--offline-color);
-        padding: 0.2rem 0.5rem;
-        border-radius: 4px;
-        font-size: 0.8rem;
-        font-weight: bold;
-    }
-
-    .control-buttons-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1.5rem;
-    }
-
-    .control-card {
-        background: var(--surface-color);
-        border: 1px solid var(--border-color);
-        border-radius: 10px;
-        padding: 1.5rem;
-        text-align: center;
-        transition: 0.3s;
-    }
-    
-    .control-card:hover {
-        border-color: var(--accent-color);
-    }
-
-    .control-card i {
-        font-size: 2.5rem;
-        margin-bottom: 1rem;
-    }
-
-    .control-card h4 {
-        margin-bottom: 0.5rem;
-    }
-
-    .control-card p {
-        font-size: 0.85rem;
-        color: var(--text-secondary);
-        margin-bottom: 1.5rem;
-        line-height: 1.4;
-    }
-
-    .btn-action {
-        width: 100%;
-        padding: 0.8rem;
-        background: transparent;
-        border: 1px solid var(--text-secondary);
         color: var(--text-primary);
-        border-radius: 6px;
+    }
+
+    /* Form UI Elements */
+    .form-group { margin-bottom: 1.5rem; text-align: left; }
+    .form-group label { display: block; margin-bottom: 0.5rem; color: var(--text-secondary); }
+    .form-group input[type="text"], .form-group input[type="password"], .form-group select {
+        width: 100%; padding: 0.8rem 1rem; background: var(--bg-color); border: 1px solid var(--border-color);
+        color: var(--text-primary); border-radius: 8px; font-family: inherit; font-size: 1rem;
+    }
+    .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--accent-color); }
+    
+    /* Custom File Input */
+    .custom-file-upload {
+        display: inline-block;
+        padding: 0.8rem 1rem;
         cursor: pointer;
-        font-weight: bold;
+        background: rgba(0, 176, 240, 0.1);
+        color: var(--accent-color);
+        border: 1px dashed var(--accent-color);
+        border-radius: 8px;
+        width: 100%;
+        text-align: center;
         transition: 0.3s;
     }
+    .custom-file-upload:hover { background: rgba(0, 176, 240, 0.2); }
+    .form-group input[type="file"] { display: none; }
 
-    .btn-action.comfy { border-color: #00b0f0; color: #00b0f0; }
-    .btn-action.comfy:hover { background: rgba(0, 176, 240, 0.1); }
-    
-    .btn-action.git { border-color: #f05133; color: #f05133; }
-    .btn-action.git:hover { background: rgba(240, 81, 51, 0.1); }
-
-    .btn-action.restart { border-color: #d29922; color: #d29922; }
-    .btn-action.restart:hover { background: rgba(210, 153, 34, 0.1); }
-
-    .btn-action:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
+    .btn-submit {
+        width: 100%; padding: 1rem; background: var(--accent-color); color: #fff;
+        border: none; border-radius: 8px; font-weight: bold; font-size: 1rem;
+        cursor: pointer; transition: 0.3s;
     }
+    .btn-submit:hover { background: var(--accent-hover); }
 
-    /* Pterodactyl Widget */
-    .mc-stat-box {
-        background: var(--surface-color);
-        border-radius: 8px;
-        padding: 1rem;
-        text-align: center;
-        border: 1px solid var(--border-color);
-    }
-    .mc-stat-box .value {
-        font-size: 1.8rem;
-        font-weight: bold;
-        color: var(--accent-color);
-        margin: 0.5rem 0;
-    }
+    .btn-danger { background: var(--offline-color); padding: 0.5rem 1rem; border: none; border-radius: 6px; color: white; cursor: pointer; font-weight: bold; width: 100%; }
+    .btn-danger:hover { background: #d63c3c; }
+
+    /* Alert */
+    .alert { padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; text-align: center; }
+    .alert-error { background: rgba(248, 81, 73, 0.1); border: 1px solid var(--offline-color); color: var(--offline-color); }
+    .alert-success { background: rgba(46, 160, 67, 0.1); border: 1px solid var(--online-color); color: var(--online-color); }
+
+    /* Grid Layouts */
+    .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    .control-buttons-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+
+    /* Service List */
+    .service-status-list { list-style: none; }
+    .service-status-list li { display: flex; justify-content: space-between; padding: 0.8rem 0; border-bottom: 1px solid var(--border-color); }
+    .service-status-list li:last-child { border-bottom: none; }
+    .badge-online { background: rgba(46, 160, 67, 0.2); color: var(--online-color); padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem; font-weight: bold; }
+    .badge-offline { background: rgba(248, 81, 73, 0.2); color: var(--offline-color); padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem; font-weight: bold; }
+
+    /* Control Cards */
+    .control-card { background: var(--surface-color); border: 1px solid var(--border-color); border-radius: 10px; padding: 1.5rem; text-align: center; transition: 0.3s; }
+    .control-card:hover { border-color: var(--accent-color); }
+    .control-card i { font-size: 2.5rem; margin-bottom: 1rem; }
+    .control-card h4 { margin-bottom: 0.5rem; }
+    .control-card p { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1.5rem; line-height: 1.4; }
+    .btn-action { width: 100%; padding: 0.8rem; background: transparent; border: 1px solid var(--text-secondary); color: var(--text-primary); border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+    .btn-action.comfy { border-color: #00b0f0; color: #00b0f0; } .btn-action.comfy:hover { background: rgba(0, 176, 240, 0.1); }
+    .btn-action.git { border-color: #f05133; color: #f05133; } .btn-action.git:hover { background: rgba(240, 81, 51, 0.1); }
+    .btn-action.nuke { border-color: #d29922; color: #d29922; } .btn-action.nuke:hover { background: rgba(210, 153, 34, 0.1); }
+    .btn-action:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* Chart Box */
+    .chart-container { position: relative; height: 200px; width: 100%; margin-top: 1rem; }
 
     /* File Manager */
-    .file-manager {
-        background: var(--bg-color);
-        border-radius: 8px;
-        border: 1px solid var(--border-color);
-        overflow: hidden;
+    .file-manager { background: var(--bg-color); border-radius: 8px; border: 1px solid var(--border-color); overflow: hidden; }
+    .fm-header { background: var(--surface-color); padding: 1rem; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; gap: 1rem; }
+    .fm-path { background: var(--bg-color); padding: 0.5rem 1rem; border-radius: 4px; font-family: monospace; flex-grow: 1; border: 1px solid var(--border-color); color: var(--text-primary); }
+    .fm-list { list-style: none; max-height: 400px; overflow-y: auto; }
+    .fm-list li { padding: 0.8rem 1rem; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; gap: 1rem; cursor: pointer; }
+    .fm-list li:hover { background: rgba(255,255,255,0.05); }
+    .fm-list li i { font-size: 1.2rem; color: var(--text-secondary); }
+    .fm-list li.directory i { color: #00b0f0; }
+
+    /* System Stats Box */
+    .sys-stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+    .sys-stat-box { background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; text-align: center; }
+    .sys-stat-box .value { font-size: 2rem; font-weight: bold; color: var(--accent-color); margin: 0.5rem 0; }
+    .log-viewer { background: #000; color: #0f0; font-family: monospace; padding: 1rem; border-radius: 8px; height: 300px; overflow-y: auto; font-size: 0.85rem; white-space: pre-wrap; }
+
+    @media (max-width: 900px) {
+        .admin-layout { flex-direction: column; margin: 100px 1rem 2rem; }
+        .admin-sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--border-color); }
+        .dashboard-grid { grid-template-columns: 1fr; }
+        .sys-stat-grid { grid-template-columns: 1fr; }
     }
-    .fm-header {
-        background: var(--surface-color);
-        padding: 1rem;
-        border-bottom: 1px solid var(--border-color);
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-    }
-    .fm-path {
-        background: var(--bg-color);
-        padding: 0.5rem 1rem;
-        border-radius: 4px;
-        font-family: monospace;
-        flex-grow: 1;
-        border: 1px solid var(--border-color);
-        color: var(--text-primary);
-    }
-    .fm-list {
-        list-style: none;
-        max-height: 400px;
-        overflow-y: auto;
-    }
-    .fm-list li {
-        padding: 0.8rem 1rem;
-        border-bottom: 1px solid var(--border-color);
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        cursor: pointer;
-    }
-    .fm-list li:hover {
-        background: rgba(255,255,255,0.05);
-    }
-    .fm-list li i {
-        font-size: 1.2rem;
-        color: var(--text-secondary);
-    }
-    .fm-list li.directory i {
-        color: #00b0f0;
-    }
+    
+    /* Login Box (Centered) */
+    .login-wrapper { display: flex; justify-content: center; padding-top: 150px; min-height: 80vh; }
+    .admin-login-box { width: 100%; max-width: 400px; background: var(--surface-color); padding: 2.5rem; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; }
 </style>
 
-<section class="section-padding" style="padding-top: 150px; min-height: 80vh;">
-<div class="container">
-    <% if (!authenticated) { %>
-        <div class="admin-container admin-login-box" data-aos="fade-up">
+<% if (!authenticated) { %>
+    <div class="login-wrapper">
+        <div class="admin-login-box" data-aos="fade-up">
             <h2 style="margin-bottom: 1.5rem;"><i class="fas fa-lock"></i> Admin Login</h2>
-            
             <% if (typeof error !== 'undefined' && error) { %>
                 <div class="alert alert-error"><i class="fas fa-exclamation-circle"></i> <%= error %></div>
             <% } %>
-
             <form action="/admin/login" method="POST">
                 <div class="form-group">
                     <label for="password">Password</label>
@@ -303,22 +213,39 @@
                 <button type="submit" class="btn-submit"><i class="fas fa-sign-in-alt"></i> Login</button>
             </form>
         </div>
-    <% } else { %>
-        <div class="admin-container" data-aos="fade-up">
-            <div class="dashboard-header">
-                <h2><i class="fas fa-cogs"></i> Ultimate Control Panel</h2>
+    </div>
+<% } else { %>
+    <div class="admin-layout" data-aos="fade-in">
+        <!-- SIDEBAR -->
+        <div class="admin-sidebar">
+            <div class="sidebar-header">
+                <h3><i class="fas fa-cogs"></i> Control Panel</h3>
+                <p style="font-size: 0.8rem; color: var(--text-secondary);">Administrator</p>
+            </div>
+            <ul class="sidebar-menu">
+                <li class="active" onclick="switchTab('tab-dashboard', this)"><i class="fas fa-chart-pie"></i> Ringkasan</li>
+                <li onclick="switchTab('tab-remote', this)"><i class="fas fa-rocket"></i> Remote & Deploy</li>
+                <li onclick="switchTab('tab-gallery', this)"><i class="fas fa-images"></i> Manajemen Galeri</li>
+                <li onclick="switchTab('tab-files', this)"><i class="fas fa-folder-open"></i> File Manager</li>
+                <li onclick="switchTab('tab-system', this)"><i class="fas fa-server"></i> Sistem & Logs</li>
+            </ul>
+            <div style="padding: 1.5rem;">
                 <form action="/admin/logout" method="POST">
                     <button type="submit" class="btn-danger"><i class="fas fa-sign-out-alt"></i> Logout</button>
                 </form>
             </div>
+        </div>
 
+        <!-- MAIN CONTENT -->
+        <div class="admin-content">
             <div id="control-alert" style="display: none;" class="alert"></div>
 
-            <div class="dashboard-grid">
-                <!-- Kolom Kiri: Layanan & Minecraft -->
-                <div>
-                    <div class="panel-section" style="margin-bottom: 2rem;">
-                        <h3><i class="fas fa-server"></i> Status Layanan Utama</h3>
+            <!-- TAB 1: DASHBOARD -->
+            <div id="tab-dashboard" class="tab-content active">
+                <h2 style="margin-bottom: 1.5rem;">Ringkasan Dasbor</h2>
+                <div class="dashboard-grid">
+                    <div class="panel-section">
+                        <h3><i class="fas fa-network-wired"></i> Status Layanan Utama</h3>
                         <ul class="service-status-list">
                             <% data.services.forEach(service => { %>
                                 <li>
@@ -334,77 +261,62 @@
                     </div>
 
                     <div class="panel-section">
-                        <h3><i class="fas fa-cube"></i> Minecraft Pterodactyl</h3>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
-                            <div class="mc-stat-box">
-                                <p style="color:var(--text-secondary); font-size:0.9rem;">Status Node</p>
-                                <div class="value" id="mc-status">...</div>
-                            </div>
-                            <div class="mc-stat-box">
-                                <p style="color:var(--text-secondary); font-size:0.9rem;">Uptime</p>
-                                <div class="value" id="mc-uptime" style="font-size: 1.2rem; margin-top:0.8rem;">...</div>
-                            </div>
-                            <div class="mc-stat-box">
-                                <p style="color:var(--text-secondary); font-size:0.9rem;">Beban CPU</p>
-                                <div class="value" id="mc-cpu">...</div>
-                            </div>
-                            <div class="mc-stat-box">
-                                <p style="color:var(--text-secondary); font-size:0.9rem;">RAM / Ingatan</p>
-                                <div class="value" id="mc-ram">...</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Kolom Kanan: Aksi Deploy -->
-                <div class="panel-section">
-                    <h3><i class="fas fa-terminal"></i> Auto-Deploy & Remote Control</h3>
-                    <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.5rem;">
-                        Kirim perintah pull & restart langsung ke server VPS secara otomatis.
-                    </p>
-
-                    <div class="control-buttons-grid">
-                        <div class="control-card">
-                            <i class="fab fa-github" style="color: #f05133;"></i>
-                            <h4>Deploy Web</h4>
-                            <p>Git pull repo web dan restart PM2 web-shiroko.</p>
-                            <button class="btn-action git" onclick="sendDeploy('web', this)">
-                                <i class="fas fa-rocket"></i> Jalankan
-                            </button>
-                        </div>
-
-                        <div class="control-card">
-                            <i class="fab fa-github" style="color: #f05133;"></i>
-                            <h4>Deploy Bot</h4>
-                            <p>Git pull repo bot dan restart PM2 shiroko.</p>
-                            <button class="btn-action git" onclick="sendDeploy('bot', this)">
-                                <i class="fas fa-rocket"></i> Jalankan
-                            </button>
-                        </div>
+                        <h3><i class="fas fa-cube"></i> Live Minecraft Monitor (Pterodactyl)</h3>
+                        <p style="font-size: 0.85rem; color: var(--text-secondary);">Status Node: <span id="mc-status" style="font-weight: bold;">...</span> | Uptime: <span id="mc-uptime">...</span></p>
                         
-                        <div class="control-card" style="grid-column: span 2;">
-                            <i class="fas fa-palette" style="color: #00b0f0;"></i>
-                            <h4>Toggle ComfyUI</h4>
-                            <p>Matikan/Nyalakan akses pengguna WA ke mesin render GPU Vast.ai</p>
-                            <button class="btn-action comfy" onclick="sendControl('toggle_comfyui', this)">
-                                <i class="fas fa-power-off"></i> Eksekusi
-                            </button>
+                        <div class="chart-container">
+                            <canvas id="mcChart"></canvas>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="dashboard-grid">
-                <!-- Gallery Manager -->
+            <!-- TAB 2: REMOTE & DEPLOY -->
+            <div id="tab-remote" class="tab-content">
+                <h2 style="margin-bottom: 1.5rem;">Remote & Auto-Deploy</h2>
                 <div class="panel-section">
-                    <h3><i class="fas fa-images"></i> Manajemen Galeri</h3>
-                    <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.5rem;">
-                        Unggah gambar hasil generasi AI ke galeri publik.
-                    </p>
+                    <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">Kirim perintah jarak jauh ke server VPS Anda.</p>
+                    <div class="control-buttons-grid">
+                        <div class="control-card">
+                            <i class="fab fa-github" style="color: #f05133;"></i>
+                            <h4>Deploy Web</h4>
+                            <p>Tarik update repo web (git pull) dan restart PM2 web-shiroko.</p>
+                            <button class="btn-action git" onclick="sendDeploy('web', this)"><i class="fas fa-rocket"></i> Eksekusi</button>
+                        </div>
+                        <div class="control-card">
+                            <i class="fab fa-github" style="color: #f05133;"></i>
+                            <h4>Deploy Bot</h4>
+                            <p>Tarik update repo bot (git pull) dan restart PM2 shiroko.</p>
+                            <button class="btn-action git" onclick="sendDeploy('bot', this)"><i class="fas fa-rocket"></i> Eksekusi</button>
+                        </div>
+                        <div class="control-card">
+                            <i class="fas fa-palette" style="color: #00b0f0;"></i>
+                            <h4>Toggle ComfyUI</h4>
+                            <p>Hidup/matikan fitur generasi gambar Vast.ai pada Bot.</p>
+                            <button class="btn-action comfy" onclick="sendControl('toggle_comfyui', this)"><i class="fas fa-power-off"></i> Toggle</button>
+                        </div>
+                        <div class="control-card">
+                            <i class="fas fa-skull-crossbones" style="color: #d29922;"></i>
+                            <h4>Reboot VPS</h4>
+                            <p>Restart keseluruhan sistem operasi Linux VPS (Hard Reset).</p>
+                            <button class="btn-action nuke" onclick="rebootVPS(this)"><i class="fas fa-exclamation-triangle"></i> Reboot Sekarang</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3: GALERI -->
+            <div id="tab-gallery" class="tab-content">
+                <h2 style="margin-bottom: 1.5rem;">Manajemen Galeri</h2>
+                <div class="panel-section" style="max-width: 600px;">
+                    <h3><i class="fas fa-upload"></i> Unggah Gambar Baru</h3>
                     <form id="gallery-form" enctype="multipart/form-data">
                         <div class="form-group">
                             <label>File Gambar</label>
-                            <input type="file" name="image" accept="image/*" required>
+                            <label class="custom-file-upload">
+                                <input type="file" name="image" accept="image/*" required onchange="document.getElementById('file-name').innerText = this.files[0].name">
+                                <i class="fas fa-cloud-upload-alt"></i> <span id="file-name">Pilih Gambar...</span>
+                            </label>
                         </div>
                         <div class="form-group">
                             <label>Judul Gambar</label>
@@ -421,179 +333,239 @@
                         <button type="submit" class="btn-submit" id="btn-upload"><i class="fas fa-upload"></i> Unggah ke Galeri</button>
                     </form>
                 </div>
+            </div>
 
-                <!-- File Manager -->
+            <!-- TAB 4: FILE MANAGER -->
+            <div id="tab-files" class="tab-content">
+                <h2 style="margin-bottom: 1.5rem;">File Manager VPS</h2>
                 <div class="panel-section">
-                    <h3><i class="fas fa-folder-open"></i> File Manager VPS</h3>
                     <div class="file-manager">
                         <div class="fm-header">
                             <button onclick="goUp()" class="btn-action" style="width: auto; padding: 0.5rem 1rem;"><i class="fas fa-level-up-alt"></i></button>
                             <div class="fm-path" id="fm-current-path">/root</div>
                         </div>
                         <ul class="fm-list" id="fm-list">
-                            <!-- Injected by JS -->
                             <li style="text-align:center; display:block;"><i class="fas fa-spinner fa-spin"></i> Loading...</li>
                         </ul>
                     </div>
                 </div>
             </div>
+
+            <!-- TAB 5: SISTEM & LOGS -->
+            <div id="tab-system" class="tab-content">
+                <h2 style="margin-bottom: 1.5rem;">Sistem & Logs</h2>
+                <div class="sys-stat-grid" style="margin-bottom: 2rem;">
+                    <div class="sys-stat-box">
+                        <p style="color:var(--text-secondary);">CPU Usage</p>
+                        <div class="value" id="sys-cpu">...</div>
+                    </div>
+                    <div class="sys-stat-box">
+                        <p style="color:var(--text-secondary);">RAM Usage</p>
+                        <div class="value" id="sys-ram">...</div>
+                        <small id="sys-ram-detail" style="color:var(--text-secondary);">...</small>
+                    </div>
+                    <div class="sys-stat-box">
+                        <p style="color:var(--text-secondary);">OS Uptime</p>
+                        <div class="value" id="sys-uptime">...</div>
+                    </div>
+                </div>
+
+                <div class="panel-section">
+                    <h3><i class="fas fa-terminal"></i> Live PM2 Logs</h3>
+                    <div style="margin-bottom: 1rem;">
+                        <button class="btn-action" style="width: auto; padding: 0.5rem 1rem; border-color: var(--accent-color); color: var(--accent-color);" onclick="fetchLogs('bot')">Log Bot</button>
+                        <button class="btn-action" style="width: auto; padding: 0.5rem 1rem; border-color: var(--accent-color); color: var(--accent-color);" onclick="fetchLogs('web')">Log Web</button>
+                    </div>
+                    <div class="log-viewer" id="log-viewer">Pilih layanan di atas untuk melihat log...</div>
+                </div>
+            </div>
         </div>
+    </div>
 
-        <script>
-            function showAlert(type, icon, message) {
-                const alertBox = document.getElementById('control-alert');
-                alertBox.className = 'alert alert-' + type;
-                alertBox.innerHTML = `<i class="fas ${icon}"></i> ` + message;
-                alertBox.style.display = 'block';
+    <script>
+        // Tab Switcher
+        function switchTab(tabId, element) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.sidebar-menu li').forEach(li => li.classList.remove('active'));
+            
+            document.getElementById(tabId).classList.add('active');
+            element.classList.add('active');
+        }
+
+        function showAlert(type, icon, message) {
+            const alertBox = document.getElementById('control-alert');
+            alertBox.className = 'alert alert-' + type;
+            alertBox.innerHTML = `<i class="fas ${icon}"></i> ` + message;
+            alertBox.style.display = 'block';
+            setTimeout(() => alertBox.style.display = 'none', 5000);
+        }
+
+        // Action Functions
+        async function sendControl(action, btnElement) {
+            const originalHtml = btnElement.innerHTML;
+            btnElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            btnElement.disabled = true;
+            try {
+                const res = await fetch('/admin/api/control', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action }) });
+                const data = await res.json();
+                if(data.status === 'ok') showAlert('success', 'fa-check-circle', data.message);
+                else showAlert('error', 'fa-exclamation-triangle', data.message);
+            } catch (err) { showAlert('error', 'fa-wifi', 'Koneksi gagal.'); } 
+            finally { btnElement.innerHTML = originalHtml; btnElement.disabled = false; }
+        }
+
+        async function sendDeploy(target, btnElement) {
+            if(!confirm(`Yakin ingin deploy ${target}?`)) return;
+            const originalHtml = btnElement.innerHTML;
+            btnElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            btnElement.disabled = true;
+            try {
+                const res = await fetch('/admin/api/deploy', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ target }) });
+                const data = await res.json();
+                if(data.status === 'ok') {
+                    showAlert('success', 'fa-check-circle', data.message);
+                    if(target === 'web') setTimeout(() => location.reload(), 6000);
+                } else showAlert('error', 'fa-exclamation-triangle', data.message);
+            } catch (err) {
+                showAlert('error', 'fa-wifi', 'Deployment diinisiasi (koneksi terputus).');
+                setTimeout(() => location.reload(), 6000);
+            } finally { btnElement.innerHTML = originalHtml; btnElement.disabled = false; }
+        }
+
+        async function rebootVPS(btnElement) {
+            if(!confirm('PERINGATAN! Ini akan me-restart keseluruhan mesin VPS. Web dan Bot akan terputus. Yakin?')) return;
+            const originalHtml = btnElement.innerHTML;
+            btnElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            btnElement.disabled = true;
+            try {
+                await fetch('/admin/api/reboot', { method: 'POST' });
+                showAlert('success', 'fa-check-circle', 'VPS sedang di-reboot. Silakan tunggu 1-2 menit sebelum merefresh.');
+            } catch (err) {
+                showAlert('success', 'fa-check-circle', 'VPS sedang di-reboot (koneksi terputus).');
             }
+        }
 
-            // Remote Control (Toggle ComfyUI)
-            async function sendControl(action, btnElement) {
-                const originalHtml = btnElement.innerHTML;
-                btnElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-                btnElement.disabled = true;
+        // Gallery
+        document.getElementById('gallery-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('btn-upload');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengunggah...';
+            btn.disabled = true;
+            const formData = new FormData(e.target);
+            try {
+                const res = await fetch('/admin/api/gallery', { method: 'POST', body: formData });
+                const data = await res.json();
+                if (data.status === 'ok') {
+                    showAlert('success', 'fa-check-circle', 'Gambar berhasil diunggah!');
+                    e.target.reset(); document.getElementById('file-name').innerText = 'Pilih Gambar...';
+                } else showAlert('error', 'fa-exclamation-circle', data.error);
+            } catch (err) { showAlert('error', 'fa-wifi', 'Koneksi terputus.'); } 
+            finally { btn.innerHTML = '<i class="fas fa-upload"></i> Unggah ke Galeri'; btn.disabled = false; }
+        });
 
-                try {
-                    const res = await fetch('/admin/api/control', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ action })
+        // File Manager
+        let currentFmPath = '/root';
+        async function loadFiles(dir) {
+            const list = document.getElementById('fm-list');
+            list.innerHTML = '<li style="text-align:center; display:block;"><i class="fas fa-spinner fa-spin"></i> Loading...</li>';
+            try {
+                const res = await fetch('/admin/api/files?dir=' + encodeURIComponent(dir));
+                if(res.ok) {
+                    const data = await res.json();
+                    currentFmPath = data.currentDir;
+                    document.getElementById('fm-current-path').innerText = currentFmPath;
+                    list.innerHTML = '';
+                    data.files.forEach(f => {
+                        const li = document.createElement('li');
+                        li.className = f.isDirectory ? 'directory' : 'file';
+                        li.innerHTML = `<i class="fas ${f.isDirectory ? 'fa-folder' : 'fa-file-alt'}"></i> <span>${f.name}</span>`;
+                        if(f.isDirectory) li.onclick = () => loadFiles(f.path);
+                        list.appendChild(li);
                     });
+                } else {
                     const data = await res.json();
-                    if(data.status === 'ok') showAlert('success', 'fa-check-circle', data.message);
-                    else showAlert('error', 'fa-exclamation-triangle', data.message);
-                } catch (err) {
-                    showAlert('error', 'fa-wifi', 'Koneksi gagal.');
-                } finally {
-                    btnElement.innerHTML = originalHtml;
-                    btnElement.disabled = false;
+                    list.innerHTML = `<li style="text-align:center; display:block; color:var(--offline-color);"><i class="fas fa-exclamation-triangle"></i> ${data.error} (Tidak berjalan di VPS Linux)</li>`;
                 }
-            }
+            } catch(e) { list.innerHTML = `<li style="text-align:center; display:block; color:var(--offline-color);"><i class="fas fa-wifi"></i> Error koneksi.</li>`; }
+        }
+        function goUp() {
+            if(currentFmPath === '/root' || currentFmPath === '/root/') return;
+            const parts = currentFmPath.split('/'); parts.pop();
+            loadFiles(parts.join('/') || '/');
+        }
+        loadFiles(currentFmPath);
 
-            // Deploy Command
-            async function sendDeploy(target, btnElement) {
-                if(!confirm(`Yakin ingin melakukan git pull dan pm2 restart pada ${target}?`)) return;
-                
-                const originalHtml = btnElement.innerHTML;
-                btnElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-                btnElement.disabled = true;
-
-                try {
-                    const res = await fetch('/admin/api/deploy', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ target })
-                    });
-                    const data = await res.json();
-                    if(data.status === 'ok') {
-                        showAlert('success', 'fa-check-circle', data.message);
-                        if(target === 'web') {
-                            setTimeout(() => location.reload(), 6000);
-                        }
-                    }
-                    else showAlert('error', 'fa-exclamation-triangle', data.message);
-                } catch (err) {
-                    showAlert('error', 'fa-wifi', 'Deployment diinisiasi (koneksi terputus dari web server).');
-                    setTimeout(() => location.reload(), 6000);
-                } finally {
-                    btnElement.innerHTML = originalHtml;
-                    btnElement.disabled = false;
-                }
-            }
-
-            // Gallery Upload
-            document.getElementById('gallery-form').addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const btn = document.getElementById('btn-upload');
-                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengunggah...';
-                btn.disabled = true;
-
-                const formData = new FormData(e.target);
-                try {
-                    const res = await fetch('/admin/api/gallery', { method: 'POST', body: formData });
-                    const data = await res.json();
-                    if (data.status === 'ok') {
-                        showAlert('success', 'fa-check-circle', 'Gambar berhasil ditambahkan ke galeri!');
-                        e.target.reset();
-                    } else {
-                        showAlert('error', 'fa-exclamation-circle', data.error || 'Gagal unggah.');
-                    }
-                } catch (err) {
-                    showAlert('error', 'fa-wifi', 'Koneksi terputus.');
-                } finally {
-                    btn.innerHTML = '<i class="fas fa-upload"></i> Unggah ke Galeri';
-                    btn.disabled = false;
+        // Chart.js & Monitoring
+        let mcChart;
+        function initChart() {
+            const ctx = document.getElementById('mcChart').getContext('2d');
+            mcChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: Array(10).fill(''),
+                    datasets: [
+                        { label: 'CPU (%)', data: Array(10).fill(0), borderColor: '#00b0f0', backgroundColor: 'rgba(0, 176, 240, 0.2)', fill: true, tension: 0.4 },
+                        { label: 'RAM (MB)', data: Array(10).fill(0), borderColor: '#f05133', backgroundColor: 'rgba(240, 81, 51, 0.2)', fill: true, tension: 0.4 }
+                    ]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    animation: { duration: 0 },
+                    scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.1)' } }, x: { grid: { display: false } } },
+                    plugins: { legend: { labels: { color: '#fff' } } }
                 }
             });
+        }
+        initChart();
 
-            // Minecraft Status Fetcher
-            async function fetchMCStatus() {
-                try {
-                    const res = await fetch('/admin/api/pterodactyl');
-                    if(res.ok) {
-                        const data = await res.json();
-                        const attr = data.attributes;
-                        document.getElementById('mc-status').innerText = attr.current_state.toUpperCase();
-                        document.getElementById('mc-status').style.color = attr.current_state === 'running' ? 'var(--online-color)' : 'var(--offline-color)';
-                        
-                        document.getElementById('mc-cpu').innerText = attr.resources.cpu_absolute.toFixed(2) + '%';
-                        document.getElementById('mc-ram').innerText = (attr.resources.memory_bytes / 1024 / 1024).toFixed(0) + ' MB';
-                        
-                        const uptimeSec = attr.resources.uptime / 1000;
-                        const hours = Math.floor(uptimeSec / 3600);
-                        const mins = Math.floor((uptimeSec % 3600) / 60);
-                        document.getElementById('mc-uptime').innerText = `${hours}h ${mins}m`;
-                    }
-                } catch(e) {
-                    document.getElementById('mc-status').innerText = 'ERROR';
+        async function fetchMCStatus() {
+            try {
+                const res = await fetch('/admin/api/pterodactyl');
+                if(res.ok) {
+                    const data = await res.json();
+                    const attr = data.attributes;
+                    const cpu = attr.resources.cpu_absolute;
+                    const ram = attr.resources.memory_bytes / 1024 / 1024;
+                    
+                    document.getElementById('mc-status').innerText = attr.current_state.toUpperCase();
+                    document.getElementById('mc-status').style.color = attr.current_state === 'running' ? 'var(--online-color)' : 'var(--offline-color)';
+                    document.getElementById('mc-uptime').innerText = (attr.resources.uptime / 1000 / 3600).toFixed(1) + 'h';
+
+                    // Update Chart
+                    mcChart.data.datasets[0].data.push(cpu); mcChart.data.datasets[0].data.shift();
+                    mcChart.data.datasets[1].data.push(ram); mcChart.data.datasets[1].data.shift();
+                    mcChart.update();
                 }
-            }
-            fetchMCStatus();
-            setInterval(fetchMCStatus, 5000); // Polling tiap 5 detik
+            } catch(e) {}
+        }
+        setInterval(fetchMCStatus, 5000); fetchMCStatus();
 
-            // File Manager logic
-            let currentFmPath = '/root';
-            async function loadFiles(dir) {
-                const list = document.getElementById('fm-list');
-                list.innerHTML = '<li style="text-align:center; display:block;"><i class="fas fa-spinner fa-spin"></i> Loading...</li>';
-                try {
-                    const res = await fetch('/admin/api/files?dir=' + encodeURIComponent(dir));
-                    if(res.ok) {
-                        const data = await res.json();
-                        currentFmPath = data.currentDir;
-                        document.getElementById('fm-current-path').innerText = currentFmPath;
-                        list.innerHTML = '';
-                        
-                        data.files.forEach(f => {
-                            const li = document.createElement('li');
-                            li.className = f.isDirectory ? 'directory' : 'file';
-                            li.innerHTML = `<i class="fas ${f.isDirectory ? 'fa-folder' : 'fa-file-alt'}"></i> <span>${f.name}</span>`;
-                            if(f.isDirectory) {
-                                li.onclick = () => loadFiles(f.path);
-                            }
-                            list.appendChild(li);
-                        });
-                    } else {
-                        const data = await res.json();
-                        list.innerHTML = `<li style="text-align:center; display:block; color:var(--offline-color);"><i class="fas fa-exclamation-triangle"></i> ${data.error || 'Gagal memuat.'} (Mungkin karena jalan di komputer lokal Windows yang tidak memiliki folder /root)</li>`;
-                    }
-                } catch(e) {
-                    list.innerHTML = `<li style="text-align:center; display:block; color:var(--offline-color);"><i class="fas fa-wifi"></i> Error koneksi.</li>`;
-                    console.error(e);
+        // VPS Stats & Logs
+        async function fetchVPSStats() {
+            try {
+                const res = await fetch('/admin/api/vps-stats');
+                if(res.ok) {
+                    const data = await res.json();
+                    document.getElementById('sys-cpu').innerText = data.cpu + '%';
+                    document.getElementById('sys-ram').innerText = data.ram + '%';
+                    document.getElementById('sys-ram-detail').innerText = `${data.usedRam} / ${data.totalRam}`;
+                    document.getElementById('sys-uptime').innerText = data.uptime;
                 }
-            }
-            function goUp() {
-                if(currentFmPath === '/root' || currentFmPath === '/root/') return;
-                const parts = currentFmPath.split('/');
-                parts.pop();
-                const upPath = parts.join('/') || '/';
-                loadFiles(upPath);
-            }
-            loadFiles(currentFmPath);
+            } catch(e) {}
+        }
+        setInterval(fetchVPSStats, 5000); fetchVPSStats();
 
-        </script>
-    <% } %>
-</div>
-</section>
+        async function fetchLogs(target) {
+            const viewer = document.getElementById('log-viewer');
+            viewer.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Fetching logs...';
+            try {
+                const res = await fetch('/admin/api/logs?target=' + target);
+                const data = await res.json();
+                viewer.innerText = data.logs || 'Tidak ada log yang ditemukan.';
+                viewer.scrollTop = viewer.scrollHeight;
+            } catch(e) { viewer.innerText = 'Gagal mengambil log.'; }
+        }
+    </script>
+<% } %>
 
 <%- include('partials/footer') %>
