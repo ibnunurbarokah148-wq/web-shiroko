@@ -189,7 +189,11 @@
     @media (max-width: 900px) {
         .admin-layout { flex-direction: column; margin: 100px 1rem 2rem; }
         .admin-sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--border-color); }
+        .sidebar-menu { display: flex; flex-direction: row; overflow-x: auto; padding: 1rem; gap: 0.5rem; white-space: nowrap; }
+        .sidebar-menu li { border-left: none; border-bottom: 3px solid transparent; border-radius: 8px; justify-content: center; background: rgba(255,255,255,0.05); }
+        .sidebar-menu li.active { border-bottom-color: var(--accent-color); }
         .dashboard-grid { grid-template-columns: 1fr; }
+        .control-buttons-grid { grid-template-columns: 1fr; }
         .sys-stat-grid { grid-template-columns: 1fr; }
     }
     
