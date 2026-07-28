@@ -354,8 +354,8 @@ app.get('/admin/api/vps-stats', (req, res) => {
 // 6. PM2 Logs Viewer
 app.get('/admin/api/logs', (req, res) => {
     if (!req.session.isAdmin) return res.status(401).json({ error: 'Unauthorized' });
-    const { target } = req.query; // 'shiroko' or 'web-shiroko'
-    const appName = target === 'bot' ? 'shiroko' : 'web-shiroko';
+    const { target } = req.query; // 'bot' or 'web'
+    const appName = target === 'bot' ? 'index' : 'web-shiroko';
     
     exec(`pm2 logs ${appName} --lines 50 --nostream`, (error, stdout, stderr) => {
         if (error) {

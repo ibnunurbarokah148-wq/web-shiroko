@@ -632,7 +632,7 @@
     }
     initChart();
     
-    async function fetchStats() {
+    async function fetchSystemStats() {
         try {
             const resPtero = await fetch('/admin/api/pterodactyl');
             if(resPtero.ok) {
@@ -650,7 +650,7 @@
             }
         } catch(e) {}
     }
-    setInterval(fetchStats, 5000); fetchStats();
+    setInterval(fetchSystemStats, 5000); fetchSystemStats();
 
     async function fetchLogs(target) {
         document.getElementById('log-viewer').innerText = 'Fetching...';
@@ -715,7 +715,7 @@
     // -----------------------------------------------------
     // LIVE STATS
     // -----------------------------------------------------
-    async function fetchStats() {
+    async function fetchLiveStats() {
         try {
             const res = await fetch('/api/stats');
             if(!res.ok) return;
@@ -734,7 +734,7 @@
     }
     
     // Polling setiap 3 detik
-    setInterval(fetchStats, 3000);
+    setInterval(fetchLiveStats, 3000);
 
     // Init
     loadFiles(currentFmPath);
