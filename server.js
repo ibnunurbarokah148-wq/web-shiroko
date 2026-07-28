@@ -205,7 +205,7 @@ app.post('/admin/api/deploy', (req, res) => {
     let command = '';
     
     if (target === 'bot') {
-        command = 'cd /root/bot-shiroko && git pull && pm2 restart shiroko';
+        command = 'cd /root/bot-shiroko && git pull && pm2 restart index';
     } else if (target === 'web') {
         command = 'cd "/root/Web Shiroko Project" && git pull && pm2 restart web-shiroko';
     } else {

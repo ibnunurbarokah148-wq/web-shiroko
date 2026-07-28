@@ -163,6 +163,33 @@
 
             <!-- TAB 1: KONSOL -->
             <div id="tab-dashboard" class="tab-content active">
+                <div class="grid-3" style="margin-bottom: 1.5rem;">
+                    <div class="panel-card sys-stat-box">
+                        <div class="panel-header"><i class="fas fa-comment-dots"></i> Total Chat</div>
+                        <div class="value" id="stat-totalChat"><%= data.stats ? data.stats.totalChat : 0 %></div>
+                    </div>
+                    <div class="panel-card sys-stat-box">
+                        <div class="panel-header"><i class="fas fa-images"></i> Image Generated</div>
+                        <div class="value" id="stat-imageGenerated"><%= data.stats ? data.stats.imageGenerated : 0 %></div>
+                    </div>
+                    <div class="panel-card sys-stat-box">
+                        <div class="panel-header"><i class="fab fa-whatsapp"></i> WA Users</div>
+                        <div class="value" id="stat-whatsappUsers"><%= data.stats ? data.stats.whatsappUsers : 0 %></div>
+                    </div>
+                    <div class="panel-card sys-stat-box">
+                        <div class="panel-header"><i class="fab fa-discord"></i> DC Users</div>
+                        <div class="value" id="stat-discordUsers"><%= data.stats ? data.stats.discordUsers : 0 %></div>
+                    </div>
+                    <div class="panel-card sys-stat-box">
+                        <div class="panel-header"><i class="fas fa-robot"></i> AI Requests</div>
+                        <div class="value" id="stat-aiRequests"><%= data.stats ? data.stats.aiRequests : 0 %></div>
+                    </div>
+                    <div class="panel-card sys-stat-box">
+                        <div class="panel-header"><i class="fas fa-terminal"></i> Total Commands</div>
+                        <div class="value" id="stat-commands"><%= data.stats ? data.stats.commands : 0 %></div>
+                    </div>
+                </div>
+
                 <div class="grid-2">
                     <div class="panel-card">
                         <div class="panel-header"><i class="fas fa-chart-line"></i> Resource Usage</div>
@@ -684,6 +711,30 @@
             } else showAlert('Gagal menghapus', true);
         } catch(e) { showAlert(e.message, true); }
     }
+
+    // -----------------------------------------------------
+    // LIVE STATS
+    // -----------------------------------------------------
+    async function fetchStats() {
+        try {
+            const res = await fetch('/api/stats');
+            if(!res.ok) return;
+            const data = await res.json();
+            if(data) {
+                document.getElementById('stat-totalChat').innerText = data.totalChat || 0;
+                document.getElementById('stat-imageGenerated').innerText = data.imageGenerated || 0;
+                document.getElementById('stat-whatsappUsers').innerText = data.whatsappUsers || 0;
+                document.getElementById('stat-discordUsers').innerText = data.discordUsers || 0;
+                document.getElementById('stat-aiRequests').innerText = data.aiRequests || 0;
+                document.getElementById('stat-commands').innerText = data.commands || 0;
+            }
+        } catch (e) {
+            // silent fail
+        }
+    }
+    
+    // Polling setiap 3 detik
+    setInterval(fetchStats, 3000);
 
     // Init
     loadFiles(currentFmPath);
