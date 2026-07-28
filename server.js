@@ -28,8 +28,8 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.locals.vpsUrl = VPS_API_URL;
 
-// Static files
-app.use(express.static(path.join(__dirname, 'public')));
+// Static files with Cache-Control for 30 days
+app.use(express.static(path.join(__dirname, 'public'), { maxAge: '30d' }));
 
 // ==========================================
 // CONFIGURATIONS (Gallery, Multer, etc)
