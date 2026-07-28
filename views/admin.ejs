@@ -246,28 +246,39 @@
 
             <!-- TAB 4: GALERI -->
             <div id="tab-gallery" class="tab-content">
-                <div class="panel-card" style="max-width: 500px;">
-                    <div class="panel-header"><i class="fas fa-upload"></i> Tambah Galeri</div>
-                    <div class="panel-body">
-                        <form id="gallery-form" enctype="multipart/form-data">
-                            <div class="form-group">
-                                <label>File Gambar</label>
-                                <input type="file" name="image" accept="image/*" required>
+                <div class="grid-2">
+                    <div class="panel-card" style="max-height: 450px;">
+                        <div class="panel-header"><i class="fas fa-upload"></i> Tambah Galeri</div>
+                        <div class="panel-body">
+                            <form id="gallery-form" enctype="multipart/form-data">
+                                <div class="form-group">
+                                    <label>File Gambar</label>
+                                    <input type="file" name="image" accept="image/*" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Judul</label>
+                                    <input type="text" name="title" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Kategori</label>
+                                    <select name="tag">
+                                        <option value="Artwork">Artwork</option>
+                                        <option value="Landscape">Landscape</option>
+                                        <option value="Character Design">Character Design</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn btn-primary" style="width:100%;" id="btn-upload">Unggah</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="panel-card">
+                        <div class="panel-header"><i class="fas fa-images"></i> Daftar Galeri</div>
+                        <div class="panel-body" style="max-height: 500px; overflow-y: auto;">
+                            <div id="gallery-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1rem;">
+                                <!-- Gallery items will be loaded here -->
                             </div>
-                            <div class="form-group">
-                                <label>Judul</label>
-                                <input type="text" name="title" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Kategori</label>
-                                <select name="tag">
-                                    <option value="Artwork">Artwork</option>
-                                    <option value="Landscape">Landscape</option>
-                                    <option value="Character Design">Character Design</option>
-                                </select>
-                            </div>
-                            <button type="submit" class="btn btn-primary" style="width:100%;" id="btn-upload">Unggah</button>
-                        </form>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -603,14 +614,46 @@
                 if(res.ok && data.status === 'ok') {
                     showAlert('Gambar berhasil diunggah!');
                     e.target.reset();
+                    fetchGallery();
                 } else throw new Error(data.error || 'Upload failed');
             } catch(err) { showAlert(err.message, true); }
             btn.innerHTML = 'Unggah'; btn.disabled = false;
         });
     }
 
+    async function fetchGallery() {
+        try {
+            const res = await fetch('/admin/api/gallery');
+            if(!res.ok) return;
+            const data = await res.json();
+            const grid = document.getElementById('gallery-grid');
+            if(!data.length) { grid.innerHTML = '<p style="color:var(--text-secondary); grid-column:1/-1; text-align:center;">Belum ada gambar.</p>'; return; }
+            grid.innerHTML = data.map(g => `
+                <div style="background:var(--bg-color); border:1px solid var(--border-color); border-radius:8px; overflow:hidden;">
+                    <img src="${g.url}" style="width:100%; height:120px; object-fit:cover; display:block;">
+                    <div style="padding:0.5rem; display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-size:0.8rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${g.title}">${g.title}</span>
+                        <button class="btn btn-danger" style="padding:0.2rem 0.5rem; font-size:0.7rem;" onclick="deleteGallery('${g.id}')"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>
+            `).join('');
+        } catch(e) {}
+    }
+
+    async function deleteGallery(id) {
+        if(!confirm('Hapus gambar ini?')) return;
+        try {
+            const res = await fetch('/admin/api/gallery/' + id, { method: 'DELETE' });
+            if(res.ok) {
+                showAlert('Gambar dihapus!');
+                fetchGallery();
+            } else showAlert('Gagal menghapus', true);
+        } catch(e) { showAlert(e.message, true); }
+    }
+
     // Init
     loadFiles(currentFmPath);
+    fetchGallery();
 </script>
 </html>
 <% } %>

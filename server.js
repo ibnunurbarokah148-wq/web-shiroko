@@ -142,35 +142,6 @@ app.post('/admin/api/control', async (req, res) => {
     }
 });
 
-// Gallery API
-app.post('/admin/api/gallery', upload.single('image'), (req, res) => {
-    if (!req.session.isAdmin) return res.status(401).json({ error: 'Unauthorized' });
-    if (!req.file) return res.status(400).json({ error: 'No file uploaded.' });
-    try {
-        const galleryData = getGalleryData();
-        galleryData.push({
-            id: Date.now().toString(),
-            url: '/assets/images/gallery/' + req.file.filename,
-            title: req.body.title || 'Untitled',
-            tag: req.body.tag || 'Artwork'
-        });
-        saveGalleryData(galleryData);
-        res.json({ status: 'ok' });
-    } catch (e) {
-        res.status(500).json({ error: e.message });
-    }
-});
-
-app.delete('/admin/api/gallery/:id', (req, res) => {
-    if (!req.session.isAdmin) return res.status(401).json({ error: 'Unauthorized' });
-    try {
-        let galleryData = getGalleryData();
-        galleryData = galleryData.filter(g => g.id !== req.params.id);
-        saveGalleryData(galleryData);
-        res.json({ status: 'ok' });
-    } catch(e) { res.status(500).json({ error: e.message }); }
-});
-
 // 1. Pterodactyl Minecraft API
 app.get('/admin/api/pterodactyl', async (req, res) => {
     if (!req.session.isAdmin) return res.status(401).json({ error: 'Unauthorized' });
@@ -190,6 +161,11 @@ app.get('/admin/api/pterodactyl', async (req, res) => {
 });
 
 // 2. Upload Gallery
+app.get('/admin/api/gallery', (req, res) => {
+    if (!req.session.isAdmin) return res.status(401).json({ error: 'Unauthorized' });
+    res.json(getGalleryData());
+});
+
 app.post('/admin/api/gallery', upload.single('image'), (req, res) => {
     if (!req.session.isAdmin) return res.status(401).json({ error: 'Unauthorized' });
     if (!req.file) return res.status(400).json({ error: 'No image uploaded.' });
