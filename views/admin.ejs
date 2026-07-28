@@ -297,11 +297,14 @@
                 <span id="editor-status" style="color: var(--text-secondary); font-size: 0.85rem;"></span>
             </div>
             <div style="display: flex; gap: 0.5rem;">
-                <button class="btn btn-primary" onclick="saveFile()"><i class="fas fa-save"></i> Save</button>
+                <button class="btn btn-primary" id="editor-save-btn" onclick="saveFile()"><i class="fas fa-save"></i> Save</button>
                 <button class="btn" onclick="closeEditor()"><i class="fas fa-times"></i> Close</button>
             </div>
         </div>
         <div id="monaco-container"></div>
+        <div id="image-preview-container" style="display:none; padding:2rem; text-align:center; flex-grow:1; align-items:center; justify-content:center;">
+            <img id="image-preview-img" style="max-width:100%; max-height:70vh; border-radius:8px; border:1px solid #333;">
+        </div>
     </div>
 </body>
 <script>
@@ -451,12 +454,26 @@
         document.getElementById('editor-overlay').style.display = 'flex';
         document.getElementById('editor-filename').innerText = filePath;
         editingFilePath = filePath;
+
+        const ext = filePath.split('.').pop().toLowerCase();
+        if(['png','jpg','jpeg','gif','webp', 'ico'].includes(ext)) {
+            document.getElementById('monaco-container').style.display = 'none';
+            document.getElementById('image-preview-container').style.display = 'flex';
+            document.getElementById('image-preview-img').src = '/admin/api/files/download?dir=' + encodeURIComponent(filePath) + '&t=' + Date.now();
+            document.getElementById('editor-save-btn').style.display = 'none';
+            document.getElementById('editor-status').innerText = 'Image Preview';
+            return;
+        }
+
+        document.getElementById('monaco-container').style.display = 'block';
+        document.getElementById('image-preview-container').style.display = 'none';
+        document.getElementById('editor-save-btn').style.display = 'inline-flex';
+
         try {
             const res = await fetch('/admin/api/files/read?dir=' + encodeURIComponent(filePath));
             const data = await res.json();
             if(!res.ok) throw new Error(data.error);
             
-            const ext = filePath.split('.').pop().toLowerCase();
             initMonaco(data.content, ext);
             document.getElementById('editor-status').innerText = 'Ready';
         } catch(e) {
@@ -566,6 +583,26 @@
             const data = await res.json();
             document.getElementById('log-viewer').innerText = data.logs || 'No logs.';
         } catch(e) { document.getElementById('log-viewer').innerText = 'Error'; }
+    }
+
+    // Gallery Submit Fix
+    const galleryForm = document.getElementById('gallery-form');
+    if(galleryForm) {
+        galleryForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('btn-upload');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengunggah...';
+            btn.disabled = true;
+            try {
+                const res = await fetch('/admin/api/gallery', { method: 'POST', body: new FormData(e.target) });
+                const data = await res.json();
+                if(res.ok && data.status === 'ok') {
+                    showAlert('Gambar berhasil diunggah!');
+                    e.target.reset();
+                } else throw new Error(data.error || 'Upload failed');
+            } catch(err) { showAlert(err.message, true); }
+            btn.innerHTML = 'Unggah'; btn.disabled = false;
+        });
     }
 
     // Init
