@@ -216,33 +216,93 @@ app.post('/admin/api/deploy', (req, res) => {
     });
 });
 
-// 4. File Manager Basic (Read Dir)
+// 4. Advanced File Manager API
+const fileManagerUpload = multer({ dest: os.tmpdir() }); // Temp dir for uploads
+
+function getFmTargetDir(req) {
+    let target = req.query.dir || req.body.dir || '/root';
+    if (!fs.existsSync('/root')) { // Fallback for Windows local dev
+        target = target.replace('/root', path.join(__dirname, '..')).replace(/\\/g, '/');
+    }
+    return target;
+}
+
 app.get('/admin/api/files', (req, res) => {
     if (!req.session.isAdmin) return res.status(401).json({ error: 'Unauthorized' });
-    
-    let targetDir = req.query.dir || '/root';
-    
-    // Keamanan: Hanya izinkan membaca di bawah /root (termasuk folder bot dan web)
-    if (!targetDir.startsWith('/root')) {
-        targetDir = '/root';
-    }
-
-    fs.readdir(targetDir, { withFileTypes: true }, (err, files) => {
-        if (err) {
-            return res.status(500).json({ error: 'Gagal membaca direktori.' });
-        }
-        const fileList = files.map(file => ({
-            name: file.name,
-            isDirectory: file.isDirectory(),
-            path: path.join(targetDir, file.name).replace(/\\/g, '/')
-        })).sort((a, b) => {
+    let targetDir = getFmTargetDir(req);
+    try {
+        if (!fs.existsSync(targetDir)) return res.status(404).json({ error: 'Direktori tidak ditemukan.' });
+        const files = fs.readdirSync(targetDir, { withFileTypes: true });
+        const fileList = files.map(file => {
+            let stat = { size: 0, mtime: new Date() };
+            try { stat = fs.statSync(path.join(targetDir, file.name)); } catch(e){}
+            return {
+                name: file.name,
+                isDirectory: file.isDirectory(),
+                size: stat.size,
+                mtime: stat.mtime,
+                path: (req.query.dir || '/root') + '/' + file.name
+            };
+        }).sort((a, b) => {
             if(a.isDirectory && !b.isDirectory) return -1;
             if(!a.isDirectory && b.isDirectory) return 1;
             return a.name.localeCompare(b.name);
         });
+        res.json({ currentDir: req.query.dir || '/root', files: fileList });
+    } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+app.post('/admin/api/files/action', (req, res) => {
+    if (!req.session.isAdmin) return res.status(401).json({ error: 'Unauthorized' });
+    const { action, source, dest, newName, type } = req.body;
+    try {
+        let srcPath = getFmTargetDir({ body: { dir: source } });
+        let destPath = dest ? getFmTargetDir({ body: { dir: dest } }) : '';
         
-        res.json({ currentDir: targetDir, files: fileList });
-    });
+        if (action === 'delete') {
+            fs.rmSync(srcPath, { recursive: true, force: true });
+        } else if (action === 'rename') {
+            fs.renameSync(srcPath, path.join(path.dirname(srcPath), newName));
+        } else if (action === 'create') {
+            if (type === 'folder') fs.mkdirSync(srcPath, { recursive: true });
+            else fs.writeFileSync(srcPath, '');
+        } else if (action === 'copy') {
+            fs.cpSync(srcPath, destPath, { recursive: true });
+        } else if (action === 'move') {
+            fs.renameSync(srcPath, destPath);
+        }
+        res.json({ status: 'ok' });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+app.get('/admin/api/files/read', (req, res) => {
+    if (!req.session.isAdmin) return res.status(401).json({ error: 'Unauthorized' });
+    try {
+        const filePath = getFmTargetDir(req);
+        const content = fs.readFileSync(filePath, 'utf8');
+        res.json({ content });
+    } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.post('/admin/api/files/save', (req, res) => {
+    if (!req.session.isAdmin) return res.status(401).json({ error: 'Unauthorized' });
+    try {
+        const filePath = getFmTargetDir(req);
+        fs.writeFileSync(filePath, req.body.content, 'utf8');
+        res.json({ status: 'ok' });
+    } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.post('/admin/api/files/upload', fileManagerUpload.single('file'), (req, res) => {
+    if (!req.session.isAdmin) return res.status(401).json({ error: 'Unauthorized' });
+    if (!req.file) return res.status(400).json({ error: 'No file uploaded.' });
+    try {
+        const targetDir = getFmTargetDir({ body: { dir: req.body.dir } });
+        fs.renameSync(req.file.path, path.join(targetDir, req.file.originalname));
+        res.json({ status: 'ok' });
+    } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
 // 5. VPS System Monitor

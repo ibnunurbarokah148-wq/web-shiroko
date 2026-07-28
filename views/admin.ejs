@@ -1,575 +1,575 @@
-<%- include('partials/header') %>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<style>
-    /* Custom Scrollbar for the whole page and File Manager */
-    ::-webkit-scrollbar { width: 8px; height: 8px; }
-    ::-webkit-scrollbar-track { background: var(--bg-color); }
-    ::-webkit-scrollbar-thumb { background: var(--accent-color); border-radius: 4px; }
-    ::-webkit-scrollbar-thumb:hover { background: var(--accent-hover); }
-
-    .admin-layout {
-        display: flex;
-        min-height: 80vh;
-        max-width: 1400px;
-        margin: 150px auto 2rem;
-        background: var(--surface-color);
-        border: 1px solid var(--border-color);
-        border-radius: 12px;
-        overflow: hidden;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    }
-
-    /* Sidebar Styles */
-    .admin-sidebar {
-        width: 260px;
-        background: rgba(0,0,0,0.2);
-        border-right: 1px solid var(--border-color);
-        display: flex;
-        flex-direction: column;
-    }
-    
-    .sidebar-header {
-        padding: 1.5rem;
-        text-align: center;
-        border-bottom: 1px solid var(--border-color);
-    }
-    
-    .sidebar-menu {
-        list-style: none;
-        padding: 1rem 0;
-        margin: 0;
-        flex-grow: 1;
-    }
-
-    .sidebar-menu li {
-        padding: 0.8rem 1.5rem;
-        cursor: pointer;
-        color: var(--text-secondary);
-        transition: 0.3s;
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        border-left: 3px solid transparent;
-    }
-
-    .sidebar-menu li:hover {
-        background: rgba(255,255,255,0.05);
-        color: var(--text-primary);
-    }
-
-    .sidebar-menu li.active {
-        background: rgba(0, 176, 240, 0.1);
-        color: var(--accent-color);
-        border-left-color: var(--accent-color);
-        font-weight: bold;
-    }
-
-    /* Content Area */
-    .admin-content {
-        flex-grow: 1;
-        padding: 2rem;
-        position: relative;
-    }
-
-    .tab-content {
-        display: none;
-        animation: fadeIn 0.3s ease-in-out;
-    }
-    .tab-content.active {
-        display: block;
-    }
-
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* Panel UI Elements */
-    .panel-section {
-        background: var(--bg-color);
-        border: 1px solid var(--border-color);
-        border-radius: 10px;
-        padding: 1.5rem;
-        margin-bottom: 1.5rem;
-    }
-
-    .panel-section h3 {
-        margin-bottom: 1.5rem;
-        font-size: 1.2rem;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        color: var(--text-primary);
-    }
-
-    /* Form UI Elements */
-    .form-group { margin-bottom: 1.5rem; text-align: left; }
-    .form-group label { display: block; margin-bottom: 0.5rem; color: var(--text-secondary); }
-    .form-group input[type="text"], .form-group input[type="password"], .form-group select {
-        width: 100%; padding: 0.8rem 1rem; background: var(--bg-color); border: 1px solid var(--border-color);
-        color: var(--text-primary); border-radius: 8px; font-family: inherit; font-size: 1rem;
-    }
-    .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--accent-color); }
-    
-    /* Custom File Input */
-    .custom-file-upload {
-        display: inline-block;
-        padding: 0.8rem 1rem;
-        cursor: pointer;
-        background: rgba(0, 176, 240, 0.1);
-        color: var(--accent-color);
-        border: 1px dashed var(--accent-color);
-        border-radius: 8px;
-        width: 100%;
-        text-align: center;
-        transition: 0.3s;
-    }
-    .custom-file-upload:hover { background: rgba(0, 176, 240, 0.2); }
-    .form-group input[type="file"] { display: none; }
-
-    .btn-submit {
-        width: 100%; padding: 1rem; background: var(--accent-color); color: #fff;
-        border: none; border-radius: 8px; font-weight: bold; font-size: 1rem;
-        cursor: pointer; transition: 0.3s;
-    }
-    .btn-submit:hover { background: var(--accent-hover); }
-
-    .btn-danger { background: var(--offline-color); padding: 0.5rem 1rem; border: none; border-radius: 6px; color: white; cursor: pointer; font-weight: bold; width: 100%; }
-    .btn-danger:hover { background: #d63c3c; }
-
-    /* Alert */
-    .alert { padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; text-align: center; }
-    .alert-error { background: rgba(248, 81, 73, 0.1); border: 1px solid var(--offline-color); color: var(--offline-color); }
-    .alert-success { background: rgba(46, 160, 67, 0.1); border: 1px solid var(--online-color); color: var(--online-color); }
-
-    /* Grid Layouts */
-    .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
-    .control-buttons-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
-
-    /* Service List */
-    .service-status-list { list-style: none; }
-    .service-status-list li { display: flex; justify-content: space-between; padding: 0.8rem 0; border-bottom: 1px solid var(--border-color); }
-    .service-status-list li:last-child { border-bottom: none; }
-    .badge-online { background: rgba(46, 160, 67, 0.2); color: var(--online-color); padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem; font-weight: bold; }
-    .badge-offline { background: rgba(248, 81, 73, 0.2); color: var(--offline-color); padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem; font-weight: bold; }
-
-    /* Control Cards */
-    .control-card { background: var(--surface-color); border: 1px solid var(--border-color); border-radius: 10px; padding: 1.5rem; text-align: center; transition: 0.3s; }
-    .control-card:hover { border-color: var(--accent-color); }
-    .control-card i { font-size: 2.5rem; margin-bottom: 1rem; }
-    .control-card h4 { margin-bottom: 0.5rem; }
-    .control-card p { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1.5rem; line-height: 1.4; }
-    .btn-action { width: 100%; padding: 0.8rem; background: transparent; border: 1px solid var(--text-secondary); color: var(--text-primary); border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.3s; }
-    .btn-action.comfy { border-color: #00b0f0; color: #00b0f0; } .btn-action.comfy:hover { background: rgba(0, 176, 240, 0.1); }
-    .btn-action.git { border-color: #f05133; color: #f05133; } .btn-action.git:hover { background: rgba(240, 81, 51, 0.1); }
-    .btn-action.nuke { border-color: #d29922; color: #d29922; } .btn-action.nuke:hover { background: rgba(210, 153, 34, 0.1); }
-    .btn-action:disabled { opacity: 0.5; cursor: not-allowed; }
-
-    /* Chart Box */
-    .chart-container { position: relative; height: 200px; width: 100%; margin-top: 1rem; }
-
-    /* File Manager */
-    .file-manager { background: var(--bg-color); border-radius: 8px; border: 1px solid var(--border-color); overflow: hidden; }
-    .fm-header { background: var(--surface-color); padding: 1rem; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; gap: 1rem; }
-    .fm-path { background: var(--bg-color); padding: 0.5rem 1rem; border-radius: 4px; font-family: monospace; flex-grow: 1; border: 1px solid var(--border-color); color: var(--text-primary); }
-    .fm-list { list-style: none; max-height: 400px; overflow-y: auto; }
-    .fm-list li { padding: 0.8rem 1rem; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; gap: 1rem; cursor: pointer; }
-    .fm-list li:hover { background: rgba(255,255,255,0.05); }
-    .fm-list li i { font-size: 1.2rem; color: var(--text-secondary); }
-    .fm-list li.directory i { color: #00b0f0; }
-
-    /* System Stats Box */
-    .sys-stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
-    .sys-stat-box { background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; text-align: center; }
-    .sys-stat-box .value { font-size: 2rem; font-weight: bold; color: var(--accent-color); margin: 0.5rem 0; }
-    .log-viewer { background: #000; color: #0f0; font-family: monospace; padding: 1rem; border-radius: 8px; height: 300px; overflow-y: auto; font-size: 0.85rem; white-space: pre-wrap; }
-
-    @media (max-width: 900px) {
-        .admin-layout { flex-direction: column; margin: 100px 1rem 2rem; }
-        .admin-sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--border-color); }
-        .sidebar-menu { display: flex; flex-direction: row; overflow-x: auto; padding: 1rem; gap: 0.5rem; white-space: nowrap; }
-        .sidebar-menu li { border-left: none; border-bottom: 3px solid transparent; border-radius: 8px; justify-content: center; background: rgba(255,255,255,0.05); }
-        .sidebar-menu li.active { border-bottom-color: var(--accent-color); }
-        .dashboard-grid { grid-template-columns: 1fr; }
-        .control-buttons-grid { grid-template-columns: 1fr; }
-        .sys-stat-grid { grid-template-columns: 1fr; }
-    }
-    
-    /* Login Box (Centered) */
-    .login-wrapper { display: flex; justify-content: center; padding-top: 150px; min-height: 80vh; }
-    .admin-login-box { width: 100%; max-width: 400px; background: var(--surface-color); padding: 2.5rem; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; }
-</style>
-
 <% if (!authenticated) { %>
+    <%- include('partials/header') %>
+    <style>
+        .login-wrapper { display: flex; justify-content: center; padding-top: 150px; min-height: 80vh; }
+        .admin-login-box { width: 100%; max-width: 400px; background: var(--surface-color); padding: 2.5rem; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; }
+        .form-group { margin-bottom: 1.5rem; text-align: left; }
+        .form-group label { display: block; margin-bottom: 0.5rem; color: var(--text-secondary); }
+        .form-group input { width: 100%; padding: 0.8rem 1rem; background: var(--bg-color); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: 8px; font-family: inherit; }
+        .btn-submit { width: 100%; padding: 1rem; background: var(--accent-color); color: #fff; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+    </style>
     <div class="login-wrapper">
-        <div class="admin-login-box" data-aos="fade-up">
+        <div class="admin-login-box">
             <h2 style="margin-bottom: 1.5rem;"><i class="fas fa-lock"></i> Admin Login</h2>
             <% if (typeof error !== 'undefined' && error) { %>
-                <div class="alert alert-error"><i class="fas fa-exclamation-circle"></i> <%= error %></div>
+                <div style="background: rgba(248, 81, 73, 0.1); border: 1px solid #f85149; color: #f85149; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;"><%= error %></div>
             <% } %>
             <form action="/admin/login" method="POST">
                 <div class="form-group">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" name="password" required placeholder="Masukkan kata sandi...">
+                    <label>Password</label>
+                    <input type="password" name="password" required>
                 </div>
-                <button type="submit" class="btn-submit"><i class="fas fa-sign-in-alt"></i> Login</button>
+                <button type="submit" class="btn-submit">Login</button>
             </form>
         </div>
     </div>
+    <%- include('partials/footer') %>
 <% } else { %>
-    <div class="admin-layout" data-aos="fade-in">
-        <!-- SIDEBAR -->
-        <div class="admin-sidebar">
-            <div class="sidebar-header">
-                <h3><i class="fas fa-cogs"></i> Control Panel</h3>
-                <p style="font-size: 0.8rem; color: var(--text-secondary);">Administrator</p>
-            </div>
-            <ul class="sidebar-menu">
-                <li class="active" onclick="switchTab('tab-dashboard', this)"><i class="fas fa-chart-pie"></i> Ringkasan</li>
-                <li onclick="switchTab('tab-remote', this)"><i class="fas fa-rocket"></i> Remote & Deploy</li>
-                <li onclick="switchTab('tab-gallery', this)"><i class="fas fa-images"></i> Manajemen Galeri</li>
-                <li onclick="switchTab('tab-files', this)"><i class="fas fa-folder-open"></i> File Manager</li>
-                <li onclick="switchTab('tab-system', this)"><i class="fas fa-server"></i> Sistem & Logs</li>
-            </ul>
-            <div style="padding: 1.5rem;">
-                <form action="/admin/logout" method="POST">
-                    <button type="submit" class="btn-danger"><i class="fas fa-sign-out-alt"></i> Logout</button>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control Panel - Zknesia Style</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #0f1115;
+            --sidebar-bg: #1e2128;
+            --surface-hover: #2a2e37;
+            --text-primary: #e2e8f0;
+            --text-secondary: #94a3b8;
+            --accent-color: #3b82f6;
+            --border-color: #2d313a;
+            --danger-color: #ef4444;
+        }
+        * { box-sizing: border-box; }
+        body { margin: 0; padding: 0; font-family: 'Inter', sans-serif; background: var(--bg-color); color: var(--text-primary); display: flex; height: 100vh; overflow: hidden; }
+        
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-color); }
+        ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--text-secondary); }
+
+        .sidebar { width: 250px; background: var(--sidebar-bg); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; flex-shrink: 0; }
+        .sidebar-logo { padding: 1.5rem; font-size: 1.2rem; font-weight: bold; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; gap: 0.75rem; }
+        .sidebar-logo i { font-size: 1.5rem; color: var(--accent-color); }
+        .sidebar-nav { flex-grow: 1; padding: 1rem 0; overflow-y: auto; list-style: none; margin: 0; }
+        .nav-category { font-size: 0.7rem; text-transform: uppercase; color: var(--text-secondary); padding: 0.5rem 1.5rem; letter-spacing: 1px; margin-top: 0.5rem; }
+        .sidebar-nav li { padding: 0.75rem 1.5rem; cursor: pointer; display: flex; align-items: center; gap: 0.75rem; color: var(--text-secondary); transition: 0.2s; border-left: 3px solid transparent; }
+        .sidebar-nav li:hover { background: var(--surface-hover); color: var(--text-primary); }
+        .sidebar-nav li.active { color: var(--text-primary); background: rgba(59, 130, 246, 0.1); border-left-color: var(--accent-color); }
+        
+        .main-content { flex-grow: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; }
+        .topbar { background: var(--bg-color); padding: 1rem 2rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+        .server-title { font-size: 1.2rem; font-weight: bold; }
+        
+        .content-area { flex-grow: 1; overflow-y: auto; padding: 2rem; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.2s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .panel-card { background: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 1.5rem; overflow: hidden; }
+        .panel-header { padding: 1rem 1.5rem; border-bottom: 1px solid var(--border-color); background: rgba(0,0,0,0.2); font-weight: bold; display: flex; align-items: center; gap: 0.5rem; }
+        .panel-body { padding: 1.5rem; }
+
+        .btn { background: var(--surface-hover); color: var(--text-primary); border: 1px solid var(--border-color); padding: 0.5rem 1rem; border-radius: 5px; cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem; font-family: inherit; transition: 0.2s; }
+        .btn:hover { background: var(--border-color); }
+        .btn-primary { background: var(--accent-color); border-color: var(--accent-color); }
+        .btn-primary:hover { background: #2563eb; }
+        .btn-danger { background: rgba(239, 68, 68, 0.1); color: var(--danger-color); border-color: rgba(239, 68, 68, 0.2); }
+        .btn-danger:hover { background: rgba(239, 68, 68, 0.2); }
+
+        /* Form UI */
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; color: var(--text-secondary); font-size: 0.9rem; }
+        .form-group input, .form-group select { width: 100%; background: var(--bg-color); border: 1px solid var(--border-color); color: white; padding: 0.75rem; border-radius: 5px; }
+        .form-group input:focus { outline: none; border-color: var(--accent-color); }
+
+        /* File Manager */
+        .fm-toolbar { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
+        .fm-path-bar { background: var(--sidebar-bg); border: 1px solid var(--border-color); padding: 0.75rem 1rem; border-radius: 5px; margin-bottom: 1rem; font-family: monospace; display: flex; gap: 0.5rem; align-items: center; }
+        table.fm-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem; }
+        .fm-table th, .fm-table td { padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); }
+        .fm-table th { color: var(--text-secondary); text-transform: uppercase; font-size: 0.75rem; }
+        .fm-table tr:hover { background: rgba(255,255,255,0.02); }
+        .fm-table td i { width: 20px; text-align: center; color: var(--text-secondary); font-size: 1.1rem; }
+        .fm-table td i.fa-folder { color: #eab308; }
+        .fm-actions button { background: transparent; border: none; color: var(--text-secondary); cursor: pointer; padding: 0.25rem 0.5rem; border-radius: 3px; }
+        .fm-actions button:hover { color: var(--text-primary); background: var(--surface-hover); }
+
+        /* Code Editor */
+        #editor-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg-color); z-index: 1000; display: none; flex-direction: column; }
+        .editor-header { display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: var(--sidebar-bg); border-bottom: 1px solid var(--border-color); }
+        #monaco-container { flex-grow: 1; }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+        .sys-stat-box { text-align: center; }
+        .sys-stat-box .value { font-size: 1.8rem; font-weight: bold; color: var(--accent-color); margin-top: 0.5rem; }
+        .log-viewer { background: #000; color: #0f0; font-family: monospace; padding: 1rem; border-radius: 5px; height: 300px; overflow-y: auto; font-size: 0.85rem; white-space: pre-wrap; }
+
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            .sidebar { width: 100%; flex-direction: row; align-items: center; border-right: none; border-bottom: 1px solid var(--border-color); padding: 0.5rem; overflow-x: auto; }
+            .sidebar-logo { border: none; padding: 0.5rem; }
+            .sidebar-nav { display: flex; padding: 0; overflow-y: visible; }
+            .nav-category { display: none; }
+            .sidebar-nav li { padding: 0.5rem; border-left: none; border-bottom: 3px solid transparent; white-space: nowrap; }
+            .sidebar-nav li.active { border-left: none; border-bottom-color: var(--accent-color); }
+            .grid-2, .grid-3 { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <i class="fas fa-cube"></i> Shiroko Panel
+        </div>
+        <ul class="sidebar-nav">
+            <div class="nav-category">Kontrol</div>
+            <li class="active" onclick="switchTab('tab-dashboard', this)"><i class="fas fa-terminal"></i> Konsol</li>
+            <li onclick="switchTab('tab-files', this)"><i class="fas fa-folder"></i> File Manager</li>
+            
+            <div class="nav-category">Manajemen</div>
+            <li onclick="switchTab('tab-remote', this)"><i class="fas fa-rocket"></i> Deploy & Power</li>
+            <li onclick="switchTab('tab-gallery', this)"><i class="fas fa-images"></i> Galeri</li>
+            
+            <div class="nav-category">Administrasi</div>
+            <li onclick="switchTab('tab-system', this)"><i class="fas fa-server"></i> Metrik Sistem</li>
+        </ul>
+    </aside>
+
+    <main class="main-content">
+        <header class="topbar">
+            <div class="server-title">Web & Bot Server</div>
+            <div style="display: flex; gap: 1rem;">
+                <button class="btn btn-primary" onclick="window.open('/', '_blank')"><i class="fas fa-globe"></i> Lihat Web</button>
+                <form action="/admin/logout" method="POST" style="margin:0;">
+                    <button type="submit" class="btn btn-danger"><i class="fas fa-power-off"></i> Logout</button>
                 </form>
             </div>
-        </div>
+        </header>
 
-        <!-- MAIN CONTENT -->
-        <div class="admin-content">
-            <div id="control-alert" style="display: none;" class="alert"></div>
+        <div class="content-area">
+            <!-- Alert -->
+            <div id="control-alert" style="display:none; padding: 1rem; border-radius: 5px; margin-bottom: 1rem;"></div>
 
-            <!-- TAB 1: DASHBOARD -->
+            <!-- TAB 1: KONSOL -->
             <div id="tab-dashboard" class="tab-content active">
-                <h2 style="margin-bottom: 1.5rem;">Ringkasan Dasbor</h2>
-                <div class="dashboard-grid">
-                    <div class="panel-section">
-                        <h3><i class="fas fa-network-wired"></i> Status Layanan Utama</h3>
-                        <ul class="service-status-list">
-                            <% data.services.forEach(service => { %>
-                                <li>
-                                    <span><i class="<%= service.icon %>" style="width: 25px;"></i> <%= service.name %></span>
-                                    <% if (service.status === 'ONLINE') { %>
-                                        <span class="badge-online">ONLINE</span>
-                                    <% } else { %>
-                                        <span class="badge-offline">OFFLINE</span>
-                                    <% } %>
-                                </li>
-                            <% }) %>
-                        </ul>
+                <div class="grid-2">
+                    <div class="panel-card">
+                        <div class="panel-header"><i class="fas fa-chart-line"></i> Resource Usage</div>
+                        <div class="panel-body">
+                            <canvas id="mcChart" style="width:100%; height:200px;"></canvas>
+                        </div>
                     </div>
-
-                    <div class="panel-section">
-                        <h3><i class="fas fa-cube"></i> Live Minecraft Monitor (Pterodactyl)</h3>
-                        <p style="font-size: 0.85rem; color: var(--text-secondary);">Status Node: <span id="mc-status" style="font-weight: bold;">...</span> | Uptime: <span id="mc-uptime">...</span></p>
-                        
-                        <div class="chart-container">
-                            <canvas id="mcChart"></canvas>
+                    <div class="panel-card">
+                        <div class="panel-header"><i class="fas fa-network-wired"></i> Status Layanan</div>
+                        <div class="panel-body" style="padding: 0;">
+                            <table class="fm-table">
+                                <% data.services.forEach(service => { %>
+                                    <tr>
+                                        <td><i class="<%= service.icon %>"></i> <%= service.name %></td>
+                                        <td style="text-align: right;">
+                                            <span style="color: <%= service.status === 'ONLINE' ? '#22c55e' : '#ef4444' %>; font-weight: bold;"><%= service.status %></span>
+                                        </td>
+                                    </tr>
+                                <% }) %>
+                            </table>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- TAB 2: REMOTE & DEPLOY -->
-            <div id="tab-remote" class="tab-content">
-                <h2 style="margin-bottom: 1.5rem;">Remote & Auto-Deploy</h2>
-                <div class="panel-section">
-                    <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">Kirim perintah jarak jauh ke server VPS Anda.</p>
-                    <div class="control-buttons-grid">
-                        <div class="control-card">
-                            <i class="fab fa-github" style="color: #f05133;"></i>
-                            <h4>Deploy Web</h4>
-                            <p>Tarik update repo web (git pull) dan restart PM2 web-shiroko.</p>
-                            <button class="btn-action git" onclick="sendDeploy('web', this)"><i class="fas fa-rocket"></i> Eksekusi</button>
-                        </div>
-                        <div class="control-card">
-                            <i class="fab fa-github" style="color: #f05133;"></i>
-                            <h4>Deploy Bot</h4>
-                            <p>Tarik update repo bot (git pull) dan restart PM2 shiroko.</p>
-                            <button class="btn-action git" onclick="sendDeploy('bot', this)"><i class="fas fa-rocket"></i> Eksekusi</button>
-                        </div>
-                        <div class="control-card">
-                            <i class="fas fa-palette" style="color: #00b0f0;"></i>
-                            <h4>Toggle ComfyUI</h4>
-                            <p>Hidup/matikan fitur generasi gambar Vast.ai pada Bot.</p>
-                            <button class="btn-action comfy" onclick="sendControl('toggle_comfyui', this)"><i class="fas fa-power-off"></i> Toggle</button>
-                        </div>
-                        <div class="control-card">
-                            <i class="fas fa-skull-crossbones" style="color: #d29922;"></i>
-                            <h4>Reboot VPS</h4>
-                            <p>Restart keseluruhan sistem operasi Linux VPS (Hard Reset).</p>
-                            <button class="btn-action nuke" onclick="rebootVPS(this)"><i class="fas fa-exclamation-triangle"></i> Reboot Sekarang</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- TAB 3: GALERI -->
-            <div id="tab-gallery" class="tab-content">
-                <h2 style="margin-bottom: 1.5rem;">Manajemen Galeri</h2>
-                <div class="panel-section" style="max-width: 600px;">
-                    <h3><i class="fas fa-upload"></i> Unggah Gambar Baru</h3>
-                    <form id="gallery-form" enctype="multipart/form-data">
-                        <div class="form-group">
-                            <label>File Gambar</label>
-                            <label class="custom-file-upload">
-                                <input type="file" name="image" accept="image/*" required onchange="document.getElementById('file-name').innerText = this.files[0].name">
-                                <i class="fas fa-cloud-upload-alt"></i> <span id="file-name">Pilih Gambar...</span>
-                            </label>
-                        </div>
-                        <div class="form-group">
-                            <label>Judul Gambar</label>
-                            <input type="text" name="title" placeholder="Contoh: Arisu Maid" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Kategori (Tag)</label>
-                            <select name="tag">
-                                <option value="Artwork">Artwork</option>
-                                <option value="Landscape">Landscape</option>
-                                <option value="Character Design">Character Design</option>
-                            </select>
-                        </div>
-                        <button type="submit" class="btn-submit" id="btn-upload"><i class="fas fa-upload"></i> Unggah ke Galeri</button>
-                    </form>
-                </div>
-            </div>
-
-            <!-- TAB 4: FILE MANAGER -->
+            <!-- TAB 2: FILE MANAGER -->
             <div id="tab-files" class="tab-content">
-                <h2 style="margin-bottom: 1.5rem;">File Manager VPS</h2>
-                <div class="panel-section">
-                    <div class="file-manager">
-                        <div class="fm-header">
-                            <button onclick="goUp()" class="btn-action" style="width: auto; padding: 0.5rem 1rem;"><i class="fas fa-level-up-alt"></i></button>
-                            <div class="fm-path" id="fm-current-path">/root</div>
+                <div class="panel-card">
+                    <div class="panel-body">
+                        <div class="fm-path-bar">
+                            <button class="btn" onclick="goUp()"><i class="fas fa-level-up-alt"></i></button>
+                            <span id="fm-current-path">/root</span>
                         </div>
-                        <ul class="fm-list" id="fm-list">
-                            <li style="text-align:center; display:block;"><i class="fas fa-spinner fa-spin"></i> Loading...</li>
-                        </ul>
+                        
+                        <div class="fm-toolbar">
+                            <button class="btn btn-primary" onclick="document.getElementById('upload-input').click()"><i class="fas fa-upload"></i> Upload</button>
+                            <input type="file" id="upload-input" style="display:none;" onchange="uploadFile(this)">
+                            
+                            <button class="btn" onclick="createItem('file')"><i class="fas fa-file-medical"></i> New File</button>
+                            <button class="btn" onclick="createItem('folder')"><i class="fas fa-folder-plus"></i> New Folder</button>
+                            <button class="btn" onclick="loadFiles(currentFmPath)"><i class="fas fa-sync-alt"></i> Refresh</button>
+                        </div>
+
+                        <table class="fm-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 50%;">Nama</th>
+                                    <th>Ukuran</th>
+                                    <th>Terakhir Diubah</th>
+                                    <th style="text-align: right;">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="fm-list">
+                                <tr><td colspan="4" style="text-align:center;">Loading...</td></tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
 
-            <!-- TAB 5: SISTEM & LOGS -->
-            <div id="tab-system" class="tab-content">
-                <h2 style="margin-bottom: 1.5rem;">Sistem & Logs</h2>
-                <div class="sys-stat-grid" style="margin-bottom: 2rem;">
-                    <div class="sys-stat-box">
-                        <p style="color:var(--text-secondary);">CPU Usage</p>
-                        <div class="value" id="sys-cpu">...</div>
+            <!-- TAB 3: DEPLOY & POWER -->
+            <div id="tab-remote" class="tab-content">
+                <div class="grid-2">
+                    <div class="panel-card">
+                        <div class="panel-header"><i class="fas fa-rocket"></i> Deployment Commands</div>
+                        <div class="panel-body">
+                            <button class="btn" style="width:100%; margin-bottom:1rem;" onclick="sendDeploy('web', this)"><i class="fab fa-github"></i> Deploy Web (Git Pull)</button>
+                            <button class="btn" style="width:100%; margin-bottom:1rem;" onclick="sendDeploy('bot', this)"><i class="fab fa-github"></i> Deploy Bot (Git Pull)</button>
+                            <button class="btn" style="width:100%;" onclick="sendControl('toggle_comfyui', this)"><i class="fas fa-palette"></i> Toggle ComfyUI</button>
+                        </div>
                     </div>
-                    <div class="sys-stat-box">
-                        <p style="color:var(--text-secondary);">RAM Usage</p>
-                        <div class="value" id="sys-ram">...</div>
-                        <small id="sys-ram-detail" style="color:var(--text-secondary);">...</small>
-                    </div>
-                    <div class="sys-stat-box">
-                        <p style="color:var(--text-secondary);">OS Uptime</p>
-                        <div class="value" id="sys-uptime">...</div>
+                    <div class="panel-card" style="border-color: rgba(239, 68, 68, 0.3);">
+                        <div class="panel-header" style="color: var(--danger-color);"><i class="fas fa-skull-crossbones"></i> Danger Zone</div>
+                        <div class="panel-body">
+                            <p style="color: var(--text-secondary); margin-bottom: 1rem; font-size: 0.9rem;">Tindakan ini akan melakukan hard reset ke OS VPS.</p>
+                            <button class="btn btn-danger" style="width:100%;" onclick="rebootVPS(this)"><i class="fas fa-power-off"></i> Reboot VPS</button>
+                        </div>
                     </div>
                 </div>
+            </div>
 
-                <div class="panel-section">
-                    <h3><i class="fas fa-terminal"></i> Live PM2 Logs</h3>
-                    <div style="margin-bottom: 1rem;">
-                        <button class="btn-action" style="width: auto; padding: 0.5rem 1rem; border-color: var(--accent-color); color: var(--accent-color);" onclick="fetchLogs('bot')">Log Bot</button>
-                        <button class="btn-action" style="width: auto; padding: 0.5rem 1rem; border-color: var(--accent-color); color: var(--accent-color);" onclick="fetchLogs('web')">Log Web</button>
+            <!-- TAB 4: GALERI -->
+            <div id="tab-gallery" class="tab-content">
+                <div class="panel-card" style="max-width: 500px;">
+                    <div class="panel-header"><i class="fas fa-upload"></i> Tambah Galeri</div>
+                    <div class="panel-body">
+                        <form id="gallery-form" enctype="multipart/form-data">
+                            <div class="form-group">
+                                <label>File Gambar</label>
+                                <input type="file" name="image" accept="image/*" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Judul</label>
+                                <input type="text" name="title" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Kategori</label>
+                                <select name="tag">
+                                    <option value="Artwork">Artwork</option>
+                                    <option value="Landscape">Landscape</option>
+                                    <option value="Character Design">Character Design</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary" style="width:100%;" id="btn-upload">Unggah</button>
+                        </form>
                     </div>
-                    <div class="log-viewer" id="log-viewer">Pilih layanan di atas untuk melihat log...</div>
+                </div>
+            </div>
+
+            <!-- TAB 5: SISTEM -->
+            <div id="tab-system" class="tab-content">
+                <div class="grid-3" style="margin-bottom: 1.5rem;">
+                    <div class="panel-card"><div class="panel-body sys-stat-box"><p>CPU Usage</p><div class="value" id="sys-cpu">-</div></div></div>
+                    <div class="panel-card"><div class="panel-body sys-stat-box"><p>RAM Usage</p><div class="value" id="sys-ram">-</div></div></div>
+                    <div class="panel-card"><div class="panel-body sys-stat-box"><p>Uptime</p><div class="value" id="sys-uptime">-</div></div></div>
+                </div>
+                <div class="panel-card">
+                    <div class="panel-header">
+                        <i class="fas fa-terminal"></i> PM2 Logs
+                        <div style="margin-left: auto; display: flex; gap: 0.5rem;">
+                            <button class="btn" style="padding: 0.2rem 0.5rem; font-size: 0.8rem;" onclick="fetchLogs('web')">Web</button>
+                            <button class="btn" style="padding: 0.2rem 0.5rem; font-size: 0.8rem;" onclick="fetchLogs('bot')">Bot</button>
+                        </div>
+                    </div>
+                    <div class="panel-body"><div class="log-viewer" id="log-viewer">...</div></div>
                 </div>
             </div>
         </div>
+    </main>
+
+    <!-- Editor Overlay -->
+    <div id="editor-overlay">
+        <div class="editor-header">
+            <div>
+                <span id="editor-filename" style="font-weight: bold; margin-right: 1rem;">file.txt</span>
+                <span id="editor-status" style="color: var(--text-secondary); font-size: 0.85rem;"></span>
+            </div>
+            <div style="display: flex; gap: 0.5rem;">
+                <button class="btn btn-primary" onclick="saveFile()"><i class="fas fa-save"></i> Save</button>
+                <button class="btn" onclick="closeEditor()"><i class="fas fa-times"></i> Close</button>
+            </div>
+        </div>
+        <div id="monaco-container"></div>
     </div>
+</body>
+<script>
+    // GLOBAL VARS & SETUP
+    let currentFmPath = '/root';
+    let editorInstance = null;
+    let editingFilePath = '';
 
-    <script>
-        // Tab Switcher
-        function switchTab(tabId, element) {
-            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-            document.querySelectorAll('.sidebar-menu li').forEach(li => li.classList.remove('active'));
+    // Tab Switcher
+    function switchTab(tabId, element) {
+        document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+        document.querySelectorAll('.sidebar-nav li').forEach(li => li.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        element.classList.add('active');
+    }
+
+    // Alert
+    function showAlert(message, isError = false) {
+        const box = document.getElementById('control-alert');
+        box.style.display = 'block';
+        box.style.background = isError ? 'rgba(239, 68, 68, 0.1)' : 'rgba(34, 197, 94, 0.1)';
+        box.style.color = isError ? '#ef4444' : '#22c55e';
+        box.style.border = `1px solid ${isError ? '#ef4444' : '#22c55e'}`;
+        box.innerHTML = `<i class="fas ${isError ? 'fa-exclamation-triangle' : 'fa-check-circle'}"></i> ${message}`;
+        setTimeout(() => box.style.display = 'none', 5000);
+    }
+
+    // ================== FILE MANAGER ==================
+    async function loadFiles(dir) {
+        const list = document.getElementById('fm-list');
+        list.innerHTML = '<tr><td colspan="4" style="text-align:center;"><i class="fas fa-spinner fa-spin"></i> Loading...</td></tr>';
+        try {
+            const res = await fetch('/admin/api/files?dir=' + encodeURIComponent(dir));
+            const data = await res.json();
+            if(!res.ok) throw new Error(data.error);
             
-            document.getElementById(tabId).classList.add('active');
-            element.classList.add('active');
+            currentFmPath = data.currentDir;
+            document.getElementById('fm-current-path').innerText = currentFmPath;
+            list.innerHTML = '';
+            
+            data.files.forEach(f => {
+                const tr = document.createElement('tr');
+                const sizeStr = f.isDirectory ? '-' : (f.size / 1024).toFixed(1) + ' KB';
+                const dateStr = new Date(f.mtime).toLocaleString();
+                const icon = f.isDirectory ? 'fa-folder' : 'fa-file-alt';
+                
+                tr.innerHTML = `
+                    <td>
+                        <div style="display:flex; align-items:center; gap:0.5rem; cursor:${f.isDirectory ? 'pointer' : 'default'}" 
+                             onclick="${f.isDirectory ? `loadFiles('${f.path}')` : ''}">
+                            <i class="fas ${icon}"></i> <span>${f.name}</span>
+                        </div>
+                    </td>
+                    <td>${sizeStr}</td>
+                    <td>${dateStr}</td>
+                    <td class="fm-actions" style="text-align:right;">
+                        ${!f.isDirectory ? `<button title="Edit" onclick="openEditor('${f.path}')"><i class="fas fa-edit"></i></button>` : ''}
+                        <button title="Rename" onclick="renameItem('${f.path}', '${f.name}')"><i class="fas fa-pencil-alt"></i></button>
+                        <button title="Copy" onclick="copyMoveItem('copy', '${f.path}')"><i class="fas fa-copy"></i></button>
+                        <button title="Move" onclick="copyMoveItem('move', '${f.path}')"><i class="fas fa-arrows-alt"></i></button>
+                        <button title="Delete" style="color:var(--danger-color)" onclick="deleteItem('${f.path}')"><i class="fas fa-trash"></i></button>
+                    </td>
+                `;
+                list.appendChild(tr);
+            });
+        } catch(e) {
+            list.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--danger-color);"><i class="fas fa-exclamation-triangle"></i> ${e.message}</td></tr>`;
         }
+    }
+    
+    function goUp() {
+        if(currentFmPath === '/root' || currentFmPath === '/root/') return;
+        const parts = currentFmPath.split('/'); parts.pop();
+        loadFiles(parts.join('/') || '/');
+    }
 
-        function showAlert(type, icon, message) {
-            const alertBox = document.getElementById('control-alert');
-            alertBox.className = 'alert alert-' + type;
-            alertBox.innerHTML = `<i class="fas ${icon}"></i> ` + message;
-            alertBox.style.display = 'block';
-            setTimeout(() => alertBox.style.display = 'none', 5000);
-        }
+    async function fmAction(payload) {
+        try {
+            const res = await fetch('/admin/api/files/action', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+            if(!res.ok) throw new Error(data.error);
+            loadFiles(currentFmPath);
+            showAlert('Action success!');
+        } catch(e) { showAlert(e.message, true); }
+    }
 
-        // Action Functions
-        async function sendControl(action, btnElement) {
-            const originalHtml = btnElement.innerHTML;
-            btnElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-            btnElement.disabled = true;
-            try {
-                const res = await fetch('/admin/api/control', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action }) });
-                const data = await res.json();
-                if(data.status === 'ok') showAlert('success', 'fa-check-circle', data.message);
-                else showAlert('error', 'fa-exclamation-triangle', data.message);
-            } catch (err) { showAlert('error', 'fa-wifi', 'Koneksi gagal.'); } 
-            finally { btnElement.innerHTML = originalHtml; btnElement.disabled = false; }
-        }
+    function createItem(type) {
+        const name = prompt(`Nama ${type} baru:`);
+        if(name) fmAction({ action: 'create', source: currentFmPath + '/' + name, type });
+    }
+    function renameItem(path, oldName) {
+        const newName = prompt('Nama baru:', oldName);
+        if(newName && newName !== oldName) fmAction({ action: 'rename', source: path, newName });
+    }
+    function copyMoveItem(action, source) {
+        const dest = prompt(`Masukkan path tujuan untuk ${action}:`, currentFmPath + '/');
+        if(dest) fmAction({ action, source, dest });
+    }
+    function deleteItem(path) {
+        if(confirm('Yakin hapus ' + path + '?')) fmAction({ action: 'delete', source: path });
+    }
 
-        async function sendDeploy(target, btnElement) {
-            if(!confirm(`Yakin ingin deploy ${target}?`)) return;
-            const originalHtml = btnElement.innerHTML;
-            btnElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-            btnElement.disabled = true;
-            try {
-                const res = await fetch('/admin/api/deploy', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ target }) });
-                const data = await res.json();
-                if(data.status === 'ok') {
-                    showAlert('success', 'fa-check-circle', data.message);
-                    if(target === 'web') setTimeout(() => location.reload(), 6000);
-                } else showAlert('error', 'fa-exclamation-triangle', data.message);
-            } catch (err) {
-                showAlert('error', 'fa-wifi', 'Deployment diinisiasi (koneksi terputus).');
-                setTimeout(() => location.reload(), 6000);
-            } finally { btnElement.innerHTML = originalHtml; btnElement.disabled = false; }
-        }
+    async function uploadFile(input) {
+        if(!input.files.length) return;
+        const formData = new FormData();
+        formData.append('file', input.files[0]);
+        formData.append('dir', currentFmPath);
+        try {
+            const res = await fetch('/admin/api/files/upload', { method: 'POST', body: formData });
+            if(!res.ok) throw new Error('Upload failed');
+            loadFiles(currentFmPath);
+            showAlert('Upload berhasil!');
+        } catch(e) { showAlert(e.message, true); }
+        input.value = ''; // reset
+    }
 
-        async function rebootVPS(btnElement) {
-            if(!confirm('PERINGATAN! Ini akan me-restart keseluruhan mesin VPS. Web dan Bot akan terputus. Yakin?')) return;
-            const originalHtml = btnElement.innerHTML;
-            btnElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-            btnElement.disabled = true;
-            try {
-                await fetch('/admin/api/reboot', { method: 'POST' });
-                showAlert('success', 'fa-check-circle', 'VPS sedang di-reboot. Silakan tunggu 1-2 menit sebelum merefresh.');
-            } catch (err) {
-                showAlert('success', 'fa-check-circle', 'VPS sedang di-reboot (koneksi terputus).');
-            }
-        }
-
-        // Gallery
-        document.getElementById('gallery-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById('btn-upload');
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengunggah...';
-            btn.disabled = true;
-            const formData = new FormData(e.target);
-            try {
-                const res = await fetch('/admin/api/gallery', { method: 'POST', body: formData });
-                const data = await res.json();
-                if (data.status === 'ok') {
-                    showAlert('success', 'fa-check-circle', 'Gambar berhasil diunggah!');
-                    e.target.reset(); document.getElementById('file-name').innerText = 'Pilih Gambar...';
-                } else showAlert('error', 'fa-exclamation-circle', data.error);
-            } catch (err) { showAlert('error', 'fa-wifi', 'Koneksi terputus.'); } 
-            finally { btn.innerHTML = '<i class="fas fa-upload"></i> Unggah ke Galeri'; btn.disabled = false; }
-        });
-
-        // File Manager
-        let currentFmPath = '/root';
-        async function loadFiles(dir) {
-            const list = document.getElementById('fm-list');
-            list.innerHTML = '<li style="text-align:center; display:block;"><i class="fas fa-spinner fa-spin"></i> Loading...</li>';
-            try {
-                const res = await fetch('/admin/api/files?dir=' + encodeURIComponent(dir));
-                if(res.ok) {
-                    const data = await res.json();
-                    currentFmPath = data.currentDir;
-                    document.getElementById('fm-current-path').innerText = currentFmPath;
-                    list.innerHTML = '';
-                    data.files.forEach(f => {
-                        const li = document.createElement('li');
-                        li.className = f.isDirectory ? 'directory' : 'file';
-                        li.innerHTML = `<i class="fas ${f.isDirectory ? 'fa-folder' : 'fa-file-alt'}"></i> <span>${f.name}</span>`;
-                        if(f.isDirectory) li.onclick = () => loadFiles(f.path);
-                        list.appendChild(li);
-                    });
-                } else {
-                    const data = await res.json();
-                    list.innerHTML = `<li style="text-align:center; display:block; color:var(--offline-color);"><i class="fas fa-exclamation-triangle"></i> ${data.error} (Tidak berjalan di VPS Linux)</li>`;
-                }
-            } catch(e) { list.innerHTML = `<li style="text-align:center; display:block; color:var(--offline-color);"><i class="fas fa-wifi"></i> Error koneksi.</li>`; }
-        }
-        function goUp() {
-            if(currentFmPath === '/root' || currentFmPath === '/root/') return;
-            const parts = currentFmPath.split('/'); parts.pop();
-            loadFiles(parts.join('/') || '/');
-        }
-        loadFiles(currentFmPath);
-
-        // Chart.js & Monitoring
-        let mcChart;
-        function initChart() {
-            const ctx = document.getElementById('mcChart').getContext('2d');
-            mcChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: Array(10).fill(''),
-                    datasets: [
-                        { label: 'CPU (%)', data: Array(10).fill(0), borderColor: '#00b0f0', backgroundColor: 'rgba(0, 176, 240, 0.2)', fill: true, tension: 0.4 },
-                        { label: 'RAM (MB)', data: Array(10).fill(0), borderColor: '#f05133', backgroundColor: 'rgba(240, 81, 51, 0.2)', fill: true, tension: 0.4 }
-                    ]
-                },
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    animation: { duration: 0 },
-                    scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.1)' } }, x: { grid: { display: false } } },
-                    plugins: { legend: { labels: { color: '#fff' } } }
-                }
+    // ================== CODE EDITOR ==================
+    require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs' }});
+    function initMonaco(content, ext) {
+        let lang = 'plaintext';
+        if(ext === 'js') lang = 'javascript';
+        if(ext === 'json') lang = 'json';
+        if(ext === 'html' || ext === 'ejs') lang = 'html';
+        if(ext === 'css') lang = 'css';
+        
+        if (editorInstance) {
+            editorInstance.setValue(content);
+            monaco.editor.setModelLanguage(editorInstance.getModel(), lang);
+        } else {
+            require(['vs/editor/editor.main'], function () {
+                editorInstance = monaco.editor.create(document.getElementById('monaco-container'), {
+                    value: content,
+                    language: lang,
+                    theme: 'vs-dark',
+                    automaticLayout: true
+                });
             });
         }
-        initChart();
+    }
 
-        async function fetchMCStatus() {
-            try {
-                const res = await fetch('/admin/api/pterodactyl');
-                if(res.ok) {
-                    const data = await res.json();
-                    const attr = data.attributes;
-                    const cpu = attr.resources.cpu_absolute;
-                    const ram = attr.resources.memory_bytes / 1024 / 1024;
-                    
-                    document.getElementById('mc-status').innerText = attr.current_state.toUpperCase();
-                    document.getElementById('mc-status').style.color = attr.current_state === 'running' ? 'var(--online-color)' : 'var(--offline-color)';
-                    document.getElementById('mc-uptime').innerText = (attr.resources.uptime / 1000 / 3600).toFixed(1) + 'h';
-
-                    // Update Chart
-                    mcChart.data.datasets[0].data.push(cpu); mcChart.data.datasets[0].data.shift();
-                    mcChart.data.datasets[1].data.push(ram); mcChart.data.datasets[1].data.shift();
-                    mcChart.update();
-                }
-            } catch(e) {}
+    async function openEditor(filePath) {
+        document.getElementById('editor-status').innerText = 'Loading...';
+        document.getElementById('editor-overlay').style.display = 'flex';
+        document.getElementById('editor-filename').innerText = filePath;
+        editingFilePath = filePath;
+        try {
+            const res = await fetch('/admin/api/files/read?dir=' + encodeURIComponent(filePath));
+            const data = await res.json();
+            if(!res.ok) throw new Error(data.error);
+            
+            const ext = filePath.split('.').pop().toLowerCase();
+            initMonaco(data.content, ext);
+            document.getElementById('editor-status').innerText = 'Ready';
+        } catch(e) {
+            document.getElementById('editor-status').innerText = 'Error: ' + e.message;
         }
-        setInterval(fetchMCStatus, 5000); fetchMCStatus();
+    }
 
-        // VPS Stats & Logs
-        async function fetchVPSStats() {
-            try {
-                const res = await fetch('/admin/api/vps-stats');
-                if(res.ok) {
-                    const data = await res.json();
-                    document.getElementById('sys-cpu').innerText = data.cpu + '%';
-                    document.getElementById('sys-ram').innerText = data.ram + '%';
-                    document.getElementById('sys-ram-detail').innerText = `${data.usedRam} / ${data.totalRam}`;
-                    document.getElementById('sys-uptime').innerText = data.uptime;
-                }
-            } catch(e) {}
-        }
-        setInterval(fetchVPSStats, 5000); fetchVPSStats();
+    function closeEditor() {
+        document.getElementById('editor-overlay').style.display = 'none';
+        editingFilePath = '';
+    }
 
-        async function fetchLogs(target) {
-            const viewer = document.getElementById('log-viewer');
-            viewer.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Fetching logs...';
-            try {
-                const res = await fetch('/admin/api/logs?target=' + target);
-                const data = await res.json();
-                viewer.innerText = data.logs || 'Tidak ada log yang ditemukan.';
-                viewer.scrollTop = viewer.scrollHeight;
-            } catch(e) { viewer.innerText = 'Gagal mengambil log.'; }
+    async function saveFile() {
+        if(!editingFilePath || !editorInstance) return;
+        document.getElementById('editor-status').innerText = 'Saving...';
+        try {
+            const content = editorInstance.getValue();
+            const res = await fetch('/admin/api/files/save', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ dir: editingFilePath, content })
+            });
+            if(!res.ok) throw new Error('Save failed');
+            document.getElementById('editor-status').innerText = 'Saved!';
+            setTimeout(() => document.getElementById('editor-status').innerText = '', 2000);
+        } catch(e) {
+            document.getElementById('editor-status').innerText = 'Error: ' + e.message;
         }
-    </script>
+    }
+
+    // ================== OTHER PANELS ==================
+    async function sendControl(action, btn) {
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>'; btn.disabled = true;
+        try {
+            const res = await fetch('/admin/api/control', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({action}) });
+            const data = await res.json();
+            showAlert(data.message, res.status !== 200);
+        } catch(e) { showAlert('Error', true); }
+        btn.innerHTML = 'Toggle'; btn.disabled = false;
+    }
+
+    async function sendDeploy(target, btn) {
+        if(!confirm('Deploy ' + target + '?')) return;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>'; btn.disabled = true;
+        try {
+            const res = await fetch('/admin/api/deploy', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({target}) });
+            const data = await res.json();
+            showAlert(data.message, res.status !== 200);
+        } catch(e) { showAlert('Deployment triggered (disconnected)', false); }
+        btn.innerHTML = 'Deploy ' + target; btn.disabled = false;
+    }
+
+    async function rebootVPS() {
+        if(!confirm('Reboot VPS?')) return;
+        try {
+            await fetch('/admin/api/reboot', { method: 'POST' });
+            showAlert('Rebooting...');
+        } catch(e) { showAlert('Rebooting (disconnected)'); }
+    }
+
+    // Pterodactyl Chart
+    let mcChart;
+    function initChart() {
+        const ctx = document.getElementById('mcChart').getContext('2d');
+        mcChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: Array(10).fill(''),
+                datasets: [
+                    { label: 'CPU (%)', data: Array(10).fill(0), borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.2)', fill: true, tension: 0.4 },
+                    { label: 'RAM (MB)', data: Array(10).fill(0), borderColor: '#ef4444', backgroundColor: 'rgba(239, 68, 68, 0.2)', fill: true, tension: 0.4 }
+                ]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false, animation: { duration: 0 },
+                scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.1)' } }, x: { grid: { display: false } } },
+                plugins: { legend: { labels: { color: '#94a3b8' } } }
+            }
+        });
+    }
+    initChart();
+    
+    async function fetchStats() {
+        try {
+            const resPtero = await fetch('/admin/api/pterodactyl');
+            if(resPtero.ok) {
+                const data = await resPtero.json();
+                mcChart.data.datasets[0].data.push(data.attributes.resources.cpu_absolute); mcChart.data.datasets[0].data.shift();
+                mcChart.data.datasets[1].data.push(data.attributes.resources.memory_bytes/1024/1024); mcChart.data.datasets[1].data.shift();
+                mcChart.update();
+            }
+            const resVps = await fetch('/admin/api/vps-stats');
+            if(resVps.ok) {
+                const vps = await resVps.json();
+                document.getElementById('sys-cpu').innerText = vps.cpu + '%';
+                document.getElementById('sys-ram').innerText = vps.ram + '%';
+                document.getElementById('sys-uptime').innerText = vps.uptime;
+            }
+        } catch(e) {}
+    }
+    setInterval(fetchStats, 5000); fetchStats();
+
+    async function fetchLogs(target) {
+        document.getElementById('log-viewer').innerText = 'Fetching...';
+        try {
+            const res = await fetch('/admin/api/logs?target=' + target);
+            const data = await res.json();
+            document.getElementById('log-viewer').innerText = data.logs || 'No logs.';
+        } catch(e) { document.getElementById('log-viewer').innerText = 'Error'; }
+    }
+
+    // Init
+    loadFiles(currentFmPath);
+</script>
+</html>
 <% } %>
-
-<%- include('partials/footer') %>
