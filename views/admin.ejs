@@ -653,7 +653,7 @@
             }
         } catch(e) {}
     }
-    setInterval(fetchSystemStats, 5000); fetchSystemStats();
+    setInterval(fetchSystemStats, 2000); fetchSystemStats();
 
     async function fetchLogs(target) {
         document.getElementById('log-viewer').innerText = 'Fetching...';
@@ -737,7 +737,7 @@
     }
     
     // Polling setiap 3 detik
-    setInterval(fetchLiveStats, 3000);
+    setInterval(fetchLiveStats, 2000);
 
     // Init
     loadFiles(currentFmPath);
