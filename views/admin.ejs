@@ -111,6 +111,7 @@
 
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
         .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; }
         .sys-stat-box { text-align: center; }
         .sys-stat-box .value { font-size: 1.8rem; font-weight: bold; color: var(--accent-color); margin-top: 0.5rem; }
         .log-viewer { background: #000; color: #0f0; font-family: monospace; padding: 1rem; border-radius: 5px; height: 300px; overflow-y: auto; font-size: 0.85rem; white-space: pre-wrap; }
@@ -123,7 +124,7 @@
             .nav-category { display: none; }
             .sidebar-nav li { padding: 0.5rem; border-left: none; border-bottom: 3px solid transparent; white-space: nowrap; }
             .sidebar-nav li.active { border-left: none; border-bottom-color: var(--accent-color); }
-            .grid-2, .grid-3 { grid-template-columns: 1fr; }
+            .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -312,9 +313,10 @@
 
             <!-- TAB 5: SISTEM -->
             <div id="tab-system" class="tab-content">
-                <div class="grid-3" style="margin-bottom: 1.5rem;">
+                <div class="grid-4" style="margin-bottom: 1.5rem;">
                     <div class="panel-card"><div class="panel-body sys-stat-box"><p>CPU Usage</p><div class="value" id="sys-cpu">-</div></div></div>
                     <div class="panel-card"><div class="panel-body sys-stat-box"><p>RAM Usage</p><div class="value" id="sys-ram">-</div></div></div>
+                    <div class="panel-card"><div class="panel-body sys-stat-box"><p>Storage</p><div class="value" id="sys-disk" style="font-size: 1.2rem;">-</div></div></div>
                     <div class="panel-card"><div class="panel-body sys-stat-box"><p>Uptime</p><div class="value" id="sys-uptime">-</div></div></div>
                 </div>
                 <div class="panel-card">
@@ -647,6 +649,7 @@
                 document.getElementById('sys-cpu').innerText = vps.cpu + '%';
                 document.getElementById('sys-ram').innerText = vps.ram + '%';
                 document.getElementById('sys-uptime').innerText = vps.uptime;
+                document.getElementById('sys-disk').innerText = vps.disk;
             }
         } catch(e) {}
     }

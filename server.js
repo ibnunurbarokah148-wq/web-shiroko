@@ -342,12 +342,27 @@ app.get('/admin/api/vps-stats', (req, res) => {
     // Calculate simple CPU usage (this is an approximation for immediate read)
     const cpuUsage = (100 - ~~(100 * idle / total)).toFixed(2);
 
-    res.json({
-        cpu: cpuUsage,
-        ram: memoryUsage,
-        totalRam: (totalMem / 1024 / 1024 / 1024).toFixed(2) + ' GB',
-        usedRam: (usedMem / 1024 / 1024 / 1024).toFixed(2) + ' GB',
-        uptime: (os.uptime() / 3600).toFixed(1) + ' Hours'
+    exec('df -Pk /', (err, stdout) => {
+        let diskStr = '0 GB / 0 GB';
+        if (!err && stdout) {
+            const lines = stdout.trim().split('\n');
+            if (lines.length > 1) {
+                const parts = lines[1].trim().split(/\s+/);
+                if (parts.length >= 4) {
+                    const totalKB = parseInt(parts[1], 10);
+                    const usedKB = parseInt(parts[2], 10);
+                    diskStr = `${(usedKB / 1024 / 1024).toFixed(1)} GB / ${(totalKB / 1024 / 1024).toFixed(1)} GB`;
+                }
+            }
+        }
+        res.json({
+            cpu: cpuUsage,
+            ram: memoryUsage,
+            totalRam: (totalMem / 1024 / 1024 / 1024).toFixed(2) + ' GB',
+            usedRam: (usedMem / 1024 / 1024 / 1024).toFixed(2) + ' GB',
+            uptime: (os.uptime() / 3600).toFixed(1) + ' Jam',
+            disk: diskStr
+        });
     });
 });
 
