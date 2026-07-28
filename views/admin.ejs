@@ -88,6 +88,10 @@
         .form-group input, .form-group select { width: 100%; background: var(--bg-color); border: 1px solid var(--border-color); color: white; padding: 0.75rem; border-radius: 5px; }
         .form-group input:focus { outline: none; border-color: var(--accent-color); }
 
+        /* Status Colors */
+        .status-online { color: #22c55e; font-weight: bold; }
+        .status-offline { color: #ef4444; font-weight: bold; }
+
         /* File Manager */
         .fm-toolbar { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
         .fm-path-bar { background: var(--sidebar-bg); border: 1px solid var(--border-color); padding: 0.75rem 1rem; border-radius: 5px; margin-bottom: 1rem; font-family: monospace; display: flex; gap: 0.5rem; align-items: center; }
@@ -174,7 +178,7 @@
                                     <tr>
                                         <td><i class="<%= service.icon %>"></i> <%= service.name %></td>
                                         <td style="text-align: right;">
-                                            <span style="color: <%= service.status === 'ONLINE' ? '#22c55e' : '#ef4444' %>; font-weight: bold;"><%= service.status %></span>
+                                            <span class="<%= service.status === 'ONLINE' ? 'status-online' : 'status-offline' %>"><%= service.status %></span>
                                         </td>
                                     </tr>
                                 <% }) %>
