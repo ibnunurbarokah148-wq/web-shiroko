@@ -225,7 +225,7 @@ app.post('/admin/api/deploy', (req, res) => {
 const fileManagerUpload = multer({ dest: os.tmpdir() }); // Temp dir for uploads
 
 function getFmTargetDir(req) {
-    let target = req.query.dir || req.body.dir || '/root';
+    let target = (req.query && req.query.dir) || (req.body && req.body.dir) || '/root';
     if (!fs.existsSync('/root')) { // Fallback for Windows local dev
         target = target.replace('/root', path.join(__dirname, '..')).replace(/\\/g, '/');
     }

@@ -198,12 +198,12 @@
                         </div>
                         
                         <div class="fm-toolbar">
-                            <button class="btn btn-primary" onclick="document.getElementById('upload-input').click()"><i class="fas fa-upload"></i> Upload</button>
-                            <input type="file" id="upload-input" style="display:none;" onchange="uploadFile(this)">
-                            
+                            <input type="file" id="fm-upload" style="display:none;" onchange="uploadFile(this)">
+                            <button class="btn" onclick="document.getElementById('fm-upload').click()"><i class="fas fa-upload"></i> Upload</button>
                             <button class="btn" onclick="createItem('file')"><i class="fas fa-file-medical"></i> New File</button>
                             <button class="btn" onclick="createItem('folder')"><i class="fas fa-folder-plus"></i> New Folder</button>
                             <button class="btn" onclick="loadFiles(currentFmPath)"><i class="fas fa-sync-alt"></i> Refresh</button>
+                            <button class="btn btn-primary" id="btn-paste" style="display:none;" onclick="pasteFile()"><i class="fas fa-paste"></i> Paste</button>
                         </div>
 
                         <table class="fm-table">
@@ -327,6 +327,7 @@
     let currentFmPath = '/root';
     let editorInstance = null;
     let editingFilePath = '';
+    let fmClipboard = null;
 
     // Tab Switcher
     function switchTab(tabId, element) {
@@ -377,10 +378,10 @@
                     <td>${dateStr}</td>
                     <td class="fm-actions" style="text-align:right;">
                         ${!f.isDirectory ? `<button title="Edit" onclick="openEditor('${f.path}')"><i class="fas fa-edit"></i></button>` : ''}
-                        <button title="Rename" onclick="renameItem('${f.path}', '${f.name}')"><i class="fas fa-pencil-alt"></i></button>
-                        <button title="Copy" onclick="copyMoveItem('copy', '${f.path}')"><i class="fas fa-copy"></i></button>
-                        <button title="Move" onclick="copyMoveItem('move', '${f.path}')"><i class="fas fa-arrows-alt"></i></button>
-                        <button title="Delete" style="color:var(--danger-color)" onclick="deleteItem('${f.path}')"><i class="fas fa-trash"></i></button>
+                        <button title="Rename" onclick="fileAction('rename', '${f.path}')"><i class="fas fa-pencil-alt"></i></button>
+                        <button title="Copy" onclick="fileAction('copy', '${f.path}')"><i class="fas fa-copy"></i></button>
+                        <button title="Move" onclick="fileAction('move', '${f.path}')"><i class="fas fa-arrows-alt"></i></button>
+                        <button title="Delete" style="color:var(--danger-color)" onclick="fileAction('delete', '${f.path}')"><i class="fas fa-trash"></i></button>
                     </td>
                 `;
                 list.appendChild(tr);
@@ -396,34 +397,67 @@
         loadFiles(parts.join('/') || '/');
     }
 
-    async function fmAction(payload) {
+    async function fileAction(action, item) {
+        if(action === 'delete') {
+            if(!confirm(`Hapus ${item}?`)) return;
+        }
+        
+        let dest = '', newName = '';
+        if(action === 'rename') {
+            newName = prompt('Nama baru:', item.split('/').pop());
+            if(!newName) return;
+        } else if(action === 'copy' || action === 'move') {
+            fmClipboard = { action, source: item };
+            document.getElementById('btn-paste').style.display = 'inline-block';
+            showAlert((action === 'copy' ? 'Disalin' : 'Dipotong') + '! Buka folder tujuan lalu klik Paste.');
+            return;
+        }
+
         try {
             const res = await fetch('/admin/api/files/action', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
+                body: JSON.stringify({ action, source: item, dest, newName })
             });
-            const data = await res.json();
-            if(!res.ok) throw new Error(data.error);
-            loadFiles(currentFmPath);
-            showAlert('Action success!');
+            if(res.ok) {
+                showAlert('Berhasil!');
+                loadFiles(currentFmPath);
+            } else showAlert('Gagal', true);
         } catch(e) { showAlert(e.message, true); }
     }
 
-    function createItem(type) {
+    async function pasteFile() {
+        if(!fmClipboard) return;
+        const dest = currentFmPath + '/' + fmClipboard.source.split('/').pop();
+        try {
+            const res = await fetch('/admin/api/files/action', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: fmClipboard.action, source: fmClipboard.source, dest: dest })
+            });
+            if(res.ok) {
+                showAlert('Berhasil ditempel!');
+                fmClipboard = null;
+                document.getElementById('btn-paste').style.display = 'none';
+                loadFiles(currentFmPath);
+            } else showAlert('Gagal menempel', true);
+        } catch(e) { showAlert(e.message, true); }
+    }
+
+    async function createItem(type) {
         const name = prompt(`Nama ${type} baru:`);
-        if(name) fmAction({ action: 'create', source: currentFmPath + '/' + name, type });
-    }
-    function renameItem(path, oldName) {
-        const newName = prompt('Nama baru:', oldName);
-        if(newName && newName !== oldName) fmAction({ action: 'rename', source: path, newName });
-    }
-    function copyMoveItem(action, source) {
-        const dest = prompt(`Masukkan path tujuan untuk ${action}:`, currentFmPath + '/');
-        if(dest) fmAction({ action, source, dest });
-    }
-    function deleteItem(path) {
-        if(confirm('Yakin hapus ' + path + '?')) fmAction({ action: 'delete', source: path });
+        if(!name) return;
+        try {
+            const res = await fetch('/admin/api/files/action', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'create', source: currentFmPath + '/' + name, type })
+            });
+            if(res.ok) {
+                showAlert('Berhasil dibuat!');
+                loadFiles(currentFmPath);
+            } else showAlert('Gagal', true);
+        } catch(e) { showAlert(e.message, true); }
     }
 
     async function uploadFile(input) {
