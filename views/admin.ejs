@@ -976,18 +976,31 @@
     let mcChart;
     function initChart() {
         const ctx = document.getElementById('mcChart').getContext('2d');
-        mcChart = new Chart(ctx, {
+                mcChart = new Chart(ctx, {
             type: 'line',
             data: {
                 labels: Array(10).fill(''),
                 datasets: [
-                    { label: 'CPU (%)', data: Array(10).fill(0), borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.2)', fill: true, tension: 0.4 },
-                    { label: 'RAM (MB)', data: Array(10).fill(0), borderColor: '#ef4444', backgroundColor: 'rgba(239, 68, 68, 0.2)', fill: true, tension: 0.4 }
+                    { label: 'CPU (%)', data: Array(10).fill(0), yAxisID: 'y', borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.2)', fill: true, tension: 0.4 },
+                    { label: 'RAM (MB)', data: Array(10).fill(0), yAxisID: 'y1', borderColor: '#ef4444', backgroundColor: 'rgba(239, 68, 68, 0.2)', fill: true, tension: 0.4 }
                 ]
             },
             options: {
                 responsive: true, maintainAspectRatio: false, animation: { duration: 0 },
-                scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.1)' } }, x: { grid: { display: false } } },
+                scales: { 
+                    y: { 
+                        beginAtZero: true, 
+                        suggestedMax: 200,
+                        grid: { color: 'rgba(255,255,255,0.1)' } 
+                    }, 
+                    y1: {
+                        beginAtZero: true,
+                        position: 'right',
+                        suggestedMax: 2500,
+                        grid: { drawOnChartArea: false }
+                    },
+                    x: { grid: { display: false } } 
+                },
                 plugins: { legend: { labels: { color: '#94a3b8' } } }
             }
         });
@@ -1112,6 +1125,7 @@
 </script>
 </html>
 <% } %>
+
 
 
 
