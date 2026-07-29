@@ -174,6 +174,9 @@
         .custom-modal-footer { padding: 1rem 1.5rem; display: flex; justify-content: flex-end; gap: 0.75rem; background: rgba(0,0,0,0.1); border-top: 1px solid var(--border-color); }
         .custom-modal-footer .btn { padding: 0.5rem 1rem; font-weight: 500; }
         @keyframes fadeInModal { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+            /* Fix for last row dropdown clipping */
+        .fm-table-container { padding-bottom: 80px; }
+        .fm-table tr:last-child .dropdown-content, .fm-table tr:nth-last-child(2) .dropdown-content { top: auto; bottom: 100%; margin-bottom: 5px; }
     </style>
 </head>
 <body>
@@ -890,23 +893,37 @@
         btn.innerHTML = 'Toggle'; btn.disabled = false;
     }
 
-    async function sendDeploy(target, btn) {
-        if(!confirm('Deploy ' + target + '?')) return;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>'; btn.disabled = true;
-        try {
-            const res = await fetch('/admin/api/deploy', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({target}) });
-            const data = await res.json();
-            showAlert(data.message, res.status !== 200);
-        } catch(e) { showAlert('Deployment triggered (disconnected)', false); }
-        btn.innerHTML = 'Deploy ' + target; btn.disabled = false;
+        function sendDeploy(target, btn) {
+        showCustomModal({
+            title: 'Konfirmasi Deploy',
+            text: `Yakin ingin melakukan deploy <b>${target}</b>?`,
+            confirmText: 'Deploy',
+            onConfirm: async () => {
+                const originalHtml = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>'; btn.disabled = true;
+                try {
+                    const res = await fetch('/admin/api/deploy', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({target}) });
+                    const data = await res.json();
+                    showAlert(data.message, res.status !== 200);
+                } catch(e) { showAlert('Deployment triggered (disconnected)', false); }
+                btn.innerHTML = originalHtml; btn.disabled = false;
+            }
+        });
     }
 
-    async function rebootVPS() {
-        if(!confirm('Reboot VPS?')) return;
-        try {
-            await fetch('/admin/api/reboot', { method: 'POST' });
-            showAlert('Rebooting...');
-        } catch(e) { showAlert('Rebooting (disconnected)'); }
+    function rebootVPS() {
+        showCustomModal({
+            title: 'Reboot VPS',
+            text: 'Yakin ingin memulai ulang VPS? Semua layanan akan terhenti sementara.',
+            confirmText: 'Reboot',
+            confirmClass: 'btn-danger',
+            onConfirm: async () => {
+                try {
+                    await fetch('/admin/api/reboot', { method: 'POST' });
+                    showAlert('Rebooting...');
+                } catch(e) { showAlert('Rebooting (disconnected)'); }
+            }
+        });
     }
 
     // Pterodactyl Chart
@@ -1001,15 +1018,22 @@
         } catch(e) {}
     }
 
-    async function deleteGallery(id) {
-        if(!confirm('Hapus gambar ini?')) return;
-        try {
-            const res = await fetch('/admin/api/gallery/' + id, { method: 'DELETE' });
-            if(res.ok) {
-                showAlert('Gambar dihapus!');
-                fetchGallery();
-            } else showAlert('Gagal menghapus', true);
-        } catch(e) { showAlert(e.message, true); }
+        function deleteGallery(id) {
+        showCustomModal({
+            title: 'Hapus Gambar',
+            text: 'Yakin ingin menghapus gambar ini secara permanen?',
+            confirmText: 'Menghapus',
+            confirmClass: 'btn-danger',
+            onConfirm: async () => {
+                try {
+                    const res = await fetch('/admin/api/gallery/' + id, { method: 'DELETE' });
+                    if(res.ok) {
+                        showAlert('Gambar dihapus!');
+                        fetchGallery();
+                    } else showAlert('Gagal menghapus', true);
+                } catch(e) { showAlert(e.message, true); }
+            }
+        });
     }
 
     // -----------------------------------------------------
@@ -1042,6 +1066,7 @@
 </script>
 </html>
 <% } %>
+
 
 
 
