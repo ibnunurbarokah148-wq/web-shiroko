@@ -51,18 +51,38 @@
                 </div>
             </div>
 
-            <!-- Minecraft Monitor -->
-            <div class="project-detail-card" data-aos="fade-up" data-aos-delay="300">
-                <div class="project-icon" style="color: #4CAF50;"><i class="fas fa-cube"></i></div>
-                <div class="project-content">
-                    <h2>Minecraft Monitor</h2>
-                    <p class="desc">Sistem monitoring server Minecraft menggunakan Mineflayer. Status TPS, RAM, dan pemain terhubung langsung ke WhatsApp melalui webhook.</p>
+                        <!-- Server Minecraft -->
+            <div class="project-detail-card mc-card" data-aos="fade-up" data-aos-delay="300">
+                <div class="mc-card-bg"></div>
+                <div class="mc-card-content">
+                    <div class="project-content" style="flex: 1;">
+                        <h2>Server Minecraft</h2>
+                        <p class="desc">Bermain bersama di dunia Minecraft lintas platform (Java & Bedrock). Server survival yang didukung oleh komunitas dengan fitur-fitur seru.</p>
+                        
+                        <div class="features-list">
+                            <span class="feature"><i class="fas fa-check"></i> Cross-play (Java/Bedrock)</span>
+                            <span class="feature"><i class="fas fa-check"></i> 24/7 Uptime</span>
+                            <span class="feature"><i class="fas fa-check"></i> Economy System</span>
+                        </div>
+                        
+                        <div class="project-links mt-3">
+                            <a href="/status" class="btn btn-outline"><i class="fas fa-signal"></i> Status Server</a>
+                        </div>
+                    </div>
                     
-                    <div class="features-list">
-                        <span class="feature"><i class="fas fa-check"></i> Server Monitor</span>
-                        <span class="feature"><i class="fas fa-check"></i> Cek TPS & RAM</span>
-                        <span class="feature"><i class="fas fa-check"></i> Player Logger</span>
-                        <span class="feature"><i class="fas fa-check"></i> Console Webhook</span>
+                    <div class="mc-server-details">
+                        <div class="mc-ip-box">
+                            <span class="mc-platform">Java:</span>
+                            <div class="mc-ip">mc.shiroko-project.my.id</div>
+                        </div>
+                        <div class="mc-ip-box mt-3">
+                            <span class="mc-platform">Bedrock:</span>
+                            <div class="mc-ip">mc.shiroko-project.my.id</div>
+                            <div class="mc-port">Port: <span style="color:var(--accent-color);">25713</span></div>
+                        </div>
+                        <a href="minecraft://?addExternalServer=Shiroko%20Project|mc.shiroko-project.my.id:25713" class="btn btn-primary mt-4" style="width: 100%; justify-content: center;">
+                            <i class="fas fa-gamepad"></i> Join Server
+                        </a>
                     </div>
                 </div>
             </div>
@@ -177,6 +197,85 @@
         justify-content: center;
     }
 }
+.mc-card {
+    position: relative;
+    overflow: hidden;
+    padding: 0;
+}
+.mc-card-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('/assets/img/mc-bg.jpeg');
+    background-size: cover;
+    background-position: left center;
+    z-index: 0;
+}
+.mc-card-bg::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to right, transparent 0%, var(--surface-color) 70%, var(--surface-color) 100%);
+}
+.mc-card-content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    padding: 2.5rem;
+    width: 100%;
+}
+.mc-server-details {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 1.5rem;
+    min-width: 280px;
+    flex-shrink: 0;
+    backdrop-filter: blur(10px);
+}
+.mc-ip-box {
+    margin-bottom: 0.5rem;
+}
+.mc-platform {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: bold;
+}
+.mc-ip {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 1.15rem;
+    color: #fff;
+    margin-top: 4px;
+    background: rgba(255,255,255,0.05);
+    padding: 5px 10px;
+    border-radius: 5px;
+    border-left: 3px solid var(--accent-color);
+}
+.mc-port {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.95rem;
+    color: #ccc;
+    margin-top: 4px;
+    padding-left: 10px;
+}
+@media (max-width: 768px) {
+    .mc-card-bg::after {
+        background: linear-gradient(to bottom, transparent 0%, var(--surface-color) 50%, var(--surface-color) 100%);
+    }
+    .mc-server-details {
+        width: 100%;
+    }
+}
 </style>
 
 <%- include('partials/footer') %>
+
