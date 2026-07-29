@@ -468,8 +468,41 @@ app.get('/', async (req, res) => {
 app.get('/projects', (req, res) => res.render('projects', { title: 'Projects' }));
 app.get('/docs', (req, res) => res.render('docs', { title: 'Documentation' }));
 app.get('/status', async (req, res) => {
-    const data = await getVPSData();
-    res.render('status', { title: 'Live Status', data });
+    let botOnline = false;
+    let mcOnline = false;
+    
+    // Check PM2 for bot status
+    try {
+        const util = require('util');
+        const execPromise = util.promisify(require('child_process').exec);
+        const { stdout } = await execPromise('pm2 jlist');
+        const pm2List = JSON.parse(stdout);
+        const botProc = pm2List.find(p => p.name === 'index' || p.name === 'bot-shiroko');
+        if (botProc && botProc.pm2_env && botProc.pm2_env.status === 'online') {
+            botOnline = true;
+        }
+    } catch(e) {
+        console.error('Error checking pm2:', e.message);
+    }
+
+    // Check Minecraft Server status
+    try {
+        const axios = require('axios');
+        const mcRes = await axios.get('https://api.mcsrvstat.us/2/shiroko-project.my.id', { timeout: 3000 });
+        if (mcRes.data && mcRes.data.online) {
+            mcOnline = true;
+        }
+    } catch(e) {
+        console.error('Error checking MC:', e.message);
+    }
+
+    const data = await getVPSData(); // keep original data if used elsewhere in layout
+    res.render('status', { 
+        title: 'Live Status', 
+        data, 
+        botOnline, 
+        mcOnline 
+    });
 });
 app.get('/gallery', (req, res) => {
     const galleryData = getGalleryData();
@@ -483,3 +516,5 @@ app.get('/contact', (req, res) => res.render('contact', { title: 'Contact' }));
 app.listen(PORT, () => {
     console.log(`🐺 Web Portal Shiroko Project berjalan di http://localhost:${PORT}`);
 });
+
+
