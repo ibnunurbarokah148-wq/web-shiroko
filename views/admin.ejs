@@ -159,6 +159,21 @@
         .image-preview-modal.show { display: flex; }
         .image-preview-content { max-width: 90%; max-height: 90%; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
         .image-preview-close { position: absolute; top: 20px; right: 30px; color: #fff; font-size: 30px; font-weight: bold; cursor: pointer; }
+            /* Custom Modal */
+        .custom-modal { display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; overflow: hidden; background-color: rgba(0,0,0,0.6); align-items: center; justify-content: center; backdrop-filter: blur(2px); }
+        .custom-modal.show { display: flex; animation: fadeInModal 0.2s ease-out; }
+        .custom-modal-content { background-color: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 8px; width: 100%; max-width: 450px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); display: flex; flex-direction: column; overflow: hidden; }
+        .custom-modal-header { padding: 1.25rem 1.5rem; display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.2); }
+        .custom-modal-header h3 { margin: 0; font-size: 1.1rem; color: var(--text-primary); }
+        .custom-modal-close { cursor: pointer; color: var(--text-secondary); font-size: 1.5rem; line-height: 1; }
+        .custom-modal-close:hover { color: var(--text-primary); }
+        .custom-modal-body { padding: 1.5rem; }
+        .custom-modal-body p { margin: 0 0 1rem 0; color: var(--text-secondary); font-size: 0.95rem; line-height: 1.5; }
+        .custom-modal-input { width: 100%; padding: 0.75rem 1rem; background: var(--bg-color); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: 6px; outline: none; }
+        .custom-modal-input:focus { border-color: var(--accent-color); }
+        .custom-modal-footer { padding: 1rem 1.5rem; display: flex; justify-content: flex-end; gap: 0.75rem; background: rgba(0,0,0,0.1); border-top: 1px solid var(--border-color); }
+        .custom-modal-footer .btn { padding: 0.5rem 1rem; font-weight: 500; }
+        @keyframes fadeInModal { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
     </style>
 </head>
 <body>
@@ -389,7 +404,24 @@
             <img id="image-preview-img" style="max-width:100%; max-height:70vh; border-radius:8px; border:1px solid #333;">
         </div>
     </div>
-</body>
+    <!-- Custom Modal -->
+    <div id="custom-modal" class="custom-modal">
+        <div class="custom-modal-content">
+            <div class="custom-modal-header">
+                <h3 id="custom-modal-title">Judul</h3>
+                <span class="custom-modal-close" onclick="closeCustomModal()">&times;</span>
+            </div>
+            <div class="custom-modal-body">
+                <p id="custom-modal-text">Teks</p>
+                <input type="text" id="custom-modal-input" class="custom-modal-input" style="display:none;" onkeydown="if(event.key === 'Enter') document.getElementById('custom-modal-confirm-btn').click();">
+            </div>
+            <div class="custom-modal-footer">
+                <button class="btn" style="background:transparent; border:1px solid var(--border-color); color:var(--text-secondary);" onclick="closeCustomModal()">Cancel</button>
+                <button id="custom-modal-confirm-btn" class="btn btn-primary">Confirm</button>
+            </div>
+        </div>
+    </div>
+    </body>
 <script>
     // GLOBAL VARS & SETUP
     let currentFmPath = '/root';
@@ -426,6 +458,43 @@
         }, 5000);
     }
 
+        // Custom Modal System
+    let customModalCallback = null;
+
+    function showCustomModal(options) {
+        document.getElementById('custom-modal-title').innerText = options.title || 'Konfirmasi';
+        document.getElementById('custom-modal-text').innerHTML = options.text || '';
+        
+        const inputEl = document.getElementById('custom-modal-input');
+        if (options.isPrompt) {
+            inputEl.style.display = 'block';
+            inputEl.value = options.defaultValue || '';
+            setTimeout(() => inputEl.focus(), 100);
+        } else {
+            inputEl.style.display = 'none';
+            inputEl.value = '';
+        }
+        
+        const confirmBtn = document.getElementById('custom-modal-confirm-btn');
+        confirmBtn.className = 'btn ' + (options.confirmClass || 'btn-primary');
+        confirmBtn.innerText = options.confirmText || 'OK';
+        
+        customModalCallback = options.onConfirm;
+        document.getElementById('custom-modal').classList.add('show');
+    }
+
+    function closeCustomModal() {
+        document.getElementById('custom-modal').classList.remove('show');
+        customModalCallback = null;
+    }
+
+    document.getElementById('custom-modal-confirm-btn').addEventListener('click', () => {
+        if (customModalCallback) {
+            const inputVal = document.getElementById('custom-modal-input').value;
+            customModalCallback(inputVal);
+        }
+        closeCustomModal();
+    });
     // ================== FILE MANAGER ==================
     let selectedFiles = new Set();
 
@@ -527,58 +596,77 @@
         else bulkDiv.style.display = 'none';
     }
 
-    async function bulkDelete() {
+        function bulkDelete() {
         if(selectedFiles.size === 0) return;
-        if(!confirm(`Yakin ingin menghapus ${selectedFiles.size} item?`)) return;
-        
-        try {
-            const res = await fetch('/admin/api/files/bulk-action', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action: 'delete', files: Array.from(selectedFiles) })
-            });
-            if(res.ok) {
-                showAlert('Berhasil menghapus item massal!');
-                loadFiles(currentFmPath);
-            } else showAlert('Gagal menghapus massal', true);
-        } catch(e) { showAlert(e.message, true); }
+        showCustomModal({
+            title: 'Hapus Berkas',
+            text: `Anda tidak akan dapat memulihkan isinya dari <b>${selectedFiles.size} item</b> sekali dihapus.`,
+            confirmText: 'Menghapus',
+            confirmClass: 'btn-danger',
+            onConfirm: async () => {
+                try {
+                    const res = await fetch('/admin/api/files/bulk-action', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ action: 'delete', files: Array.from(selectedFiles) })
+                    });
+                    if(res.ok) {
+                        showAlert('Berhasil menghapus item massal!');
+                        loadFiles(currentFmPath);
+                    } else showAlert('Gagal menghapus massal', true);
+                } catch(e) { showAlert(e.message, true); }
+            }
+        });
     }
 
-    async function bulkArchive() {
+    function bulkArchive() {
         if(selectedFiles.size === 0) return;
-        const zipName = prompt('Nama file arsip (.zip):', 'archive.zip');
-        if(!zipName) return;
-        
-        try {
-            showAlert('Sedang mengompres, mohon tunggu...');
-            const res = await fetch('/admin/api/files/bulk-action', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action: 'archive', files: Array.from(selectedFiles), dest: currentFmPath + '/' + zipName })
-            });
-            if(res.ok) {
-                showAlert('Berhasil membuat arsip ZIP!');
-                loadFiles(currentFmPath);
-            } else showAlert('Gagal membuat arsip', true);
-        } catch(e) { showAlert(e.message, true); }
+        showCustomModal({
+            title: 'Buat Arsip',
+            text: 'Masukkan nama file arsip (.zip):',
+            isPrompt: true,
+            defaultValue: 'archive.zip',
+            confirmText: 'Arsipkan',
+            onConfirm: async (zipName) => {
+                if(!zipName) return;
+                try {
+                    showAlert('Sedang mengompres, mohon tunggu...');
+                    const res = await fetch('/admin/api/files/bulk-action', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ action: 'archive', files: Array.from(selectedFiles), dest: currentFmPath + '/' + zipName })
+                    });
+                    if(res.ok) {
+                        showAlert('Berhasil membuat arsip ZIP!');
+                        loadFiles(currentFmPath);
+                    } else showAlert('Gagal membuat arsip', true);
+                } catch(e) { showAlert(e.message, true); }
+            }
+        });
     }
 
-    async function downloadViaUrl() {
-        const url = prompt('Masukkan URL file yang ingin diunduh:');
-        if(!url) return;
-        
-        try {
-            showAlert('Sedang mengunduh file dari URL, mohon tunggu...');
-            const res = await fetch('/admin/api/files/download-url', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ url: url, dir: currentFmPath })
-            });
-            if(res.ok) {
-                showAlert('Berhasil mengunduh file!');
-                loadFiles(currentFmPath);
-            } else showAlert('Gagal mengunduh file', true);
-        } catch(e) { showAlert(e.message, true); }
+    function downloadViaUrl() {
+        showCustomModal({
+            title: 'Unduh via URL',
+            text: 'Masukkan URL file yang ingin diunduh:',
+            isPrompt: true,
+            confirmText: 'Unduh',
+            onConfirm: async (url) => {
+                if(!url) return;
+                try {
+                    showAlert('Sedang mengunduh file dari URL, mohon tunggu...');
+                    const res = await fetch('/admin/api/files/download-url', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ url: url, dir: currentFmPath })
+                    });
+                    if(res.ok) {
+                        showAlert('Berhasil mengunduh file!');
+                        loadFiles(currentFmPath);
+                    } else showAlert('Gagal mengunduh file', true);
+                } catch(e) { showAlert(e.message, true); }
+            }
+        });
     }
 
     async function previewImage(path) {
@@ -609,33 +697,52 @@
         loadFiles(parts.join('/') || '/');
     }
 
-    async function fileAction(action, item) {
+    function fileAction(action, item) {
+        const runAction = async (dest, newName) => {
+            try {
+                const res = await fetch('/admin/api/files/action', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action, source: item, dest, newName })
+                });
+                if(res.ok) {
+                    showAlert('Berhasil!');
+                    loadFiles(currentFmPath);
+                } else showAlert('Gagal', true);
+            } catch(e) { showAlert(e.message, true); }
+        };
+
         if(action === 'delete') {
-            if(!confirm(`Hapus ${item}?`)) return;
+            showCustomModal({
+                title: 'Hapus Berkas',
+                text: `Anda tidak akan dapat memulihkan isinya <b>${item.split('/').pop()}</b> sekali dihapus.`,
+                confirmText: 'Menghapus',
+                confirmClass: 'btn-danger',
+                onConfirm: () => runAction('', '')
+            });
+            return;
         }
         
-        let dest = '', newName = '';
         if(action === 'rename') {
-            newName = prompt('Nama baru:', item.split('/').pop());
-            if(!newName) return;
-        } else if(action === 'copy' || action === 'move') {
+            showCustomModal({
+                title: 'Ganti Nama',
+                text: 'Masukkan nama baru:',
+                isPrompt: true,
+                defaultValue: item.split('/').pop(),
+                confirmText: 'Simpan',
+                onConfirm: (newName) => {
+                    if(newName) runAction('', newName);
+                }
+            });
+            return;
+        } 
+        
+        if(action === 'copy' || action === 'move') {
             fmClipboard = { action, source: item };
             document.getElementById('btn-paste').style.display = 'inline-block';
             showAlert((action === 'copy' ? 'Disalin' : 'Dipotong') + '! Buka folder tujuan lalu klik Paste.');
             return;
         }
-
-        try {
-            const res = await fetch('/admin/api/files/action', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action, source: item, dest, newName })
-            });
-            if(res.ok) {
-                showAlert('Berhasil!');
-                loadFiles(currentFmPath);
-            } else showAlert('Gagal', true);
-        } catch(e) { showAlert(e.message, true); }
     }
 
     async function pasteFile() {
@@ -656,20 +763,27 @@
         } catch(e) { showAlert(e.message, true); }
     }
 
-    async function createItem(type) {
-        const name = prompt(`Nama ${type} baru:`);
-        if(!name) return;
-        try {
-            const res = await fetch('/admin/api/files/action', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action: 'create', source: currentFmPath + '/' + name, type })
-            });
-            if(res.ok) {
-                showAlert('Berhasil dibuat!');
-                loadFiles(currentFmPath);
-            } else showAlert('Gagal', true);
-        } catch(e) { showAlert(e.message, true); }
+    function createItem(type) {
+        showCustomModal({
+            title: `Buat ${type === 'folder' ? 'Folder' : 'File'} Baru`,
+            text: `Masukkan nama ${type}:`,
+            isPrompt: true,
+            confirmText: 'Buat',
+            onConfirm: async (name) => {
+                if(!name) return;
+                try {
+                    const res = await fetch('/admin/api/files/action', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ action: 'create', source: currentFmPath + '/' + name, type })
+                    });
+                    if(res.ok) {
+                        showAlert('Berhasil dibuat!');
+                        loadFiles(currentFmPath);
+                    } else showAlert('Gagal', true);
+                } catch(e) { showAlert(e.message, true); }
+            }
+        });
     }
 
     async function uploadFile(input) {
@@ -928,5 +1042,8 @@
 </script>
 </html>
 <% } %>
+
+
+
 
 
