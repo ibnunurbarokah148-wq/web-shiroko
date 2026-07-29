@@ -6,6 +6,7 @@ const fs = require('fs');
 const multer = require('multer');
 const { exec } = require('child_process');
 const os = require('os');
+const AdmZip = require('adm-zip');
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -277,6 +278,65 @@ app.post('/admin/api/files/action', (req, res) => {
             fs.renameSync(srcPath, destPath);
         }
         res.json({ status: 'ok' });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+app.post('/admin/api/files/bulk-action', (req, res) => {
+    if (!req.session.isAdmin) return res.status(401).json({ error: 'Unauthorized' });
+    const { action, files, dest } = req.body;
+    try {
+        if (!files || !Array.isArray(files)) return res.status(400).json({ error: 'Invalid files' });
+        
+        if (action === 'delete') {
+            for (const file of files) {
+                const target = getFmTargetDir({ body: { dir: file } });
+                fs.rmSync(target, { recursive: true, force: true });
+            }
+            res.json({ status: 'ok' });
+        } else if (action === 'archive' && dest) {
+            const destPath = getFmTargetDir({ body: { dir: dest } });
+            const zip = new AdmZip();
+            for (const file of files) {
+                const target = getFmTargetDir({ body: { dir: file } });
+                const stats = fs.statSync(target);
+                if (stats.isDirectory()) {
+                    zip.addLocalFolder(target, path.basename(target));
+                } else {
+                    zip.addLocalFile(target);
+                }
+            }
+            zip.writeZip(destPath);
+            res.json({ status: 'ok' });
+        } else {
+            res.status(400).json({ error: 'Invalid bulk action' });
+        }
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+app.post('/admin/api/files/download-url', async (req, res) => {
+    if (!req.session.isAdmin) return res.status(401).json({ error: 'Unauthorized' });
+    const { url, dir } = req.body;
+    try {
+        let filename = 'downloaded_file';
+        try { filename = new URL(url).pathname.split('/').pop() || 'downloaded_file'; } catch(e) {}
+        
+        const destPath = getFmTargetDir({ body: { dir: dir + '/' + filename } });
+        
+        const response = await axios({
+            url,
+            method: 'GET',
+            responseType: 'stream'
+        });
+        
+        const writer = fs.createWriteStream(destPath);
+        response.data.pipe(writer);
+        
+        writer.on('finish', () => res.json({ status: 'ok' }));
+        writer.on('error', (err) => res.status(500).json({ error: err.message }));
     } catch (e) {
         res.status(500).json({ error: e.message });
     }

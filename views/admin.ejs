@@ -228,19 +228,25 @@
                         <div class="fm-toolbar">
                             <input type="file" id="fm-upload" style="display:none;" onchange="uploadFile(this)">
                             <button class="btn" onclick="document.getElementById('fm-upload').click()"><i class="fas fa-upload"></i> Upload</button>
+                            <button class="btn" onclick="downloadViaUrl()"><i class="fas fa-cloud-download-alt"></i> Unduh via URL</button>
                             <button class="btn" onclick="createItem('file')"><i class="fas fa-file-medical"></i> New File</button>
                             <button class="btn" onclick="createItem('folder')"><i class="fas fa-folder-plus"></i> New Folder</button>
                             <button class="btn" onclick="loadFiles(currentFmPath)"><i class="fas fa-sync-alt"></i> Refresh</button>
                             <button class="btn btn-primary" id="btn-paste" style="display:none;" onclick="pasteFile()"><i class="fas fa-paste"></i> Paste</button>
+                            <div id="bulk-actions" style="display:none; margin-left: auto; gap: 0.5rem; flex-direction: row;">
+                                <button class="btn" onclick="bulkArchive()" style="color: #3b82f6;"><i class="fas fa-file-archive"></i> Arsip</button>
+                                <button class="btn btn-danger" onclick="bulkDelete()"><i class="fas fa-trash"></i> Hapus</button>
+                            </div>
                         </div>
 
                         <table class="fm-table">
                             <thead>
                                 <tr>
-                                    <th style="width: 50%;">Nama</th>
-                                    <th>Ukuran</th>
-                                    <th>Terakhir Diubah</th>
-                                    <th style="text-align: right;">Aksi</th>
+                                    <th style="width: 40px; text-align: center;"><input type="checkbox" class="fm-checkbox" id="fm-select-all" onclick="toggleSelectAll(this)"></th>
+                                    <th style="width: 50%;">Nama <span>&#8593;&#8595;</span></th>
+                                    <th>Ukuran <span>&#8593;&#8595;</span></th>
+                                    <th>Tanggal <span>&#8593;&#8595;</span></th>
+                                    <th style="width: 50px;"></th>
                                 </tr>
                             </thead>
                             <tbody id="fm-list">
@@ -366,21 +372,36 @@
         element.classList.add('active');
     }
 
-    // Alert
+        // Alert (Toast Notification)
     function showAlert(message, isError = false) {
-        const box = document.getElementById('control-alert');
-        box.style.display = 'block';
-        box.style.background = isError ? 'rgba(239, 68, 68, 0.1)' : 'rgba(34, 197, 94, 0.1)';
-        box.style.color = isError ? '#ef4444' : '#22c55e';
-        box.style.border = `1px solid ${isError ? '#ef4444' : '#22c55e'}`;
-        box.innerHTML = `<i class="fas ${isError ? 'fa-exclamation-triangle' : 'fa-check-circle'}"></i> ${message}`;
-        setTimeout(() => box.style.display = 'none', 5000);
+        let container = document.getElementById('toast-container');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'toast-container';
+            document.body.appendChild(container);
+        }
+        
+        const toast = document.createElement('div');
+        toast.className = 'toast ' + (isError ? 'toast-error' : 'toast-success');
+        toast.innerHTML = '<i class="fas ' + (isError ? 'fa-exclamation-triangle' : 'fa-check-circle') + '"></i> <span>' + message + '</span>';
+        
+        container.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.classList.add('fadeOut');
+            setTimeout(() => toast.remove(), 500);
+        }, 5000);
     }
 
     // ================== FILE MANAGER ==================
+    let selectedFiles = new Set();
+
     async function loadFiles(dir) {
         const list = document.getElementById('fm-list');
-        list.innerHTML = '<tr><td colspan="4" style="text-align:center;"><i class="fas fa-spinner fa-spin"></i> Loading...</td></tr>';
+        list.innerHTML = '<tr><td colspan="5" style="text-align:center;"><i class="fas fa-spinner fa-spin"></i> Loading...</td></tr>';
+        selectedFiles.clear();
+        updateBulkActions();
+        
         try {
             const res = await fetch('/admin/api/files?dir=' + encodeURIComponent(dir));
             const data = await res.json();
@@ -388,6 +409,7 @@
             
             currentFmPath = data.currentDir;
             document.getElementById('fm-current-path').innerText = currentFmPath;
+            document.getElementById('fm-select-all').checked = false;
             list.innerHTML = '';
             
             data.files.forEach(f => {
@@ -395,31 +417,159 @@
                 const sizeStr = f.isDirectory ? '-' : (f.size / 1024).toFixed(1) + ' KB';
                 const dateStr = new Date(f.mtime).toLocaleString();
                 const icon = f.isDirectory ? 'fa-folder' : 'fa-file-alt';
+                const isImage = f.name.match(/\.(jpg|jpeg|png|gif|webp)$/i) !== null;
                 
                 tr.innerHTML = `
+                    <td class="fm-checkbox-col">
+                        <input type="checkbox" class="fm-checkbox fm-file-check" value="${f.path}" onclick="toggleFileSelect(this)">
+                    </td>
                     <td>
-                        <div style="display:flex; align-items:center; gap:0.5rem; cursor:${f.isDirectory ? 'pointer' : 'default'}" 
-                             onclick="${f.isDirectory ? `loadFiles('${f.path}')` : ''}">
-                            <i class="fas ${icon}"></i> <span>${f.name}</span>
+                        <div style="display:flex; align-items:center; gap:0.5rem;">
+                            <i class="fas ${icon}"></i> 
+                            <span class="file-name-link" onclick="${f.isDirectory ? `loadFiles('${f.path}')` : (isImage ? `previewImage('${f.path}')` : `openEditor('${f.path}')`)}">${f.name}</span>
                         </div>
                     </td>
                     <td>${sizeStr}</td>
                     <td>${dateStr}</td>
                     <td class="fm-actions" style="text-align:right;">
-                        ${!f.isDirectory ? `<button title="Edit" onclick="openEditor('${f.path}')"><i class="fas fa-edit"></i></button>` : ''}
-                        <button title="Rename" onclick="fileAction('rename', '${f.path}')"><i class="fas fa-pencil-alt"></i></button>
-                        <button title="Copy" onclick="fileAction('copy', '${f.path}')"><i class="fas fa-copy"></i></button>
-                        <button title="Move" onclick="fileAction('move', '${f.path}')"><i class="fas fa-arrows-alt"></i></button>
-                        <button title="Delete" style="color:var(--danger-color)" onclick="fileAction('delete', '${f.path}')"><i class="fas fa-trash"></i></button>
+                        <div class="kebab-menu">
+                            <button class="kebab-button" onclick="toggleDropdown(event, '${f.path}')"><i class="fas fa-ellipsis-v"></i></button>
+                            <div id="dropdown-${f.path}" class="dropdown-content">
+                                ${!f.isDirectory && !isImage ? `<button onclick="openEditor('${f.path}')"><i class="fas fa-edit"></i> Edit</button>` : ''}
+                                <button onclick="fileAction('rename', '${f.path}')"><i class="fas fa-pencil-alt"></i> Ganti Nama</button>
+                                <button onclick="fileAction('copy', '${f.path}')"><i class="fas fa-copy"></i> Salin</button>
+                                <button onclick="fileAction('move', '${f.path}')"><i class="fas fa-arrows-alt"></i> Pindah</button>
+                                ${!f.isDirectory ? `<button onclick="window.open('/admin/api/files/download?path=' + encodeURIComponent('${f.path}'), '_blank')"><i class="fas fa-download"></i> Unduh</button>` : ''}
+                                <button class="text-danger" onclick="fileAction('delete', '${f.path}')"><i class="fas fa-trash"></i> Hapus</button>
+                            </div>
+                        </div>
                     </td>
                 `;
                 list.appendChild(tr);
             });
         } catch(e) {
-            list.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--danger-color);"><i class="fas fa-exclamation-triangle"></i> ${e.message}</td></tr>`;
+            list.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--danger-color);"><i class="fas fa-exclamation-triangle"></i> ${e.message}</td></tr>`;
         }
     }
     
+    function toggleDropdown(event, path) {
+        event.stopPropagation();
+        document.querySelectorAll('.dropdown-content').forEach(d => {
+            if(d.id !== 'dropdown-' + path) d.classList.remove('show');
+        });
+        document.getElementById('dropdown-' + path).classList.toggle('show');
+    }
+    
+    window.onclick = function(event) {
+        if (!event.target.matches('.kebab-button') && !event.target.matches('.fa-ellipsis-v')) {
+            document.querySelectorAll('.dropdown-content').forEach(d => d.classList.remove('show'));
+        }
+        if (event.target.matches('.image-preview-modal')) {
+            closeImagePreview();
+        }
+    }
+
+    function toggleSelectAll(checkbox) {
+        const checkboxes = document.querySelectorAll('.fm-file-check');
+        checkboxes.forEach(cb => {
+            cb.checked = checkbox.checked;
+            if(checkbox.checked) selectedFiles.add(cb.value);
+            else selectedFiles.delete(cb.value);
+        });
+        updateBulkActions();
+    }
+
+    function toggleFileSelect(checkbox) {
+        if(checkbox.checked) selectedFiles.add(checkbox.value);
+        else selectedFiles.delete(checkbox.value);
+        updateBulkActions();
+        
+        const allCheckboxes = document.querySelectorAll('.fm-file-check');
+        document.getElementById('fm-select-all').checked = allCheckboxes.length > 0 && selectedFiles.size === allCheckboxes.length;
+    }
+
+    function updateBulkActions() {
+        const bulkDiv = document.getElementById('bulk-actions');
+        if(selectedFiles.size > 0) bulkDiv.style.display = 'flex';
+        else bulkDiv.style.display = 'none';
+    }
+
+    async function bulkDelete() {
+        if(selectedFiles.size === 0) return;
+        if(!confirm(`Yakin ingin menghapus ${selectedFiles.size} item?`)) return;
+        
+        try {
+            const res = await fetch('/admin/api/files/bulk-action', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'delete', files: Array.from(selectedFiles) })
+            });
+            if(res.ok) {
+                showAlert('Berhasil menghapus item massal!');
+                loadFiles(currentFmPath);
+            } else showAlert('Gagal menghapus massal', true);
+        } catch(e) { showAlert(e.message, true); }
+    }
+
+    async function bulkArchive() {
+        if(selectedFiles.size === 0) return;
+        const zipName = prompt('Nama file arsip (.zip):', 'archive.zip');
+        if(!zipName) return;
+        
+        try {
+            showAlert('Sedang mengompres, mohon tunggu...');
+            const res = await fetch('/admin/api/files/bulk-action', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'archive', files: Array.from(selectedFiles), dest: currentFmPath + '/' + zipName })
+            });
+            if(res.ok) {
+                showAlert('Berhasil membuat arsip ZIP!');
+                loadFiles(currentFmPath);
+            } else showAlert('Gagal membuat arsip', true);
+        } catch(e) { showAlert(e.message, true); }
+    }
+
+    async function downloadViaUrl() {
+        const url = prompt('Masukkan URL file yang ingin diunduh:');
+        if(!url) return;
+        
+        try {
+            showAlert('Sedang mengunduh file dari URL, mohon tunggu...');
+            const res = await fetch('/admin/api/files/download-url', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url: url, dir: currentFmPath })
+            });
+            if(res.ok) {
+                showAlert('Berhasil mengunduh file!');
+                loadFiles(currentFmPath);
+            } else showAlert('Gagal mengunduh file', true);
+        } catch(e) { showAlert(e.message, true); }
+    }
+
+    async function previewImage(path) {
+        let modal = document.getElementById('img-preview-modal');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'img-preview-modal';
+            modal.className = 'image-preview-modal';
+            modal.innerHTML = `
+                <span class="image-preview-close" onclick="closeImagePreview()">&times;</span>
+                <img class="image-preview-content" id="img-preview-content">
+            `;
+            document.body.appendChild(modal);
+        }
+        
+        document.getElementById('img-preview-content').src = '/admin/api/files/download?path=' + encodeURIComponent(path);
+        modal.classList.add('show');
+    }
+
+    function closeImagePreview() {
+        const modal = document.getElementById('img-preview-modal');
+        if(modal) modal.classList.remove('show');
+    }
+
     function goUp() {
         if(currentFmPath === '/root' || currentFmPath === '/root/') return;
         const parts = currentFmPath.split('/'); parts.pop();
@@ -745,3 +895,4 @@
 </script>
 </html>
 <% } %>
+
