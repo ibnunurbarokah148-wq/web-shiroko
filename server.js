@@ -485,15 +485,27 @@ app.get('/status', async (req, res) => {
         console.error('Error checking pm2:', e.message);
     }
 
-    // Check Minecraft Server status
+    // Check Minecraft Server status via Pterodactyl API
     try {
         const axios = require('axios');
-        const mcRes = await axios.get('https://api.mcsrvstat.us/2/shiroko-project.my.id', { timeout: 3000 });
-        if (mcRes.data && mcRes.data.online) {
-            mcOnline = true;
+        const pteroUrl = process.env.PTERODACTYL_URL;
+        const pteroId = process.env.PTERODACTYL_SERVER_ID;
+        const pteroKey = process.env.PTERODACTYL_API_KEY;
+        
+        if (pteroUrl && pteroId && pteroKey) {
+            const mcRes = await axios.get(`${pteroUrl}/api/client/servers/${pteroId}/resources`, {
+                headers: {
+                    'Authorization': `Bearer ${pteroKey}`,
+                    'Accept': 'application/json'
+                },
+                timeout: 3000
+            });
+            if (mcRes.data && mcRes.data.attributes && mcRes.data.attributes.current_state === 'running') {
+                mcOnline = true;
+            }
         }
     } catch(e) {
-        console.error('Error checking MC:', e.message);
+        console.error('Error checking Pterodactyl MC:', e.message);
     }
 
     const data = await getVPSData(); // keep original data if used elsewhere in layout
@@ -516,5 +528,7 @@ app.get('/contact', (req, res) => res.render('contact', { title: 'Contact' }));
 app.listen(PORT, () => {
     console.log(`🐺 Web Portal Shiroko Project berjalan di http://localhost:${PORT}`);
 });
+
+
 
 
