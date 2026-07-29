@@ -177,6 +177,13 @@
             /* Fix for last row dropdown clipping */
         .fm-table-container { padding-bottom: 80px; }
         .fm-table tr:last-child .dropdown-content, .fm-table tr:nth-last-child(2) .dropdown-content { top: auto; bottom: 100%; margin-bottom: 5px; }
+            /* Custom File Upload (Drag & Drop) */
+        .custom-file-upload { border: 2px dashed var(--border-color); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem 1rem; cursor: pointer; border-radius: 8px; background: rgba(0,0,0,0.2); color: var(--text-secondary); transition: all 0.2s; text-align: center; }
+        .custom-file-upload:hover, .custom-file-upload.dragover { border-color: var(--accent-color); color: var(--accent-color); background: rgba(59, 130, 246, 0.05); }
+        .custom-file-upload input[type="file"] { display: none; }
+        .custom-file-upload i { font-size: 2.5rem; margin-bottom: 0.75rem; }
+        
+        #tab-files.dragover { background: rgba(59, 130, 246, 0.05); border: 2px dashed var(--accent-color); }
     </style>
 </head>
 <body>
@@ -338,7 +345,11 @@
                             <form id="gallery-form" enctype="multipart/form-data">
                                 <div class="form-group">
                                     <label>File Gambar</label>
-                                    <input type="file" name="image" accept="image/*" required>
+                                                                        <label class="custom-file-upload" id="gallery-drop-zone">
+                                        <i class="fas fa-cloud-upload-alt"></i>
+                                        <span id="gallery-file-name">Pilih File / Tarik & Lepas (Drag & Drop) ke Sini</span>
+                                        <input type="file" name="image" id="gallery-file-input" accept="image/*" required onchange="document.getElementById('gallery-file-name').innerText = this.files.length > 0 ? this.files[0].name : 'Pilih File / Tarik & Lepas (Drag & Drop) ke Sini';">
+                                    </label>
                                 </div>
                                 <div class="form-group">
                                     <label>Judul</label>
@@ -789,18 +800,51 @@
         });
     }
 
-    async function uploadFile(input) {
-        if(!input.files.length) return;
-        const formData = new FormData();
-        formData.append('file', input.files[0]);
-        formData.append('dir', currentFmPath);
-        try {
-            const res = await fetch('/admin/api/files/upload', { method: 'POST', body: formData });
-            if(!res.ok) throw new Error('Upload failed');
-            loadFiles(currentFmPath);
-            showAlert('Upload berhasil!');
-        } catch(e) { showAlert(e.message, true); }
-        input.value = ''; // reset
+        async function uploadFile(input) {
+        if(!input.files || !input.files.length) return;
+        
+        // Handle multiple files if dropped
+        for(let i=0; i<input.files.length; i++) {
+            const formData = new FormData();
+            formData.append('file', input.files[i]);
+            formData.append('dir', currentFmPath);
+            try {
+                const res = await fetch('/admin/api/files/upload', { method: 'POST', body: formData });
+                if(!res.ok) throw new Error('Upload failed for ' + input.files[i].name);
+                showAlert('Upload ' + input.files[i].name + ' berhasil!');
+            } catch(e) { showAlert(e.message, true); }
+        }
+        loadFiles(currentFmPath);
+        if(input.value !== undefined) input.value = ''; // reset
+    }
+
+    // --- Drag and Drop File Manager ---
+    const fmTab = document.getElementById('tab-files');
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        fmTab.addEventListener(eventName, e => { e.preventDefault(); e.stopPropagation(); }, false);
+    });
+    ['dragenter', 'dragover'].forEach(eventName => fmTab.addEventListener(eventName, () => fmTab.classList.add('dragover'), false));
+    ['dragleave', 'drop'].forEach(eventName => fmTab.addEventListener(eventName, () => fmTab.classList.remove('dragover'), false));
+    fmTab.addEventListener('drop', e => {
+        if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+            uploadFile({ files: e.dataTransfer.files });
+        }
+    });
+
+    // --- Drag and Drop Gallery ---
+    const galDropZone = document.getElementById('gallery-drop-zone');
+    if(galDropZone) {
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => galDropZone.addEventListener(eventName, e => { e.preventDefault(); e.stopPropagation(); }, false));
+        ['dragenter', 'dragover'].forEach(eventName => galDropZone.addEventListener(eventName, () => galDropZone.classList.add('dragover'), false));
+        ['dragleave', 'drop'].forEach(eventName => galDropZone.addEventListener(eventName, () => galDropZone.classList.remove('dragover'), false));
+        galDropZone.addEventListener('drop', e => {
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                const input = document.getElementById('gallery-file-input');
+                input.files = files;
+                document.getElementById('gallery-file-name').innerText = files[0].name;
+            }
+        });
     }
 
     // ================== CODE EDITOR ==================
@@ -1066,6 +1110,7 @@
 </script>
 </html>
 <% } %>
+
 
 
 
