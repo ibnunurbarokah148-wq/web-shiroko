@@ -184,6 +184,8 @@
         .custom-file-upload i { font-size: 2.5rem; margin-bottom: 0.75rem; }
         
         #tab-files.dragover { background: rgba(59, 130, 246, 0.05); border: 2px dashed var(--accent-color); }
+            /* Fix for last row dropdown clipping */
+        #tab-files .panel-body { padding-bottom: 180px; }
     </style>
 </head>
 <body>
@@ -555,7 +557,7 @@
                                 <button onclick="fileAction('rename', '${f.path}')"><i class="fas fa-pencil-alt"></i> Ganti Nama</button>
                                 <button onclick="fileAction('copy', '${f.path}')"><i class="fas fa-copy"></i> Salin</button>
                                 <button onclick="fileAction('move', '${f.path}')"><i class="fas fa-arrows-alt"></i> Pindah</button>
-                                ${!f.isDirectory ? `<button onclick="window.open('/admin/api/files/download?path=' + encodeURIComponent('${f.path}'), '_blank')"><i class="fas fa-download"></i> Unduh</button>` : ''}
+                                ${!f.isDirectory ? `<button onclick="window.open('/admin/api/files/download?dir=' + encodeURIComponent('${f.path}'), '_blank')"><i class="fas fa-download"></i> Unduh</button>` : ''}
                                 <button class="text-danger" onclick="fileAction('delete', '${f.path}')"><i class="fas fa-trash"></i> Hapus</button>
                             </div>
                         </div>
@@ -696,7 +698,7 @@
             document.body.appendChild(modal);
         }
         
-        document.getElementById('img-preview-content').src = '/admin/api/files/download?path=' + encodeURIComponent(path);
+        document.getElementById('img-preview-content').src = '/admin/api/files/download?dir=' + encodeURIComponent(path);
         modal.classList.add('show');
     }
 
@@ -1110,6 +1112,8 @@
 </script>
 </html>
 <% } %>
+
+
 
 
 
