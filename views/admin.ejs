@@ -303,9 +303,9 @@
                             <thead>
                                 <tr>
                                     <th style="width: 40px; text-align: center;"><input type="checkbox" class="fm-checkbox" id="fm-select-all" onclick="toggleSelectAll(this)"></th>
-                                    <th style="width: 50%;">Nama <span>&#8593;&#8595;</span></th>
-                                    <th>Ukuran <span>&#8593;&#8595;</span></th>
-                                    <th>Tanggal <span>&#8593;&#8595;</span></th>
+                                                                        <th style="width: 50%; cursor: pointer;" onclick="sortFm('name')">Nama <span id="sort-icon-name">&#8593;&#8595;</span></th>
+                                    <th style="cursor: pointer;" onclick="sortFm('size')">Ukuran <span id="sort-icon-size">&#8593;&#8595;</span></th>
+                                    <th style="cursor: pointer;" onclick="sortFm('date')">Tanggal <span id="sort-icon-date">&#8593;&#8595;</span></th>
                                     <th style="width: 50px;"></th>
                                 </tr>
                             </thead>
@@ -1125,6 +1125,7 @@
 </script>
 </html>
 <% } %>
+
 
 
 
