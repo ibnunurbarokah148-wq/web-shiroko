@@ -491,6 +491,8 @@ footer {
 
 /* Responsive */
 @media (max-width: 768px) {
+    .navbar { padding: 1rem; }
+    section { padding: 2rem 1rem !important; }
     .nav-links {
         display: none;
         flex-direction: column;
@@ -573,3 +575,5 @@ footer {
 .image-preview-modal.show { display: flex; }
 .image-preview-content { max-width: 90%; max-height: 90%; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
 .image-preview-close { position: absolute; top: 20px; right: 30px; color: #fff; font-size: 30px; font-weight: bold; cursor: pointer; }
+
+

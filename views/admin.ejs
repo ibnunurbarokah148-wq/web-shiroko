@@ -93,7 +93,7 @@
         .status-offline { color: #ef4444; font-weight: bold; }
 
         /* File Manager */
-        .fm-toolbar { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
+        .fm-toolbar { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
         .fm-path-bar { background: var(--sidebar-bg); border: 1px solid var(--border-color); padding: 0.75rem 1rem; border-radius: 5px; margin-bottom: 1rem; font-family: monospace; display: flex; gap: 0.5rem; align-items: center; }
         table.fm-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem; }
         .fm-table th, .fm-table td { padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); }
@@ -125,6 +125,8 @@
             .sidebar-nav li { padding: 0.5rem; border-left: none; border-bottom: 3px solid transparent; white-space: nowrap; }
             .sidebar-nav li.active { border-left: none; border-bottom-color: var(--accent-color); }
             .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+            .fm-toolbar { flex-wrap: wrap; }
+            .sys-stat-box { padding: 1rem; }
         }
             /* File Manager Kebab Menu & Checkboxes (Pterodactyl Style) */
         .fm-table td.fm-checkbox-col { width: 40px; text-align: center; }
@@ -162,7 +164,7 @@
             /* Custom Modal */
         .custom-modal { display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; overflow: hidden; background-color: rgba(0,0,0,0.6); align-items: center; justify-content: center; backdrop-filter: blur(2px); }
         .custom-modal.show { display: flex; animation: fadeInModal 0.2s ease-out; }
-        .custom-modal-content { background-color: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 8px; width: 100%; max-width: 450px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); display: flex; flex-direction: column; overflow: hidden; }
+        .custom-modal-content { background-color: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 8px; width: 90%; max-width: 450px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); display: flex; flex-direction: column; overflow: hidden; }
         .custom-modal-header { padding: 1.25rem 1.5rem; display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.2); }
         .custom-modal-header h3 { margin: 0; font-size: 1.1rem; color: var(--text-primary); }
         .custom-modal-close { cursor: pointer; color: var(--text-secondary); font-size: 1.5rem; line-height: 1; }
@@ -261,7 +263,7 @@
                     <div class="panel-card">
                         <div class="panel-header"><i class="fas fa-network-wired"></i> Status Layanan</div>
                         <div class="panel-body" style="padding: 0;">
-                            <table class="fm-table">
+                            <div class="table-responsive"><table class="fm-table">
                                 <% data.services.forEach(service => { %>
                                     <tr>
                                         <td><i class="<%= service.icon %>"></i> <%= service.name %></td>
@@ -270,7 +272,7 @@
                                         </td>
                                     </tr>
                                 <% }) %>
-                            </table>
+                            </table></div>
                         </div>
                     </div>
                 </div>
@@ -299,7 +301,7 @@
                             </div>
                         </div>
 
-                        <table class="fm-table">
+                        <div class="table-responsive"><table class="fm-table">
                             <thead>
                                 <tr>
                                     <th style="width: 40px; text-align: center;"><input type="checkbox" class="fm-checkbox" id="fm-select-all" onclick="toggleSelectAll(this)"></th>
@@ -312,7 +314,7 @@
                             <tbody id="fm-list">
                                 <tr><td colspan="4" style="text-align:center;">Loading...</td></tr>
                             </tbody>
-                        </table>
+                        </table></div>
                     </div>
                 </div>
             </div>
@@ -1125,6 +1127,9 @@
 </script>
 </html>
 <% } %>
+
+
+
 
 
 
