@@ -226,11 +226,19 @@ app.post('/admin/api/deploy', (req, res) => {
 const fileManagerUpload = multer({ dest: os.tmpdir() }); // Temp dir for uploads
 
 function getFmTargetDir(req) {
-    let target = (req.query && req.query.dir) || (req.body && req.body.dir) || '/root';
-    if (!fs.existsSync('/root')) { // Fallback for Windows local dev
-        target = target.replace('/root', path.join(__dirname, '..')).replace(/\\/g, '/');
+    let rawTarget = (req.query && req.query.dir) || (req.body && req.body.dir) || '/root';
+    
+    // 🛡️ Keamanan: Path Traversal Protection (Jail ke /root)
+    const baseDir = fs.existsSync('/root') ? '/root' : path.join(__dirname, '..');
+    const safePath = path.resolve(baseDir, rawTarget.replace(/^\/root/, '').replace(/^\//, ''));
+    
+    // Pastikan path hasil resolve tetap berada di dalam baseDir
+    if (!safePath.startsWith(path.resolve(baseDir))) {
+        throw new Error('Akses ditolak: Mencoba keluar dari zona aman (Path Traversal Detected).');
     }
-    return target;
+    
+    // Fallback khusus untuk development lokal Windows agar slashes seragam
+    return fs.existsSync('/root') ? safePath : safePath.replace(/\\/g, '/');
 }
 
 app.get('/admin/api/files', (req, res) => {
