@@ -514,7 +514,7 @@ app.get('/status', async (req, res) => {
     });
 });
 app.get('/gallery', (req, res) => {
-    const galleryData = getGalleryData();
+    const galleryData = getAllGallery();
     res.render('gallery', { title: 'Gallery', galleryData });
 });
 app.get('/download', (req, res) => res.render('download', { title: 'Download' }));
