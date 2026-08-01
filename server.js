@@ -32,18 +32,16 @@ app.locals.vpsUrl = VPS_API_URL;
 // Static files with Cache-Control for 30 days
 app.use(express.static(path.join(__dirname, 'public'), { maxAge: '30d' }));
 
-// ==========================================
-// CONFIGURATIONS (Gallery, Multer, etc)
-// ==========================================
-const galleryDataPath = path.join(__dirname, 'data', 'gallery.json');
-const uploadsDir = path.join(__dirname, 'public', 'assets', 'images', 'gallery');
+const { initDatabase, getAllGallery, addGallery, deleteGallery } = require('./data/database');
 
+// Inisialisasi Database SQLite
+initDatabase().then(() => {
+    console.log('[SERVER] Database siap digunakan.');
+}).catch(console.error);
+
+const uploadsDir = path.join(__dirname, 'public', 'assets', 'images', 'gallery');
 if (!fs.existsSync(uploadsDir)) {
     fs.mkdirSync(uploadsDir, { recursive: true });
-}
-if (!fs.existsSync(galleryDataPath)) {
-    if (!fs.existsSync(path.join(__dirname, 'data'))) fs.mkdirSync(path.join(__dirname, 'data'));
-    fs.writeFileSync(galleryDataPath, JSON.stringify([]));
 }
 
 const storage = multer.diskStorage({
@@ -55,13 +53,6 @@ const storage = multer.diskStorage({
     }
 });
 const upload = multer({ storage: storage });
-
-function getGalleryData() {
-    return JSON.parse(fs.readFileSync(galleryDataPath, 'utf8'));
-}
-function saveGalleryData(data) {
-    fs.writeFileSync(galleryDataPath, JSON.stringify(data, null, 4));
-}
 
 // Dummy data for fallback if VPS is offline
 const dummyStats = {
@@ -164,7 +155,7 @@ app.get('/admin/api/pterodactyl', async (req, res) => {
 // 2. Upload Gallery
 app.get('/admin/api/gallery', (req, res) => {
     if (!req.session.isAdmin) return res.status(401).json({ error: 'Unauthorized' });
-    res.json(getGalleryData());
+    res.json(getAllGallery());
 });
 
 app.post('/admin/api/gallery', upload.single('image'), (req, res) => {
@@ -172,9 +163,8 @@ app.post('/admin/api/gallery', upload.single('image'), (req, res) => {
     if (!req.file) return res.status(400).json({ error: 'No image uploaded.' });
     
     const { title, tag } = req.body;
-    const galleryData = getGalleryData();
     
-    galleryData.push({
+    addGallery({
         id: Date.now().toString(),
         filename: req.file.filename,
         url: '/assets/images/gallery/' + req.file.filename,
@@ -182,18 +172,17 @@ app.post('/admin/api/gallery', upload.single('image'), (req, res) => {
         tag: tag || 'Artwork'
     });
     
-    saveGalleryData(galleryData);
     res.json({ status: 'ok', message: 'Gambar berhasil diunggah!' });
 });
 
 app.delete('/admin/api/gallery/:id', (req, res) => {
     if (!req.session.isAdmin) return res.status(401).json({ error: 'Unauthorized' });
-    let galleryData = getGalleryData();
-    const item = galleryData.find(g => g.id === req.params.id);
+    
+    const id = req.params.id;
+    const item = getAllGallery().find(g => g.id === id);
     if(item) {
         try { fs.unlinkSync(path.join(uploadsDir, item.filename)); } catch(e){}
-        galleryData = galleryData.filter(g => g.id !== req.params.id);
-        saveGalleryData(galleryData);
+        deleteGallery(id);
     }
     res.json({ status: 'ok' });
 });
