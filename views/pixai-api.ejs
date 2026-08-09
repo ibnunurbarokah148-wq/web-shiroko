@@ -30,6 +30,18 @@
                     <em>*Kode ini menggunakan sistem Polymorphic Obfuscation dan hanya bisa dipakai satu kali (OTP Nonce).</em>
                 </p>
             </div>
+
+            <div id="opsi-b-section" style="display: none; border-top: 1px solid var(--border-color); padding-top: 20px; margin-top: 20px;">
+                <h3 style="margin-bottom: 15px; color: #10b981;">3. Opsi B: Tempel Token Manual (Jika Popup Muncul)</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 15px; font-size: 14px;">
+                    Jika pada saat mengeksekusi Bookmarklet di atas browser menampilkan popup/prompt "Koneksi otomatis gagal...", silakan salin token JWT (eyJ...) yang ada di dalam popup tersebut dan tempelkan ke bawah ini:
+                </p>
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" id="manual-token-input" placeholder="eyJhbG..." style="flex: 1; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: rgba(0,0,0,0.2); color: #fff;" autocomplete="off">
+                    <button id="btn-save-token" class="btn btn-secondary" style="background: #10b981; color: white;">Hubungkan ke Bot</button>
+                </div>
+                <div id="manual-alert" class="alert" style="display: none;"></div>
+            </div>
         </div>
     </div>
 </section>
@@ -53,10 +65,7 @@ document.getElementById('btn-generate').addEventListener('click', async () => {
     btn.disabled = true;
 
     try {
-        // Menggunakan API internal Web Shiroko sebagai Proxy (Backend-to-Backend)
-        // Ini menghindari masalah Mixed Content (HTTPS -> HTTP) dan CORS.
         const botApiUrl = '/api/get-pixai-payload'; 
-        
         const res = await fetch(botApiUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -68,6 +77,7 @@ document.getElementById('btn-generate').addEventListener('click', async () => {
         if (data.status === 'ok') {
             document.getElementById('payload-output').value = data.payload;
             resultSection.style.display = 'block';
+            document.getElementById('opsi-b-section').style.display = 'block';
             document.getElementById('otp-section').style.opacity = '0.5';
             document.getElementById('otp-input').disabled = true;
         } else {
@@ -82,6 +92,56 @@ document.getElementById('btn-generate').addEventListener('click', async () => {
         btn.disabled = false;
     }
 });
+
+// Handler Opsi B (Manual Token)
+document.getElementById('btn-save-token').addEventListener('click', async () => {
+    const tokenInput = document.getElementById('manual-token-input').value.trim();
+    const alertDiv = document.getElementById('manual-alert');
+    const btn = document.getElementById('btn-save-token');
+
+    alertDiv.style.display = 'none';
+
+    if(!tokenInput) {
+        alertDiv.className = 'alert alert-error';
+        alertDiv.innerHTML = '❌ Harap paste Token JWT terlebih dahulu.';
+        alertDiv.style.display = 'block';
+        return;
+    }
+
+    btn.innerText = 'Menyambungkan...';
+    btn.disabled = true;
+
+    try {
+        const res = await fetch('/api/save-pixai-token', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token: tokenInput })
+        });
+        const data = await res.json();
+
+        if (res.ok && data.status === 'ok') {
+            alertDiv.className = 'alert alert-success';
+            alertDiv.innerHTML = '✅ <b>Sukses!</b><br>' + (data.message || 'Token berhasil dihubungkan ke Bot.');
+            document.getElementById('manual-token-input').value = '';
+        } else {
+            alertDiv.className = 'alert alert-error';
+            alertDiv.innerHTML = '❌ <b>Gagal:</b> ' + (data.message || 'Error tidak diketahui');
+        }
+    } catch(err) {
+        alertDiv.className = 'alert alert-error';
+        alertDiv.innerHTML = '❌ <b>Error:</b> Koneksi ke proxy server terputus.';
+    } finally {
+        btn.innerText = 'Hubungkan ke Bot';
+        btn.disabled = false;
+        alertDiv.style.display = 'block';
+    }
+});
 </script>
+
+<style>
+.alert { padding: 12px; border-radius: 8px; font-size: 14px; margin-top: 15px; }
+.alert-error { background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid #b91c1c; }
+.alert-success { background: rgba(16, 185, 129, 0.2); color: #6ee7b7; border: 1px solid #047857; }
+</style>
 
 <%- include('partials/footer') %>
