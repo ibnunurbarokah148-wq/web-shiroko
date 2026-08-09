@@ -112,10 +112,14 @@ document.getElementById('btn-save-token').addEventListener('click', async () => 
     btn.disabled = true;
 
     try {
+        const parts = tokenInput.split('|');
+        const tokenVal = parts[0];
+        const nonceVal = parts.length > 1 ? parts[1] : '';
+
         const res = await fetch('/api/save-pixai-token', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ token: tokenInput })
+            body: JSON.stringify({ token: tokenVal, nonce: nonceVal })
         });
         const data = await res.json();
 
