@@ -482,6 +482,28 @@ app.post('/api/get-pixai-payload', async (req, res) => {
     }
 });
 
+// Proxy API untuk save token (Dipanggil oleh Bookmarklet di pixai.art)
+app.options('/api/save-pixai-token', (req, res) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    res.send();
+});
+
+app.post('/api/save-pixai-token', async (req, res) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    try {
+        const response = await axios.post(`${VPS_API_URL}/api/save-pixai-token`, req.body);
+        res.json(response.data);
+    } catch (error) {
+        if (error.response) {
+            res.status(error.response.status).json(error.response.data);
+        } else {
+            res.status(500).json({ status: 'error', message: 'Gagal menghubungi server backend bot.' });
+        }
+    }
+});
+
 app.get('/status', async (req, res) => {
     let botOnline = false;
     let mcOnline = false;
