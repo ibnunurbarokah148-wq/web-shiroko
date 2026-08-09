@@ -53,8 +53,9 @@ document.getElementById('btn-generate').addEventListener('click', async () => {
     btn.disabled = true;
 
     try {
-        // Ganti 'http://103.253.213.252:3000' dengan URL API Bot VPS jika tidak satu mesin
-        const botApiUrl = 'http://103.253.213.252:3000/api/generate-bookmarklet'; 
+        // Menggunakan API internal Web Shiroko sebagai Proxy (Backend-to-Backend)
+        // Ini menghindari masalah Mixed Content (HTTPS -> HTTP) dan CORS.
+        const botApiUrl = '/api/get-pixai-payload'; 
         
         const res = await fetch(botApiUrl, {
             method: 'POST',

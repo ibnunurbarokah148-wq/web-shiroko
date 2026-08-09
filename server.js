@@ -466,6 +466,22 @@ app.get('/projects', (req, res) => res.render('projects', { title: 'Projects' })
 app.get('/docs', (req, res) => res.render('docs', { title: 'Documentation' }));
 app.get('/pixai-api', (req, res) => res.render('pixai-api', { title: 'PixAI Web Auth', currentPath: '/pixai-api' }));
 
+// Proxy API ke Bot VPS (Menghindari CORS & Mixed Content)
+app.post('/api/get-pixai-payload', async (req, res) => {
+    try {
+        const { otp } = req.body;
+        // VPS_API_URL secara default adalah http://localhost:3000 jika satu VPS
+        const response = await axios.post(`${VPS_API_URL}/api/generate-bookmarklet`, { otp });
+        res.json(response.data);
+    } catch (error) {
+        if (error.response) {
+            res.status(error.response.status).json(error.response.data);
+        } else {
+            res.status(500).json({ status: 'error', message: 'Gagal terhubung ke Bot VPS. Pastikan bot menyala.' });
+        }
+    }
+});
+
 app.get('/status', async (req, res) => {
     let botOnline = false;
     let mcOnline = false;
