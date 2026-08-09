@@ -464,6 +464,8 @@ app.get('/', async (req, res) => {
 
 app.get('/projects', (req, res) => res.render('projects', { title: 'Projects' }));
 app.get('/docs', (req, res) => res.render('docs', { title: 'Documentation' }));
+app.get('/pixai-api', (req, res) => res.render('pixai-api', { currentPath: '/pixai-api' }));
+
 app.get('/status', async (req, res) => {
     let botOnline = false;
     let mcOnline = false;

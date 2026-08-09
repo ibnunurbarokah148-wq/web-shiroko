@@ -1,0 +1,86 @@
+<%- include('partials/header') %>
+
+<section class="section-padding" style="padding-top: 150px; min-height: 80vh;">
+    <div class="container">
+        <div class="text-center mb-5" data-aos="fade-up">
+            <h1 class="glitch" data-text="PixAI Web Auth">PixAI Web Auth</h1>
+            <p class="subtitle">Generator Token 1-Click untuk Bot Shiroko</p>
+        </div>
+
+        <div class="auth-card mx-auto" data-aos="fade-up" data-aos-delay="100" style="max-width: 600px; background: var(--surface-color); border: 1px solid var(--border-color); border-radius: 15px; padding: 2.5rem; text-align: left;">
+            <div id="otp-section">
+                <h3 style="margin-bottom: 15px; color: var(--text-primary);">1. Masukkan Kode OTP</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 20px; font-size: 14px;">
+                    Dapatkan kode OTP dari WhatsApp Bot Shiroko dengan mengetik perintah <strong>!api-pixai</strong>. Kode berlaku selama 5 menit.
+                </p>
+                <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                    <input type="text" id="otp-input" placeholder="SRO-XXXX" style="flex: 1; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: rgba(0,0,0,0.2); color: #fff; text-transform: uppercase;" autocomplete="off">
+                    <button id="btn-generate" class="btn btn-primary">Generate</button>
+                </div>
+                <div id="otp-error" style="color: #ef4444; font-size: 14px; display: none; margin-bottom: 15px;"></div>
+            </div>
+
+            <div id="result-section" style="display: none; border-top: 1px solid var(--border-color); padding-top: 20px; margin-top: 10px;">
+                <h3 style="margin-bottom: 15px; color: var(--accent-color);">2. Eksekusi Bookmarklet</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 15px; font-size: 14px;">
+                    Salin kode unik di bawah ini, buka tab <strong>pixai.art</strong>, ketik <strong>javascript:</strong> di address bar lalu paste kode di belakangnya.
+                </p>
+                <textarea id="payload-output" readonly onclick="this.select()" style="width:100%; height:120px; background:rgba(0,0,0,0.3); color:#38bdf8; border:1px solid var(--border-color); border-radius:8px; padding:12px; font-size:11px; resize:none; font-family: monospace;"></textarea>
+                <p style="color: var(--text-secondary); margin-top: 15px; font-size: 13px;">
+                    <em>*Kode ini menggunakan sistem Polymorphic Obfuscation dan hanya bisa dipakai satu kali (OTP Nonce).</em>
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+document.getElementById('btn-generate').addEventListener('click', async () => {
+    const otpInput = document.getElementById('otp-input').value.trim().toUpperCase();
+    const errorDiv = document.getElementById('otp-error');
+    const resultSection = document.getElementById('result-section');
+    const btn = document.getElementById('btn-generate');
+
+    errorDiv.style.display = 'none';
+    
+    if(!otpInput) {
+        errorDiv.innerText = '⚠️ Harap masukkan kode OTP terlebih dahulu.';
+        errorDiv.style.display = 'block';
+        return;
+    }
+
+    btn.innerText = 'Loading...';
+    btn.disabled = true;
+
+    try {
+        // Ganti 'http://103.253.213.252:3000' dengan URL API Bot VPS jika tidak satu mesin
+        const botApiUrl = 'http://103.253.213.252:3000/api/generate-bookmarklet'; 
+        
+        const res = await fetch(botApiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ otp: otpInput })
+        });
+        
+        const data = await res.json();
+        
+        if (data.status === 'ok') {
+            document.getElementById('payload-output').value = data.payload;
+            resultSection.style.display = 'block';
+            document.getElementById('otp-section').style.opacity = '0.5';
+            document.getElementById('otp-input').disabled = true;
+        } else {
+            errorDiv.innerHTML = data.message || 'Gagal generate bookmarklet.';
+            errorDiv.style.display = 'block';
+        }
+    } catch(e) {
+        errorDiv.innerHTML = '❌ Gagal terhubung ke API Bot VPS. Pastikan bot menyala.';
+        errorDiv.style.display = 'block';
+    } finally {
+        btn.innerText = 'Generate';
+        btn.disabled = false;
+    }
+});
+</script>
+
+<%- include('partials/footer') %>
