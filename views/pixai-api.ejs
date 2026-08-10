@@ -80,14 +80,21 @@ document.getElementById('btn-generate').addEventListener('click', async () => {
             document.getElementById('opsi-b-section').style.display = 'block';
             document.getElementById('otp-section').style.opacity = '0.5';
             document.getElementById('otp-input').disabled = true;
+            btn.innerText = 'Sudah Digenerate';
+            btn.disabled = true; // Permanently disable button after success
+            btn.style.cursor = 'not-allowed';
+            btn.style.opacity = '0.5';
         } else {
             errorDiv.innerHTML = data.message || 'Gagal generate bookmarklet.';
             errorDiv.style.display = 'block';
+            resultSection.style.display = 'none';
+            document.getElementById('opsi-b-section').style.display = 'none';
+            btn.innerText = 'Generate';
+            btn.disabled = false;
         }
     } catch(e) {
         errorDiv.innerHTML = '❌ Gagal terhubung ke API Bot VPS. Pastikan bot menyala.';
         errorDiv.style.display = 'block';
-    } finally {
         btn.innerText = 'Generate';
         btn.disabled = false;
     }
