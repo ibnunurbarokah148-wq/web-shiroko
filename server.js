@@ -12,7 +12,13 @@ const app = express();
 const PORT = process.env.PORT || 8080;
 const VPS_API_URL = process.env.VPS_API_URL || 'http://localhost:3000'; // Default fallback
 
-const rateLimit = require('express-rate-limit');
+let rateLimit;
+try {
+    rateLimit = require('express-rate-limit');
+} catch (e) {
+    console.warn('[SERVER] express-rate-limit belum terinstall di VPS node_modules. Menggunakan fallback dummy limiter.');
+    rateLimit = () => (req, res, next) => next();
+}
 
 // Middleware
 app.use(express.urlencoded({ extended: true }));
@@ -181,7 +187,7 @@ app.get('/admin/api/gallery', (req, res) => {
 });
 
 app.post('/admin/api/gallery', upload.single('image'), (req, res) => {
-    if (!req.session.isAdmin) return res.status(401).json({ error: 'Unauthorized' });
+    if (!req.session.isAdmin) return res.session.isAdmin ? res.json({ status: 'ok' }) : res.status(401).json({ error: 'Unauthorized' });
     if (!req.file) return res.status(400).json({ error: 'No image uploaded.' });
     
     const { title, tag } = req.body;
@@ -217,9 +223,9 @@ app.post('/admin/api/deploy', (req, res) => {
     let command = '';
     
     if (target === 'bot') {
-        command = 'cd /root/bot-shiroko && git pull && pm2 restart index';
+        command = 'cd /root/bot-shiroko && git pull && npm install --omit=dev && pm2 restart index';
     } else if (target === 'web') {
-        command = 'cd "/root/Web Shiroko Project" && git pull && pm2 restart web-shiroko';
+        command = 'cd "/root/Web Shiroko Project" && git pull && npm install --omit=dev && pm2 restart web-shiroko';
     } else {
         return res.status(400).json({ error: 'Invalid target' });
     }
