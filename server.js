@@ -223,9 +223,9 @@ app.post('/admin/api/deploy', (req, res) => {
     let command = '';
     
     if (target === 'bot') {
-        command = 'cd /root/bot-shiroko && git pull && npm install --omit=dev && pm2 restart index';
+        command = 'cd /root/bot-shiroko && git pull && npm install --legacy-peer-deps --omit=dev && pm2 restart index';
     } else if (target === 'web') {
-        command = 'cd "/root/Web Shiroko Project" && git pull && npm install --omit=dev && pm2 restart web-shiroko';
+        command = 'cd "/root/Web Shiroko Project" && git pull && npm install --legacy-peer-deps --omit=dev && pm2 restart web-shiroko';
     } else {
         return res.status(400).json({ error: 'Invalid target' });
     }
