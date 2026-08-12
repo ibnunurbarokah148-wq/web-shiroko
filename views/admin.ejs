@@ -932,44 +932,60 @@
 
     // ================== OTHER PANELS ==================
     async function sendControl(action, btn) {
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>'; btn.disabled = true;
+        const originalHtml = btn ? btn.innerHTML : 'Toggle';
+        if (btn) { btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...'; btn.disabled = true; }
+        showAlert(`⚡ Mengirim perintah ${action}...`);
         try {
             const res = await fetch('/admin/api/control', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({action}) });
             const data = await res.json();
             showAlert(data.message, res.status !== 200);
-        } catch(e) { showAlert('Error', true); }
-        btn.innerHTML = 'Toggle'; btn.disabled = false;
+        } catch(e) { 
+            showAlert('Gagal terhubung ke VPS.', true); 
+        } finally {
+            if (btn) { btn.innerHTML = originalHtml; btn.disabled = false; }
+        }
     }
 
-        function sendDeploy(target, btn) {
+    function sendDeploy(target, btn) {
         showCustomModal({
             title: 'Konfirmasi Deploy',
-            text: `Yakin ingin melakukan deploy <b>${target}</b>?`,
-            confirmText: 'Deploy',
+            text: `Yakin ingin melakukan deploy <b>${target.toUpperCase()}</b>?`,
+            confirmText: 'Deploy Now',
             onConfirm: async () => {
-                const originalHtml = btn.innerHTML;
-                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>'; btn.disabled = true;
+                const originalHtml = btn ? btn.innerHTML : 'Deploy';
+                if (btn) { btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses Deploy...'; btn.disabled = true; }
+                showAlert(`🚀 Memproses deploy ${target}... Mohon tunggu.`);
                 try {
                     const res = await fetch('/admin/api/deploy', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({target}) });
                     const data = await res.json();
                     showAlert(data.message, res.status !== 200);
-                } catch(e) { showAlert('Deployment triggered (disconnected)', false); }
-                btn.innerHTML = originalHtml; btn.disabled = false;
+                } catch(e) { 
+                    showAlert(`🚀 Deployment ${target} berhasil dipicu! Koneksi mungkin terputus sebentar jika web di-restart.`, false); 
+                } finally {
+                    if (btn) { btn.innerHTML = originalHtml; btn.disabled = false; }
+                }
             }
         });
     }
 
-    function rebootVPS() {
+    function rebootVPS(btn) {
         showCustomModal({
             title: 'Reboot VPS',
             text: 'Yakin ingin memulai ulang VPS? Semua layanan akan terhenti sementara.',
             confirmText: 'Reboot',
             confirmClass: 'btn-danger',
             onConfirm: async () => {
+                const originalHtml = btn ? btn.innerHTML : 'Reboot VPS';
+                if (btn) { btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses Reboot...'; btn.disabled = true; }
+                showAlert('🔄 Memulai ulang server VPS...');
                 try {
                     await fetch('/admin/api/reboot', { method: 'POST' });
-                    showAlert('Rebooting...');
-                } catch(e) { showAlert('Rebooting (disconnected)'); }
+                    showAlert('Server VPS sedang di-reboot.');
+                } catch(e) { 
+                    showAlert('Server VPS sedang di-reboot (Koneksi terputus).'); 
+                } finally {
+                    setTimeout(() => { if (btn) { btn.innerHTML = originalHtml; btn.disabled = false; } }, 10000);
+                }
             }
         });
     }

@@ -12,17 +12,38 @@ const app = express();
 const PORT = process.env.PORT || 8080;
 const VPS_API_URL = process.env.VPS_API_URL || 'http://localhost:3000'; // Default fallback
 
+const rateLimit = require('express-rate-limit');
+
 // Middleware
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 const session = require('express-session');
 app.use(session({
-    secret: process.env.SESSION_SECRET || 'rahasia-shiroko',
+    secret: process.env.SESSION_SECRET || 'rahasia-shiroko-super-aman',
     resave: false,
     saveUninitialized: false,
-    cookie: { maxAge: 24 * 60 * 60 * 1000 } // 1 day
+    cookie: {
+        maxAge: 24 * 60 * 60 * 1000, // 1 day
+        httpOnly: true, // Anti-XSS Cookie Theft
+        sameSite: 'lax'  // Anti-CSRF
+    }
 }));
+
+// Rate limiter khusus login admin (Max 5x salah per 15 menit per IP)
+const loginLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 5,
+    standardHeaders: true,
+    legacyHeaders: false,
+    handler: (req, res) => {
+        res.status(429).render('admin', {
+            title: 'Admin Login',
+            authenticated: false,
+            error: '⛔ Terlalu banyak percobaan login gagal. Harap tunggu 15 menit lagi.'
+        });
+    }
+});
 
 // Setup EJS
 app.set('view engine', 'ejs');
@@ -97,9 +118,10 @@ app.get('/admin', async (req, res) => {
     res.render('admin', { title: 'Control Panel', authenticated: true, data });
 });
 
-app.post('/admin/login', (req, res) => {
+app.post('/admin/login', loginLimiter, (req, res) => {
     const { password } = req.body;
-    if (password === process.env.ADMIN_PASSWORD) {
+    const adminPassword = process.env.ADMIN_PASSWORD;
+    if (adminPassword && password && password === adminPassword) {
         req.session.isAdmin = true;
         res.redirect('/admin');
     } else {
@@ -217,12 +239,14 @@ const fileManagerUpload = multer({ dest: os.tmpdir() }); // Temp dir for uploads
 function getFmTargetDir(req) {
     let rawTarget = (req.query && req.query.dir) || (req.body && req.body.dir) || '/root';
     
-    // 🛡️ Keamanan: Path Traversal Protection (Jail ke /root)
-    const baseDir = fs.existsSync('/root') ? '/root' : path.join(__dirname, '..');
-    const safePath = path.resolve(baseDir, rawTarget.replace(/^\/root/, '').replace(/^\//, ''));
+    // 🛡️ Keamanan: Path Traversal Protection (Jail ke baseDir)
+    const baseDir = fs.existsSync('/root') ? '/root' : path.resolve(__dirname, '..');
+    const baseResolved = path.resolve(baseDir);
+    const safePath = path.resolve(baseResolved, rawTarget.replace(/^\/root/, '').replace(/^\//, ''));
     
-    // Pastikan path hasil resolve tetap berada di dalam baseDir
-    if (!safePath.startsWith(path.resolve(baseDir))) {
+    // Pastikan path hasil resolve tetap berada di dalam baseResolved (Anti-Path Traversal)
+    const relative = path.relative(baseResolved, safePath);
+    if (relative.startsWith('..') || path.isAbsolute(relative)) {
         throw new Error('Akses ditolak: Mencoba keluar dari zona aman (Path Traversal Detected).');
     }
     
