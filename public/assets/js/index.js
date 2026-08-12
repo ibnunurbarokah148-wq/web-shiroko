@@ -149,7 +149,7 @@ if (typingText) {
                 // Animasi langsung ubah teks
                 gsap.to(typingText, {
                     opacity: 0, duration: 0.2, onComplete: () => {
-                        typingText.textContent = `Shiroko sedang merespon ${currentTypingUser}... 🐺✍️`;
+                        typingText.textContent = `Shiroko sedang merespon ${currentTypingUser}...`;
                         gsap.to(typingText, { opacity: 1, duration: 0.2 });
                     }
                 });
@@ -157,7 +157,7 @@ if (typingText) {
                 isBotTyping = false;
                 gsap.to(typingText, {
                     opacity: 0, duration: 0.3, onComplete: () => {
-                        typingText.textContent = "Selesai merespon! ✓";
+                        typingText.textContent = "Selesai merespon!";
                         gsap.to(typingText, { opacity: 1, duration: 0.3 });
                         
                         // Kembali ke rotasi normal setelah 3 detik

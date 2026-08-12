@@ -27,7 +27,7 @@
                 </p>
                 <input type="hidden" id="payload-output">
                 <button id="btn-copy-payload" class="btn" style="width: 100%; padding: 15px; font-size: 16px; font-weight: bold; background: #0ea5e9; color: white; border: none; border-radius: 8px; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px;">
-                    📋 Salin Kode Bookmarklet
+                    Salin Kode Bookmarklet
                 </button>
                 <p style="color: var(--text-secondary); margin-top: 15px; font-size: 13px;">
                     <em>*Kode ini menggunakan sistem Polymorphic Obfuscation dan hanya bisa dipakai satu kali (OTP Nonce).</em>
@@ -59,7 +59,7 @@ document.getElementById('btn-generate').addEventListener('click', async () => {
     errorDiv.style.display = 'none';
     
     if(!otpInput) {
-        errorDiv.innerText = '⚠️ Harap masukkan kode OTP terlebih dahulu.';
+        errorDiv.innerText = 'Harap masukkan kode OTP terlebih dahulu.';
         errorDiv.style.display = 'block';
         return;
     }
@@ -96,7 +96,7 @@ document.getElementById('btn-generate').addEventListener('click', async () => {
             btn.disabled = false;
         }
     } catch(e) {
-        errorDiv.innerHTML = '❌ Gagal terhubung ke API Bot VPS. Pastikan bot menyala.';
+        errorDiv.innerHTML = 'Gagal terhubung ke API Bot VPS. Pastikan bot menyala.';
         errorDiv.style.display = 'block';
         btn.innerText = 'Generate';
         btn.disabled = false;
@@ -113,7 +113,7 @@ document.getElementById('btn-save-token').addEventListener('click', async () => 
 
     if(!tokenInput) {
         alertDiv.className = 'alert alert-error';
-        alertDiv.innerHTML = '❌ Harap paste Token JWT terlebih dahulu.';
+        alertDiv.innerHTML = 'Harap paste Token JWT terlebih dahulu.';
         alertDiv.style.display = 'block';
         return;
     }
@@ -135,15 +135,15 @@ document.getElementById('btn-save-token').addEventListener('click', async () => 
 
         if (res.ok && data.status === 'ok') {
             alertDiv.className = 'alert alert-success';
-            alertDiv.innerHTML = '✅ <b>Sukses!</b><br>' + (data.message || 'Token berhasil dihubungkan ke Bot.');
+            alertDiv.innerHTML = '<b>Sukses!</b><br>' + (data.message || 'Token berhasil dihubungkan ke Bot.');
             document.getElementById('manual-token-input').value = '';
         } else {
             alertDiv.className = 'alert alert-error';
-            alertDiv.innerHTML = '❌ <b>Gagal:</b> ' + (data.message || 'Error tidak diketahui');
+            alertDiv.innerHTML = '<b>Gagal:</b> ' + (data.message || 'Error tidak diketahui');
         }
     } catch(err) {
         alertDiv.className = 'alert alert-error';
-        alertDiv.innerHTML = '❌ <b>Error:</b> Koneksi ke proxy server terputus.';
+        alertDiv.innerHTML = '<b>Error:</b> Koneksi ke proxy server terputus.';
     } finally {
         btn.innerText = 'Hubungkan ke Bot';
         btn.disabled = false;
@@ -170,7 +170,7 @@ if (btnCopyPayload) {
             }
             
             const oldText = btnCopyPayload.innerHTML;
-            btnCopyPayload.innerHTML = '✅ Tersalin! Tempel di pixai.art';
+            btnCopyPayload.innerHTML = 'Tersalin! Tempel di pixai.art';
             btnCopyPayload.style.background = '#10b981'; // Green
             setTimeout(() => {
                 btnCopyPayload.innerHTML = oldText;

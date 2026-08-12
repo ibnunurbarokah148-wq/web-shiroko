@@ -46,7 +46,7 @@ const loginLimiter = rateLimit({
         res.status(429).render('admin', {
             title: 'Admin Login',
             authenticated: false,
-            error: '⛔ Terlalu banyak percobaan login gagal. Harap tunggu 15 menit lagi.'
+            error: 'Terlalu banyak percobaan login gagal. Harap tunggu 15 menit lagi.'
         });
     }
 });
@@ -593,7 +593,7 @@ app.get('/about', (req, res) => res.render('about', { title: 'About' }));
 app.get('/contact', (req, res) => res.render('contact', { title: 'Contact' }));
 
 app.listen(PORT, () => {
-    console.log(`🐺 Web Portal Shiroko Project berjalan di http://localhost:${PORT}`);
+    console.log(`Web Portal Shiroko Project berjalan di http://localhost:${PORT}`);
 });
 
 

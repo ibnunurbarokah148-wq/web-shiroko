@@ -934,7 +934,7 @@
     async function sendControl(action, btn) {
         const originalHtml = btn ? btn.innerHTML : 'Toggle';
         if (btn) { btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...'; btn.disabled = true; }
-        showAlert(`⚡ Mengirim perintah ${action}...`);
+        showAlert(`Mengirim perintah ${action}...`);
         try {
             const res = await fetch('/admin/api/control', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({action}) });
             const data = await res.json();
@@ -954,13 +954,13 @@
             onConfirm: async () => {
                 const originalHtml = btn ? btn.innerHTML : 'Deploy';
                 if (btn) { btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses Deploy...'; btn.disabled = true; }
-                showAlert(`🚀 Memproses deploy ${target}... Mohon tunggu.`);
+                showAlert(`Memproses deploy ${target}... Mohon tunggu.`);
                 try {
                     const res = await fetch('/admin/api/deploy', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({target}) });
                     const data = await res.json();
                     showAlert(data.message, res.status !== 200);
                 } catch(e) { 
-                    showAlert(`🚀 Deployment ${target} berhasil dipicu! Koneksi mungkin terputus sebentar jika web di-restart.`, false); 
+                    showAlert(`Deployment ${target} berhasil dipicu! Koneksi mungkin terputus sebentar jika web di-restart.`, false); 
                 } finally {
                     if (btn) { btn.innerHTML = originalHtml; btn.disabled = false; }
                 }
@@ -977,7 +977,7 @@
             onConfirm: async () => {
                 const originalHtml = btn ? btn.innerHTML : 'Reboot VPS';
                 if (btn) { btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses Reboot...'; btn.disabled = true; }
-                showAlert('🔄 Memulai ulang server VPS...');
+                showAlert('Memulai ulang server VPS...');
                 try {
                     await fetch('/admin/api/reboot', { method: 'POST' });
                     showAlert('Server VPS sedang di-reboot.');
