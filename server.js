@@ -92,14 +92,15 @@ const dummyStats = {
 };
 
 const dummyServices = [
-    { name: 'WhatsApp', status: 'ONLINE', icon: 'fab fa-whatsapp' },
-    { name: 'Discord', status: 'ONLINE', icon: 'fab fa-discord' },
-    { name: 'Minecraft', status: 'ONLINE', icon: 'fas fa-cube' },
-    { name: 'Gemini', status: 'ONLINE', icon: 'fas fa-brain' },
-    { name: 'Cloudflare', status: 'ONLINE', icon: 'fas fa-cloud' },
-    { name: 'OpenRouter', status: 'ONLINE', icon: 'fas fa-network-wired' },
-    { name: 'Ollama', status: 'ONLINE', icon: 'fas fa-server' },
-    { name: 'ComfyUI', status: 'OFFLINE', icon: 'fas fa-palette' }
+    { name: 'WhatsApp Bot', status: 'ONLINE', icon: 'fab fa-whatsapp' },
+    { name: 'Discord Bot', status: 'ONLINE', icon: 'fab fa-discord' },
+    { name: 'Google Gemini', status: 'ONLINE', icon: 'fas fa-brain' },
+    { name: 'OpenRouter AI', status: 'ONLINE', icon: 'fas fa-network-wired' },
+    { name: 'Cloudflare AI', status: 'ONLINE', icon: 'fas fa-cloud' },
+    { name: 'ArisuSoft AI', status: 'ONLINE', icon: 'fas fa-robot' },
+    { name: 'PixAI Engine', status: 'ONLINE', icon: 'fas fa-palette' },
+    { name: 'Server Minecraft', status: 'ONLINE', icon: 'fas fa-cube' },
+    { name: 'Local AI (Ollama)', status: 'STANDBY', icon: 'fas fa-server' }
 ];
 
 // Helper to fetch data from VPS

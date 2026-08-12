@@ -9,81 +9,48 @@
 
         <div class="status-board" data-aos="fade-up" data-aos-delay="100">
             <!-- Summary Header -->
-                        <div class="status-summary">
-                <% if(botOnline && mcOnline) { %>
+            <div class="status-summary">
+                <% 
+                   const servicesList = (data && data.services && data.services.length > 0) ? data.services : [
+                       { name: 'WhatsApp Bot', status: 'ONLINE', icon: 'fab fa-whatsapp' },
+                       { name: 'Discord Bot', status: 'ONLINE', icon: 'fab fa-discord' },
+                       { name: 'Google Gemini', status: 'ONLINE', icon: 'fas fa-brain' },
+                       { name: 'OpenRouter AI', status: 'ONLINE', icon: 'fas fa-network-wired' },
+                       { name: 'Cloudflare AI', status: 'ONLINE', icon: 'fas fa-cloud' },
+                       { name: 'ArisuSoft AI', status: 'ONLINE', icon: 'fas fa-robot' },
+                       { name: 'PixAI Engine', status: 'ONLINE', icon: 'fas fa-palette' },
+                       { name: 'Server Minecraft', status: 'ONLINE', icon: 'fas fa-cube' },
+                       { name: 'Local AI (Ollama)', status: 'STANDBY', icon: 'fas fa-server' }
+                   ];
+                   const onlineCount = servicesList.filter(s => s.status === 'ONLINE').length;
+                   const totalCount = servicesList.length;
+                %>
+                <% if(onlineCount >= totalCount - 1) { %>
                     <i class="fas fa-check-circle" style="color: #4CAF50; font-size: 3rem; margin-bottom: 1rem;"></i>
                     <h2>All Systems Operational</h2>
-                <% } else if(botOnline || mcOnline) { %>
+                <% } else if(onlineCount > 0) { %>
                     <i class="fas fa-exclamation-triangle" style="color: #f39c12; font-size: 3rem; margin-bottom: 1rem;"></i>
                     <h2>Partial System Outage</h2>
                 <% } else { %>
                     <i class="fas fa-times-circle" style="color: #e74c3c; font-size: 3rem; margin-bottom: 1rem;"></i>
                     <h2>Major System Outage</h2>
                 <% } %>
-                <p style="color: var(--text-secondary);">Last updated: <span id="time-now">Just now</span></p>
+                <p style="color: var(--text-secondary);"><%= onlineCount %> dari <%= totalCount %> Layanan Online | Last updated: <span id="time-now">Just now</span></p>
             </div>
 
-            <!-- List of Services -->
+            <!-- List of 9 Services -->
             <div class="status-list mt-4">
-                <div class="status-item">
-                                        <div class="service-info">
-                        <i class="fab fa-whatsapp" style="color: #25D366; font-size: 1.5rem;"></i>
-                        <span class="service-name">WhatsApp Bot (Baileys)</span>
+                <% servicesList.forEach(service => { %>
+                    <div class="status-item">
+                        <div class="service-info">
+                            <i class="<%= service.icon %>" style="font-size: 1.5rem; width: 30px; text-align: center; color: var(--accent-color);"></i>
+                            <span class="service-name"><%= service.name %></span>
+                        </div>
+                        <div class="service-state <%= service.status === 'ONLINE' ? 'online' : (service.status === 'STANDBY' ? 'standby' : 'offline') %>">
+                            <span class="dot"></span> <%= service.status %>
+                        </div>
                     </div>
-                    <div class="service-state <%= botOnline ? 'online' : 'offline' %>">
-                        <span class="dot"></span> <%= botOnline ? 'ONLINE' : 'OFFLINE' %>
-                    </div>
-                </div>
-
-                <div class="status-item">
-                                        <div class="service-info">
-                        <i class="fab fa-discord" style="color: #5865F2; font-size: 1.5rem;"></i>
-                        <span class="service-name">Discord Bot Node</span>
-                    </div>
-                    <div class="service-state <%= botOnline ? 'online' : 'offline' %>">
-                        <span class="dot"></span> <%= botOnline ? 'ONLINE' : 'OFFLINE' %>
-                    </div>
-                </div>
-
-                <div class="status-item">
-                    <div class="service-info">
-                        <i class="fas fa-database" style="color: var(--accent-color); font-size: 1.5rem;"></i>
-                        <span class="service-name">SQLite Core Database</span>
-                    </div>
-                    <div class="service-state online">
-                        <span class="dot"></span> ONLINE
-                    </div>
-                </div>
-
-                <div class="status-item">
-                    <div class="service-info">
-                        <i class="fas fa-brain" style="color: #f39c12; font-size: 1.5rem;"></i>
-                        <span class="service-name">Google Gemini Flash</span>
-                    </div>
-                    <div class="service-state online">
-                        <span class="dot"></span> ONLINE
-                    </div>
-                </div>
-
-                <div class="status-item">
-                    <div class="service-info">
-                        <i class="fas fa-server" style="color: #e74c3c; font-size: 1.5rem;"></i>
-                        <span class="service-name">Local AI (Ollama)</span>
-                    </div>
-                    <div class="service-state offline">
-                        <span class="dot"></span> STANDBY
-                    </div>
-                </div>
-
-                <div class="status-item">
-                                        <div class="service-info">
-                        <i class="fas fa-cube" style="color: #4CAF50; font-size: 1.5rem;"></i>
-                        <span class="service-name">Server Minecraft</span>
-                    </div>
-                    <div class="service-state <%= mcOnline ? 'online' : 'offline' %>">
-                        <span class="dot"></span> <%= mcOnline ? 'ONLINE' : 'OFFLINE' %>
-                    </div>
-                </div>
+                <% }) %>
             </div>
         </div>
     </div>
