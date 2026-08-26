@@ -1,10 +1,10 @@
 <%- include('partials/header') %>
 
 <section class="hero">
-    <div class="hero-content" data-aos="fade-up">
+    <div class="hero-content">
         <div class="status-badge" id="live-status">
             <span class="pulse"></span>
-            <span id="typing-text">Shiroko lagi ngetik...</span>
+            <span id="typing-text" aria-live="polite">Shiroko lagi ngetik...</span>
         </div>
         
         <h1 class="glitch" data-text="SHIROKO PROJECT">SHIROKO PROJECT</h1>
@@ -29,9 +29,9 @@
         </div>
     </div>
     
-    <div class="hero-image" data-aos="fade-left" data-aos-delay="400">
+    <div class="hero-image">
         <!-- Chibi Logo Image floating -->
-        <img src="/assets/img/logo.jpeg" alt="Shiroko Chibi" class="floating-mascot">
+        <img src="/assets/img/logo.jpeg" alt="Shiroko Chibi" class="floating-mascot" width="350" height="350" decoding="async">
     </div>
 </section>
 
@@ -40,17 +40,17 @@
         <h2 class="section-title text-center" data-aos="fade-up">Ecosystem Statistics</h2>
         <div class="stats-grid">
             <div class="stat-card" data-aos="zoom-in" data-aos-delay="100">
-                <i class="fas fa-comment-dots"></i>
+                <i class="fas fa-comment-dots" aria-hidden="true"></i>
                 <h3 class="counter" id="stat-totalChat"><%= data.stats.totalChat %></h3>
                 <p>Total Chat</p>
             </div>
             <div class="stat-card" data-aos="zoom-in" data-aos-delay="200">
-                <i class="fas fa-image"></i>
+                <i class="fas fa-image" aria-hidden="true"></i>
                 <h3 class="counter" id="stat-imageGenerated"><%= data.stats.imageGenerated %></h3>
                 <p>Image Generated</p>
             </div>
             <div class="stat-card" data-aos="zoom-in" data-aos-delay="300">
-                <i class="fab fa-discord"></i>
+                <i class="fab fa-discord" aria-hidden="true"></i>
                 <h3 class="counter" id="stat-discordUsers"><%= data.stats.discordUsers %></h3>
                 <p>Discord Users</p>
             </div>
@@ -146,26 +146,59 @@
 </section>
 
 <script>
-    // Live update statistics
-    async function updateStats() {
-        try {
-            const res = await fetch('/api/stats');
-            if (res.ok) {
-                const stats = await res.json();
-                document.getElementById('stat-totalChat').innerText = stats.totalChat;
-                document.getElementById('stat-imageGenerated').innerText = stats.imageGenerated;
-                document.getElementById('stat-discordUsers').innerText = stats.discordUsers;
-                document.getElementById('stat-whatsappUsers').innerText = stats.whatsappUsers;
-                document.getElementById('stat-aiRequests').innerText = stats.aiRequests;
-                document.getElementById('stat-commands').innerText = stats.commands;
+    // Live stats are non-critical: start after the first render and avoid
+    // overlapping requests while the tab is hidden or the VPS is slow.
+    (function () {
+        let statsRequestInFlight = false;
+        let statsTimer;
+        const statsInterval = 15000;
+
+        async function updateStats() {
+            if (document.hidden || statsRequestInFlight) return;
+            statsRequestInFlight = true;
+            try {
+                const res = await fetch('/api/stats', { headers: { Accept: 'application/json' } });
+                if (res.ok) {
+                    const stats = await res.json();
+                    const values = {
+                        'stat-totalChat': stats.totalChat,
+                        'stat-imageGenerated': stats.imageGenerated,
+                        'stat-discordUsers': stats.discordUsers,
+                        'stat-whatsappUsers': stats.whatsappUsers,
+                        'stat-aiRequests': stats.aiRequests,
+                        'stat-commands': stats.commands
+                    };
+                    Object.keys(values).forEach(function (id) {
+                        const element = document.getElementById(id);
+                        if (element) element.textContent = values[id];
+                    });
+                }
+            } catch (err) {
+                console.error('Failed to update stats:', err);
+            } finally {
+                statsRequestInFlight = false;
             }
-        } catch (err) {
-            console.error('Failed to update stats:', err);
         }
-    }
-    
-    // Update every 5 seconds
-    setInterval(updateStats, 5000);
+
+        function scheduleStats() {
+            window.clearTimeout(statsTimer);
+            if (!document.hidden) statsTimer = window.setTimeout(function () {
+                updateStats().finally(scheduleStats);
+            }, statsInterval);
+        }
+
+        window.addEventListener('visibilitychange', function () {
+            if (!document.hidden) {
+                updateStats().finally(scheduleStats);
+            } else {
+                window.clearTimeout(statsTimer);
+            }
+        });
+
+        window.setTimeout(function () {
+            updateStats().finally(scheduleStats);
+        }, 2000);
+    }());
 </script>
 
 <%- include('partials/footer') %>

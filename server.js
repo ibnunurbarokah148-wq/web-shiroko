@@ -483,14 +483,32 @@ app.post('/admin/api/reboot', (req, res) => {
 // ==========================================
 // PUBLIC ROUTES
 // ==========================================
+let publicStatsCache = null;
+let publicStatsCacheTime = 0;
+let publicStatsRequest = null;
+const PUBLIC_STATS_CACHE_MS = 10000;
+
 app.get('/api/stats', async (req, res) => {
-    const data = await getVPSData();
-    res.json(data.stats);
+    const now = Date.now();
+    if (publicStatsCache && now - publicStatsCacheTime < PUBLIC_STATS_CACHE_MS) {
+        return res.json(publicStatsCache);
+    }
+    if (!publicStatsRequest) {
+        publicStatsRequest = getVPSData().then(data => {
+            publicStatsCache = data.stats;
+            publicStatsCacheTime = Date.now();
+            return publicStatsCache;
+        }).finally(() => {
+            publicStatsRequest = null;
+        });
+    }
+    const stats = await publicStatsRequest;
+    res.json(stats);
 });
 
 app.get('/', async (req, res) => {
     const data = await getVPSData();
-    res.render('home', { title: 'Shiroko Project - AI Ecosystem', data });
+    res.render('home', { title: 'Shiroko Project - AI Ecosystem', data, isHome: true });
 });
 
 app.get('/projects', (req, res) => res.render('projects', { title: 'Projects' }));
