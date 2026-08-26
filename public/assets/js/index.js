@@ -10,7 +10,7 @@
         });
     }
 
-    if (window.AOS && window.USE_AOS) {
+    if (window.USE_AOS && typeof window.AOS !== 'undefined' && typeof window.AOS.init === 'function') {
         window.AOS.init({ duration: 800, once: true, offset: 100 });
     }
 
