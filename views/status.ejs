@@ -1,182 +1,81 @@
 <%- include('partials/header') %>
 
-<section class="section-padding" style="padding-top: 150px; min-height: 80vh;">
-    <div class="container">
-        <div class="text-center mb-5" data-aos="fade-up">
-            <h1 class="glitch" data-text="System Status">System Status</h1>
-            <p class="subtitle">Pantau status *uptime* dan ketersediaan layanan ekosistem Shiroko secara real-time.</p>
+<div class="status-page">
+    <header class="status-hero">
+        <div>
+            <div class="eyebrow"><span class="eyebrow-line"></span> PUBLIC STATUS</div>
+            <h1>Shiroko system status</h1>
+            <p>Status koneksi bot dan infrastruktur Minecraft secara langsung.</p>
         </div>
+        <div class="status-clock"><span>LAST CHECK</span><strong id="status-clock">--:--:--</strong></div>
+    </header>
 
-        <div class="status-board" data-aos="fade-up" data-aos-delay="100">
-            <!-- Summary Header -->
-            <div class="status-summary">
-                <% 
-                   const servicesList = (data && data.services && data.services.length > 0) ? data.services : [
-                       { name: 'WhatsApp Bot', status: 'ONLINE', icon: 'fab fa-whatsapp' },
-                       { name: 'Discord Bot', status: 'ONLINE', icon: 'fab fa-discord' },
-                       { name: 'Google Gemini', status: 'ONLINE', icon: 'fas fa-brain' },
-                       { name: 'OpenRouter AI', status: 'ONLINE', icon: 'fas fa-network-wired' },
-                       { name: 'Cloudflare AI', status: 'ONLINE', icon: 'fas fa-cloud' },
-                       { name: 'ArisuSoft AI', status: 'ONLINE', icon: 'fas fa-robot' },
-                       { name: 'PixAI Engine', status: 'ONLINE', icon: 'fas fa-palette' },
-                       { name: 'Server Minecraft', status: 'ONLINE', icon: 'fas fa-cube' },
-                       { name: 'Local AI (Ollama)', status: 'STANDBY', icon: 'fas fa-server' }
-                   ];
-                   const onlineCount = servicesList.filter(s => s.status === 'ONLINE').length;
-                   const totalCount = servicesList.length;
-                %>
-                <% if(onlineCount >= totalCount - 1) { %>
-                    <i class="fas fa-check-circle" style="color: #4CAF50; font-size: 3rem; margin-bottom: 1rem;"></i>
-                    <h2>All Systems Operational</h2>
-                <% } else if(onlineCount > 0) { %>
-                    <i class="fas fa-exclamation-triangle" style="color: #f39c12; font-size: 3rem; margin-bottom: 1rem;"></i>
-                    <h2>Partial System Outage</h2>
-                <% } else { %>
-                    <i class="fas fa-times-circle" style="color: #e74c3c; font-size: 3rem; margin-bottom: 1rem;"></i>
-                    <h2>Major System Outage</h2>
-                <% } %>
-                <p style="color: var(--text-secondary);"><%= onlineCount %> dari <%= totalCount %> Layanan Online | Last updated: <span id="time-now">Just now</span></p>
-            </div>
+    <section class="status-overview <%= data.summary.globalStatus.toLowerCase() %>">
+        <div class="overview-icon"><i class="fas <%= data.summary.globalStatus === 'OPERATIONAL' ? 'fa-circle-check' : data.summary.globalStatus === 'DEGRADED' ? 'fa-triangle-exclamation' : 'fa-circle-xmark' %>"></i></div>
+        <div>
+            <span class="panel-kicker">CURRENT CONDITION</span>
+            <h2><%= data.summary.globalStatus === 'OPERATIONAL' ? 'All systems operational' : data.summary.globalStatus === 'DEGRADED' ? 'Some services are degraded' : 'Core services unavailable' %></h2>
+            <p><%= data.summary.onlineServices %> dari <%= data.summary.totalServices %> layanan inti mengirimkan sinyal online.</p>
+        </div>
+        <div class="overview-score"><strong><%= Math.round((data.summary.onlineServices / data.summary.totalServices) * 100) %>%</strong><span>availability</span></div>
+    </section>
 
-            <!-- List of 9 Services -->
-            <div class="status-list mt-4">
-                <% servicesList.forEach(service => { %>
-                    <div class="status-item">
-                        <div class="service-info">
-                            <i class="<%= service.icon %>" style="font-size: 1.5rem; width: 30px; text-align: center; color: var(--accent-color);"></i>
-                            <span class="service-name"><%= service.name %></span>
+    <section class="status-content-grid">
+        <article class="panel status-services-panel">
+            <header class="panel-header"><div><span class="panel-kicker">CORE SERVICES</span><h2>Service availability</h2></div></header>
+            <div class="status-service-list">
+                <% data.services.forEach(service => { %>
+                    <div class="status-service-row">
+                        <span class="service-icon <%= service.accent %>"><i class="<%= service.icon %>"></i></span>
+                        <div class="status-service-copy"><strong><%= service.name %></strong><p><%= service.description %></p></div>
+                        <div class="status-bars" aria-label="Riwayat uptime dekoratif">
+                            <% for (let index = 0; index < 22; index++) { %><i class="<%= service.status.toLowerCase() %>"></i><% } %>
                         </div>
-                        <div class="service-state <%= service.status === 'ONLINE' ? 'online' : (service.status === 'STANDBY' ? 'standby' : 'offline') %>">
-                            <span class="dot"></span> <%= service.status %>
-                        </div>
+                        <span class="service-state <%= service.status.toLowerCase() %>"><i></i><%= service.status %></span>
                     </div>
                 <% }) %>
             </div>
-        </div>
-    </div>
-</section>
+        </article>
+
+        <aside class="panel status-meta-panel">
+            <header class="panel-header"><div><span class="panel-kicker">MONITOR</span><h2>Monitoring info</h2></div></header>
+            <dl class="monitor-list">
+                <div><dt>Update interval</dt><dd>30 detik</dd></div>
+                <div><dt>Core services</dt><dd><%= data.summary.totalServices %></dd></div>
+                <div><dt>Services online</dt><dd class="positive"><%= data.summary.onlineServices %></dd></div>
+                <div><dt>Status source</dt><dd>VPS & Pterodactyl</dd></div>
+            </dl>
+            <div class="status-note"><i class="fas fa-circle-info"></i><p>Status dapat tertunda saat VPS sedang deploy atau restart.</p></div>
+        </aside>
+    </section>
+
+    <section class="panel incident-panel">
+        <header class="panel-header"><div><span class="panel-kicker">INCIDENT HISTORY</span><h2>Recent incidents</h2></div><span class="incident-clear"><i class="fas fa-check"></i> No active incidents</span></header>
+        <div class="empty-incident"><i class="fas fa-shield-halved"></i><div><strong>Tidak ada insiden aktif</strong><p>Semua service yang terhubung bekerja dalam kondisi normal.</p></div></div>
+    </section>
+</div>
 
 <style>
-.mb-5 { margin-bottom: 3rem; }
-.mt-4 { margin-top: 2rem; }
-
-.status-board {
-    max-width: 800px;
-    margin: 0 auto;
-    background: var(--surface-color);
-    border: 1px solid var(--border-color);
-    border-radius: 15px;
-    padding: 3rem 2rem;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-}
-
-.status-summary {
-    text-align: center;
-    border-bottom: 1px solid var(--border-color);
-    padding-bottom: 2rem;
-    margin-bottom: 2rem;
-}
-
-.status-summary h2 {
-    color: var(--text-primary);
-    font-size: 1.8rem;
-    margin-bottom: 0.5rem;
-}
-
-.status-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem 1.5rem;
-    background: var(--bg-color);
-    border-radius: 10px;
-    margin-bottom: 1rem;
-    border: 1px solid var(--border-color);
-    transition: transform 0.2s ease;
-}
-
-.status-item:hover {
-    transform: translateX(5px);
-    border-color: var(--accent-color);
-}
-
-.service-info {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
-.service-name {
-    font-size: 1.1rem;
-    color: var(--text-primary);
-    font-weight: 500;
-}
-
-.service-state {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-weight: 700;
-    font-size: 0.95rem;
-    letter-spacing: 1px;
-}
-
-.service-state.online { 
-    color: #4CAF50; 
-    background: transparent;
-    box-shadow: none;
-}
-.service-state.offline { 
-    color: #e74c3c; 
-    background: transparent;
-    box-shadow: none;
-}
-
-.service-state .dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-}
-
-.service-state.online .dot {
-    background-color: #4CAF50;
-    box-shadow: 0 0 10px #4CAF50;
-    animation: pulse-green 2s infinite;
-}
-
-.service-state.offline .dot {
-    background-color: #e74c3c;
-    box-shadow: 0 0 10px #e74c3c;
-}
-
-@keyframes pulse-green {
-    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); }
-    70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(76, 175, 80, 0); }
-    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
-}
-@media (max-width: 768px) {
-    .status-board {
-        padding: 1.5rem 1rem;
-    }
-    .status-summary h2 {
-        font-size: 1.5rem;
-    }
-    .status-item {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 10px;
-    }
-    .service-state {
-        align-self: flex-start;
-    }
-}
+.status-page { width: min(1200px, calc(100% - 48px)); margin: auto; padding: 54px 0 76px; }
+.status-hero { display:flex; justify-content:space-between; align-items:flex-end; gap:24px; margin-bottom:26px; }
+.status-hero h1 { font-size:clamp(30px,5vw,48px); letter-spacing:-.05em; }
+.status-hero p { margin-top:10px; color:var(--text-secondary); font-size:13px; }
+.status-clock { text-align:right; }.status-clock span { display:block; color:var(--text-muted); font:700 8px 'JetBrains Mono',monospace; letter-spacing:.16em; }.status-clock strong { display:block; margin-top:5px; font:600 16px 'JetBrains Mono',monospace; color:var(--accent-color); }
+.status-overview { display:grid; grid-template-columns:58px 1fr auto; align-items:center; gap:18px; padding:24px; margin-bottom:16px; border:1px solid rgba(54,216,121,.25); border-radius:16px; background:linear-gradient(90deg,rgba(54,216,121,.08),rgba(17,26,45,.96)); }
+.overview-icon { width:52px; height:52px; display:grid; place-items:center; border-radius:14px; color:var(--online-color); background:rgba(54,216,121,.1); font-size:22px; }.status-overview h2 { margin:4px 0; font-size:20px; }.status-overview p { color:var(--text-secondary); font-size:11px; }.overview-score { text-align:right; }.overview-score strong { display:block; color:var(--online-color); font:700 26px 'JetBrains Mono',monospace; }.overview-score span { color:var(--text-muted); font-size:9px; }
+.status-overview.degraded { border-color:rgba(246,200,95,.3); background:linear-gradient(90deg,rgba(246,200,95,.08),rgba(17,26,45,.96)); }.status-overview.degraded .overview-icon,.status-overview.degraded .overview-score strong { color:var(--warning-color); }.status-overview.offline { border-color:rgba(255,95,100,.3); }.status-overview.offline .overview-icon,.status-overview.offline .overview-score strong { color:var(--offline-color); }
+.status-content-grid { display:grid; grid-template-columns:1.65fr .7fr; gap:16px; margin-bottom:16px; }.status-service-list { padding:4px 20px 12px; }.status-service-row { min-height:78px; display:grid; grid-template-columns:40px minmax(180px,1fr) 180px 70px; align-items:center; gap:12px; border-bottom:1px solid rgba(38,55,84,.65); }.status-service-row:last-child { border:0; }.status-service-copy strong { font-size:14px; }.status-service-copy p { margin-top:4px; color:var(--text-muted); font-size:11px; line-height:1.5; }.status-bars { display:flex; gap:3px; height:20px; align-items:stretch; }.status-bars i { flex:1; border-radius:2px; background:var(--online-color); opacity:.7; }.status-bars i.standby { background:var(--warning-color); }.status-bars i.offline { background:var(--offline-color); }
+.monitor-list { padding:8px 20px 16px; }.monitor-list div { display:flex; justify-content:space-between; gap:16px; padding:15px 0; border-bottom:1px solid rgba(38,55,84,.65); font-size:12px; }.monitor-list dt { color:var(--text-muted); }.monitor-list dd { color:var(--text-secondary); font-family:'JetBrains Mono',monospace; }.monitor-list dd.positive { color:var(--online-color); }.status-note { display:flex; gap:10px; margin:0 18px 18px; padding:12px; border:1px solid rgba(84,184,255,.16); border-radius:10px; color:var(--accent-color); background:rgba(84,184,255,.06); }.status-note p { color:var(--text-secondary); font-size:9px; }
+.incident-clear { color:var(--online-color); font:600 9px 'JetBrains Mono',monospace; }.empty-incident { display:flex; align-items:center; justify-content:center; gap:14px; min-height:130px; color:var(--accent-color); }.empty-incident > i { font-size:25px; }.empty-incident strong { font-size:12px; color:var(--text-primary); }.empty-incident p { color:var(--text-muted); font-size:9px; margin-top:4px; }
+@media(max-width:900px){.status-content-grid{grid-template-columns:1fr}.status-service-row{grid-template-columns:40px 1fr auto}.status-bars{display:none}}
+@media(max-width:600px){.status-page{width:calc(100% - 28px);padding-top:32px}.status-hero{align-items:flex-start;flex-direction:column}.status-clock{text-align:left}.status-overview{grid-template-columns:48px 1fr}.overview-score{grid-column:2;text-align:left}.status-service-row{grid-template-columns:36px 1fr}.status-service-row>.service-state{grid-column:2;padding-bottom:10px}.incident-clear{display:none}.empty-incident{padding:20px;justify-content:flex-start}}
 </style>
-
 <script>
-    document.getElementById('time-now').textContent = new Date().toLocaleString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' WIB';
+(function updateClock(){
+    const clock = document.getElementById('status-clock');
+    if (clock) clock.textContent = new Date().toLocaleTimeString('id-ID', { hour12: false });
+    window.setTimeout(updateClock, 1000);
+}());
 </script>
 
 <%- include('partials/footer') %>
-
-
-

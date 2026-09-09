@@ -10,8 +10,8 @@
         <div class="gallery-grid">
             <% if (galleryData && galleryData.length > 0) { %>
                 <% galleryData.forEach((item, index) => { %>
-                    <div class="gallery-item" data-aos="zoom-in" data-aos-delay="<%= (index % 6) * 100 %>">
-                        <img src="<%= item.url %>" alt="<%= item.title %>">
+                    <div class="gallery-item">
+                        <img src="<%= item.url %>" alt="<%= item.title %>" loading="lazy" decoding="async">
                         <div class="gallery-overlay">
                             <span><%= item.title %></span>
                             <small style="display:block; margin-top:5px; color:#aaa;"><%= item.tag %></small>

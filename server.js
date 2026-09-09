@@ -10,6 +10,8 @@ const AdmZip = require('adm-zip');
 
 const app = express();
 const PORT = process.env.PORT || 8080;
+const IS_PRODUCTION = process.env.NODE_ENV === 'production';
+const ASSET_VERSION = process.env.ASSET_VERSION || (IS_PRODUCTION ? '1.0.0' : Date.now().toString());
 const VPS_API_URL = process.env.VPS_API_URL || 'http://localhost:3000'; // Default fallback
 
 let rateLimit;
@@ -55,9 +57,17 @@ const loginLimiter = rateLimit({
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.locals.vpsUrl = VPS_API_URL;
+app.locals.assetVersion = ASSET_VERSION;
 
-// Static files with Cache-Control for 30 days
-app.use(express.static(path.join(__dirname, 'public'), { maxAge: '30d' }));
+// Long-lived caching is safe in production because asset URLs are versioned.
+// Development disables caching so UI changes are visible immediately.
+app.use(express.static(path.join(__dirname, 'public'), {
+    maxAge: IS_PRODUCTION ? '30d' : 0,
+    etag: true,
+    setHeaders: (res) => {
+        if (!IS_PRODUCTION) res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+    }
+}));
 
 const { initDatabase, getAllGallery, addGallery, deleteGallery } = require('./data/database');
 
@@ -99,6 +109,7 @@ const dummyServices = [
     { name: 'Cloudflare AI', status: 'ONLINE', icon: 'fas fa-cloud' },
     { name: 'ArisuSoft AI', status: 'ONLINE', icon: 'fas fa-robot' },
     { name: 'PixAI Engine', status: 'ONLINE', icon: 'fas fa-palette' },
+    { name: 'Minecraft Bot', status: 'STANDBY', icon: 'fas fa-robot' },
     { name: 'Server Minecraft', status: 'ONLINE', icon: 'fas fa-cube' },
     { name: 'Local AI (Ollama)', status: 'STANDBY', icon: 'fas fa-server' }
 ];
@@ -110,8 +121,98 @@ async function getVPSData() {
         return response.data;
     } catch (error) {
         console.error('Failed to fetch from VPS, using dummy data:', error.message);
-        return { stats: dummyStats, services: dummyServices };
+        return { stats: dummyStats, services: dummyServices, isFallback: true };
     }
+}
+
+function normalizeServiceStatus(status) {
+    const normalized = String(status || 'OFFLINE').toUpperCase();
+    if (['ONLINE', 'OPERATIONAL', 'RUNNING'].includes(normalized)) return 'ONLINE';
+    if (['STANDBY', 'STARTING', 'CONNECTING'].includes(normalized)) return 'STANDBY';
+    return 'OFFLINE';
+}
+
+function findService(services, keywords, fallback) {
+    const service = services.find(item => {
+        const name = String(item.name || '').toLowerCase();
+        return keywords.some(keyword => name.includes(keyword));
+    });
+    return service || fallback;
+}
+
+function buildDashboardData(rawData = {}) {
+    const stats = { ...dummyStats, ...(rawData.stats || {}) };
+    const sourceServices = Array.isArray(rawData.services) ? rawData.services : dummyServices;
+    const isFallback = rawData.isFallback === true;
+    const definitions = [
+        {
+            id: 'whatsapp',
+            name: 'WhatsApp Bot',
+            description: 'Asisten AI, roleplay, akademik, dan otomasi chat.',
+            icon: 'fab fa-whatsapp',
+            accent: 'green',
+            keywords: ['whatsapp', 'wa bot']
+        },
+        {
+            id: 'discord',
+            name: 'Discord Bot',
+            description: 'Community assistant dengan shared memory dan voice.',
+            icon: 'fab fa-discord',
+            accent: 'purple',
+            keywords: ['discord']
+        },
+        {
+            id: 'minecraft-bot',
+            name: 'Minecraft Bot',
+            description: 'Otomasi command dan aktivitas di dalam game.',
+            icon: 'fas fa-robot',
+            accent: 'cyan',
+            keywords: ['minecraft bot', 'mc bot']
+        },
+        {
+            id: 'minecraft-server',
+            name: 'Minecraft Server',
+            description: 'Survival cross-play Java dan Bedrock untuk komunitas.',
+            icon: 'fas fa-cube',
+            accent: 'lime',
+            keywords: ['server minecraft', 'minecraft server']
+        }
+    ];
+
+    const services = definitions.map(definition => {
+        const matched = findService(sourceServices, definition.keywords, null);
+        return {
+            ...definition,
+            status: normalizeServiceStatus(matched && matched.status),
+            latency: matched && Number.isFinite(Number(matched.latency)) ? Number(matched.latency) : null,
+            detail: matched && matched.detail ? matched.detail : null
+        };
+    });
+
+    const onlineCount = services.filter(service => service.status === 'ONLINE').length;
+    const globalStatus = onlineCount === services.length
+        ? 'OPERATIONAL'
+        : onlineCount > 0 ? 'DEGRADED' : 'OFFLINE';
+
+    return {
+        summary: {
+            totalChat: Number(stats.totalChat) || 0,
+            imageGenerated: Number(stats.imageGenerated) || 0,
+            activeUsers: (Number(stats.discordUsers) || 0) + (Number(stats.whatsappUsers) || 0),
+            discordUsers: Number(stats.discordUsers) || 0,
+            whatsappUsers: Number(stats.whatsappUsers) || 0,
+            aiRequests: Number(stats.aiRequests) || 0,
+            commands: Number(stats.commands) || 0,
+            onlineServices: onlineCount,
+            totalServices: services.length,
+            globalStatus
+        },
+        services,
+        activity: Array.isArray(rawData.activity) ? rawData.activity.slice(0, 6) : [],
+        activitySeries: rawData.activitySeries && typeof rawData.activitySeries === 'object' ? rawData.activitySeries : null,
+        dataSource: isFallback ? 'fallback' : 'live',
+        updatedAt: new Date().toISOString()
+    };
 }
 
 // ==========================================
@@ -486,7 +587,27 @@ app.post('/admin/api/reboot', (req, res) => {
 let publicStatsCache = null;
 let publicStatsCacheTime = 0;
 let publicStatsRequest = null;
+let publicDashboardCache = null;
+let publicDashboardCacheTime = 0;
+let publicDashboardRequest = null;
 const PUBLIC_STATS_CACHE_MS = 10000;
+
+async function getPublicDashboardData() {
+    const now = Date.now();
+    if (publicDashboardCache && now - publicDashboardCacheTime < PUBLIC_STATS_CACHE_MS) {
+        return publicDashboardCache;
+    }
+    if (!publicDashboardRequest) {
+        publicDashboardRequest = getVPSData().then(data => {
+            publicDashboardCache = buildDashboardData(data);
+            publicDashboardCacheTime = Date.now();
+            return publicDashboardCache;
+        }).finally(() => {
+            publicDashboardRequest = null;
+        });
+    }
+    return publicDashboardRequest;
+}
 
 app.get('/api/stats', async (req, res) => {
     const now = Date.now();
@@ -506,13 +627,20 @@ app.get('/api/stats', async (req, res) => {
     res.json(stats);
 });
 
-app.get('/', async (req, res) => {
-    const data = await getVPSData();
-    res.render('home', { title: 'Shiroko Project - AI Ecosystem', data, isHome: true });
+app.get('/api/dashboard', async (req, res) => {
+    res.json(await getPublicDashboardData());
 });
 
-app.get('/projects', (req, res) => res.render('projects', { title: 'Projects' }));
-app.get('/docs', (req, res) => res.render('docs', { title: 'Documentation' }));
+app.get('/', async (req, res) => {
+    const data = await getPublicDashboardData();
+    res.render('home', { title: 'Shiroko Control Center', data, isHome: true, currentPath: '/' });
+});
+
+app.get('/projects', async (req, res) => {
+    const data = await getPublicDashboardData();
+    res.render('projects', { title: 'Shiroko Ecosystem', currentPath: '/projects', data });
+});
+app.get('/docs', (req, res) => res.render('docs', { title: 'Documentation', currentPath: '/docs' }));
 app.get('/pixai-api', (req, res) => res.render('pixai-api', { title: 'PixAI Web Auth', currentPath: '/pixai-api' }));
 
 // Proxy API ke Bot VPS (Menghindari CORS & Mixed Content)
@@ -594,22 +722,34 @@ app.get('/status', async (req, res) => {
         console.error('Error checking Pterodactyl MC:', e.message);
     }
 
-    const data = await getVPSData(); // keep original data if used elsewhere in layout
-    res.render('status', { 
-        title: 'Live Status', 
-        data, 
-        botOnline, 
-        mcOnline 
+    const data = await getPublicDashboardData();
+    data.services = data.services.map(service => ({ ...service }));
+    data.summary = { ...data.summary };
+    const applyProbeStatus = (id, isOnline) => {
+        const service = data.services.find(item => item.id === id);
+        if (service && isOnline) service.status = 'ONLINE';
+    };
+    applyProbeStatus('whatsapp', botOnline);
+    applyProbeStatus('minecraft-server', mcOnline);
+    data.summary.onlineServices = data.services.filter(service => service.status === 'ONLINE').length;
+    data.summary.globalStatus = data.summary.onlineServices === data.summary.totalServices
+        ? 'OPERATIONAL'
+        : data.summary.onlineServices > 0 ? 'DEGRADED' : 'OFFLINE';
+
+    res.render('status', {
+        title: 'System Status - Shiroko',
+        data,
+        currentPath: '/status'
     });
 });
 app.get('/gallery', (req, res) => {
     const galleryData = getAllGallery();
-    res.render('gallery', { title: 'Gallery', galleryData });
+    res.render('gallery', { title: 'Gallery', galleryData, currentPath: '/gallery' });
 });
-app.get('/download', (req, res) => res.render('download', { title: 'Download' }));
-app.get('/changelog', (req, res) => res.render('changelog', { title: 'Changelog' }));
-app.get('/about', (req, res) => res.render('about', { title: 'About' }));
-app.get('/contact', (req, res) => res.render('contact', { title: 'Contact' }));
+app.get('/download', (req, res) => res.render('download', { title: 'Download', currentPath: '/download' }));
+app.get('/changelog', (req, res) => res.render('changelog', { title: 'Changelog', currentPath: '/changelog' }));
+app.get('/about', (req, res) => res.render('about', { title: 'About', currentPath: '/about' }));
+app.get('/contact', (req, res) => res.render('contact', { title: 'Contact', currentPath: '/contact' }));
 
 app.listen(PORT, () => {
     console.log(`Web Portal Shiroko Project berjalan di http://localhost:${PORT}`);

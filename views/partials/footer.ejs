@@ -1,23 +1,22 @@
     </main>
     <footer>
         <div class="footer-content">
-            <p>&copy; 2026 Shiroko Project. All rights reserved.</p>
+            <div>
+                <strong>Shiroko Project</strong>
+                <p>Bot ecosystem and Minecraft infrastructure.</p>
+            </div>
             <div class="social-links">
                 <a href="https://wa.me/6285134342695?text=nak%20coba" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp"><i class="fab fa-whatsapp" aria-hidden="true"></i></a>
                 <a href="https://discord.gg/k33xPSwWyx" target="_blank" rel="noopener noreferrer" aria-label="Discord"><i class="fab fa-discord" aria-hidden="true"></i></a>
                 <a href="https://github.com/ibnunurbarokah148-wq/bot-shiroko" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><i class="fab fa-github" aria-hidden="true"></i></a>
             </div>
+            <span class="footer-meta">&copy; 2026 Shiroko Project</span>
         </div>
     </footer>
-
-    <!-- Scripts -->
     <% if (typeof isHome !== 'undefined' && isHome) { %>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js" defer></script>
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js" defer></script>
     <% } %>
-    <% if (!(typeof isHome !== 'undefined' && isHome) && title !== 'Admin Login' && title !== 'Control Panel') { %>
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js" defer></script>
-    <% } %>
-    <script src="/assets/js/index.js" defer></script>
+    <script src="/assets/js/index.js?v=<%= assetVersion %>" defer></script>
 </body>
 </html>

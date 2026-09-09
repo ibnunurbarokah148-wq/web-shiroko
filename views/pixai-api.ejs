@@ -75,9 +75,9 @@ document.getElementById('btn-generate').addEventListener('click', async () => {
             body: JSON.stringify({ otp: otpInput })
         });
         
-        const data = await res.json();
+        const data = await res.json().catch(() => ({ status: 'error', message: 'Respons server tidak valid.' }));
         
-        if (data.status === 'ok') {
+        if (res.ok && data.status === 'ok') {
             document.getElementById('payload-output').value = data.payload;
             resultSection.style.display = 'block';
             document.getElementById('opsi-b-section').style.display = 'block';
@@ -88,7 +88,7 @@ document.getElementById('btn-generate').addEventListener('click', async () => {
             btn.style.cursor = 'not-allowed';
             btn.style.opacity = '0.5';
         } else {
-            errorDiv.innerHTML = data.message || 'Gagal generate bookmarklet.';
+            errorDiv.textContent = data.message || 'Gagal generate bookmarklet.';
             errorDiv.style.display = 'block';
             resultSection.style.display = 'none';
             document.getElementById('opsi-b-section').style.display = 'none';
@@ -96,7 +96,7 @@ document.getElementById('btn-generate').addEventListener('click', async () => {
             btn.disabled = false;
         }
     } catch(e) {
-        errorDiv.innerHTML = 'Gagal terhubung ke API Bot VPS. Pastikan bot menyala.';
+        errorDiv.textContent = 'Gagal terhubung ke API Bot VPS. Pastikan bot menyala.';
         errorDiv.style.display = 'block';
         btn.innerText = 'Generate';
         btn.disabled = false;

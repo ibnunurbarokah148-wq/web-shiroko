@@ -1,206 +1,133 @@
 <%- include('partials/header') %>
 
-<section class="hero">
-    <div class="hero-content">
-        <div class="status-badge" id="live-status">
-            <span class="pulse"></span>
-            <span id="typing-text" aria-live="polite">Shiroko lagi ngetik...</span>
+<div class="dashboard-shell" id="ecosystem-dashboard">
+    <header class="dashboard-header">
+        <div>
+            <div class="eyebrow"><span class="eyebrow-line"></span> SHIROKO OPERATIONS</div>
+            <h1>Selamat datang kembali, <span>Sensei.</span></h1>
+            <p>Pantau bot, layanan AI, dan server Minecraft dari satu pusat kendali.</p>
         </div>
-        
-        <h1 class="glitch" data-text="SHIROKO PROJECT">SHIROKO PROJECT</h1>
-        <p class="subtitle">One ecosystem. Many Platforms.</p>
-        
-        <div class="hero-buttons">
-            <a href="https://wa.me/6285134342695?text=nak%20coba" target="_blank" class="btn btn-primary"><i class="fab fa-whatsapp"></i> Try WhatsApp</a>
-            <a href="https://discord.gg/k33xPSwWyx" target="_blank" class="btn btn-secondary"><i class="fab fa-discord"></i> Join Discord</a>
-            <a href="https://github.com/ibnunurbarokah148-wq/bot-shiroko" target="_blank" class="btn btn-outline"><i class="fab fa-github"></i> GitHub</a>
-        </div>
-
-        <div class="ecosystem-tags" data-aos="fade-up" data-aos-delay="200">
-            <span class="tag"><span class="dot online"></span> WhatsApp</span>
-            <span class="tag"><span class="dot online"></span> Discord</span>
-            <span class="tag"><span class="dot online"></span> Gemini</span>
-            <span class="tag"><span class="dot online"></span> OpenRouter</span>
-            <span class="tag"><span class="dot online"></span> Cloudflare</span>
-            <span class="tag"><span class="dot online"></span> ArisuSoft</span>
-            <span class="tag"><span class="dot online"></span> PixAI</span>
-            <span class="tag"><span class="dot online"></span> Minecraft</span>
-            <span class="tag"><span class="dot online"></span> Ollama</span>
-        </div>
-    </div>
-    
-    <div class="hero-image">
-        <!-- Chibi Logo Image floating -->
-        <img src="/assets/img/logo.jpeg" alt="Shiroko Chibi" class="floating-mascot" width="350" height="350" decoding="async">
-    </div>
-</section>
-
-<section class="statistics section-padding">
-    <div class="container">
-        <h2 class="section-title text-center" data-aos="fade-up">Ecosystem Statistics</h2>
-        <div class="stats-grid">
-            <div class="stat-card" data-aos="zoom-in" data-aos-delay="100">
-                <i class="fas fa-comment-dots" aria-hidden="true"></i>
-                <h3 class="counter" id="stat-totalChat"><%= data.stats.totalChat %></h3>
-                <p>Total Chat</p>
-            </div>
-            <div class="stat-card" data-aos="zoom-in" data-aos-delay="200">
-                <i class="fas fa-image" aria-hidden="true"></i>
-                <h3 class="counter" id="stat-imageGenerated"><%= data.stats.imageGenerated %></h3>
-                <p>Image Generated</p>
-            </div>
-            <div class="stat-card" data-aos="zoom-in" data-aos-delay="300">
-                <i class="fab fa-discord" aria-hidden="true"></i>
-                <h3 class="counter" id="stat-discordUsers"><%= data.stats.discordUsers %></h3>
-                <p>Discord Users</p>
-            </div>
-            <div class="stat-card" data-aos="zoom-in" data-aos-delay="400">
-                <i class="fab fa-whatsapp"></i>
-                <h3 class="counter" id="stat-whatsappUsers"><%= data.stats.whatsappUsers %></h3>
-                <p>WhatsApp Users</p>
-            </div>
-            <div class="stat-card" data-aos="zoom-in" data-aos-delay="500">
-                <i class="fas fa-robot"></i>
-                <h3 class="counter" id="stat-aiRequests"><%= data.stats.aiRequests %></h3>
-                <p>AI Requests Today</p>
-            </div>
-            <div class="stat-card" data-aos="zoom-in" data-aos-delay="600">
-                <i class="fas fa-terminal"></i>
-                <h3 class="counter" id="stat-commands"><%= data.stats.commands %></h3>
-                <p>Commands Today</p>
-            </div>
-        </div>
-    </div>
-</section>
-
-<section class="featured-projects section-padding dark-bg">
-    <div class="container">
-        <h2 class="section-title" data-aos="fade-up">Featured Projects</h2>
-        <div class="project-grid">
-            <div class="project-card" data-aos="fade-up" data-aos-delay="100">
-                <div class="card-icon"><i class="fab fa-whatsapp"></i></div>
-                <h3>WhatsApp Bot</h3>
-                <p>AI Assistant, Roleplay, QRIS, Academic, ComfyUI Integration.</p>
-                <div class="card-footer">
-                    <span class="status online">ONLINE</span>
-                    <a href="/projects" class="btn-link">View Details &rarr;</a>
+        <div class="dashboard-header-actions">
+            <div class="live-indicator <%= data.summary.globalStatus.toLowerCase() %>" id="global-status">
+                <span class="status-dot"></span>
+                <div>
+                    <small>ECOSYSTEM STATUS</small>
+                    <strong id="global-status-label"><%= data.summary.globalStatus === 'OPERATIONAL' ? 'All systems operational' : data.summary.globalStatus %></strong>
                 </div>
             </div>
-            <div class="project-card" data-aos="fade-up" data-aos-delay="200">
-                <div class="card-icon"><i class="fab fa-discord"></i></div>
-                <h3>Discord Bot</h3>
-                <p>Waifu Room, Shared Memory, Voice features, and AI chat.</p>
-                <div class="card-footer">
-                    <span class="status online">ONLINE</span>
-                    <a href="/projects" class="btn-link">View Details &rarr;</a>
-                </div>
-            </div>
-            <div class="project-card" data-aos="fade-up" data-aos-delay="300">
-                <div class="card-icon"><i class="fas fa-cube"></i></div>
-                <h3>Server Minecraft</h3>
-                <p>Server survival Minecraft lintas platform (Java & Bedrock) yang dikelola oleh komunitas Shiroko.</p>
-                <div class="card-footer">
-                    <span class="status online">ONLINE</span>
-                    <a href="/projects" class="btn-link">View Details &rarr;</a>
-                </div>
-            </div>
+            <button class="icon-button" id="refresh-dashboard" type="button" aria-label="Perbarui dashboard"><i class="fas fa-rotate" aria-hidden="true"></i></button>
         </div>
-    </div>
-</section>
+    </header>
 
-<section class="roadmap section-padding">
-    <div class="container">
-        <h2 class="section-title text-center" data-aos="fade-up">Project Roadmap</h2>
-        <div class="timeline">
-            <div class="timeline-item" data-aos="fade-up">
-                <div class="timeline-dot completed"></div>
-                <div class="timeline-content">
-                    <h3>2025</h3>
-                    <p>✓ Bot Assalamualaikum</p>
-                    <p>✓ AI Chat Integration</p>
-                    <p>✓ Discord Bot Launch</p>
-                    <p>✓ Local AI Implementation</p>
-                </div>
-            </div>
-            <div class="timeline-item" data-aos="fade-up">
-                <div class="timeline-dot completed"></div>
-                <div class="timeline-content">
-                    <h3>2026</h3>
-                    <p>✓ Cloudflare AI Setup</p>
-                    <p>✓ Server Minecraft Terintegrasi</p>
-                    <p>✓ AI Academic Features</p>
-                </div>
-            </div>
-            <div class="timeline-item" data-aos="fade-up">
-                <div class="timeline-dot pending"></div>
-                <div class="timeline-content">
-                    <h3>Next Goals</h3>
-                    <p>□ Mobile App</p>
-                    <p>□ Public API</p>
-                    <p>□ Control Dashboard</p>
-                    <p>□ Plugin Marketplace</p>
-                </div>
-            </div>
+    <section class="persona-banner" aria-label="Pesan Shiroko">
+        <img src="/assets/img/logo.jpeg" alt="Persona Shiroko" class="persona-avatar">
+        <div class="persona-copy">
+            <span class="persona-name">SHIROKO</span>
+            <p id="shiroko-message"><%= data.dataSource === 'live' ? 'Semua kanal sedang kupantau.' : 'VPS belum terhubung; sementara kutampilkan status fallback.' %> Data terakhir diperbarui <time id="last-updated">baru saja</time>.</p>
         </div>
-    </div>
-</section>
+        <div class="signal-bars" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+    </section>
 
-<script>
-    // Live stats are non-critical: start after the first render and avoid
-    // overlapping requests while the tab is hidden or the VPS is slow.
-    (function () {
-        let statsRequestInFlight = false;
-        let statsTimer;
-        const statsInterval = 15000;
+    <section class="kpi-grid" aria-label="Ringkasan ekosistem">
+        <article class="kpi-card featured">
+            <div class="kpi-top"><span>Pesan diproses</span><i class="fas fa-message"></i></div>
+            <strong class="metric" id="stat-totalChat"><%= data.summary.totalChat.toLocaleString('id-ID') %></strong>
+            <div class="metric-meta"><span class="trend positive"><i class="fas fa-arrow-trend-up"></i> Live</span><span>semua platform</span></div>
+        </article>
+        <article class="kpi-card">
+            <div class="kpi-top"><span>Pengguna terhubung</span><i class="fas fa-users"></i></div>
+            <strong class="metric" id="stat-activeUsers"><%= data.summary.activeUsers.toLocaleString('id-ID') %></strong>
+            <div class="metric-meta"><span><b id="stat-whatsappUsers"><%= data.summary.whatsappUsers.toLocaleString('id-ID') %></b> WA</span><span><b id="stat-discordUsers"><%= data.summary.discordUsers.toLocaleString('id-ID') %></b> Discord</span></div>
+        </article>
+        <article class="kpi-card">
+            <div class="kpi-top"><span>AI requests</span><i class="fas fa-brain"></i></div>
+            <strong class="metric" id="stat-aiRequests"><%= data.summary.aiRequests.toLocaleString('id-ID') %></strong>
+            <div class="metric-meta"><span class="trend positive"><i class="fas fa-bolt"></i> Active</span><span>provider terintegrasi</span></div>
+        </article>
+        <article class="kpi-card">
+            <div class="kpi-top"><span>Commands</span><i class="fas fa-terminal"></i></div>
+            <strong class="metric" id="stat-commands"><%= data.summary.commands.toLocaleString('id-ID') %></strong>
+            <div class="metric-meta"><span><b id="online-count"><%= data.summary.onlineServices %>/<%= data.summary.totalServices %></b> core online</span><span>hari ini</span></div>
+        </article>
+    </section>
 
-        async function updateStats() {
-            if (document.hidden || statsRequestInFlight) return;
-            statsRequestInFlight = true;
-            try {
-                const res = await fetch('/api/stats', { headers: { Accept: 'application/json' } });
-                if (res.ok) {
-                    const stats = await res.json();
-                    const values = {
-                        'stat-totalChat': stats.totalChat,
-                        'stat-imageGenerated': stats.imageGenerated,
-                        'stat-discordUsers': stats.discordUsers,
-                        'stat-whatsappUsers': stats.whatsappUsers,
-                        'stat-aiRequests': stats.aiRequests,
-                        'stat-commands': stats.commands
-                    };
-                    Object.keys(values).forEach(function (id) {
-                        const element = document.getElementById(id);
-                        if (element) element.textContent = values[id];
-                    });
-                }
-            } catch (err) {
-                console.error('Failed to update stats:', err);
-            } finally {
-                statsRequestInFlight = false;
-            }
-        }
+    <section class="dashboard-grid">
+        <article class="panel activity-panel">
+            <header class="panel-header">
+                <div><span class="panel-kicker"><%= data.activitySeries ? 'LIVE TRAFFIC' : 'ACTIVITY PREVIEW' %></span><h2>Aktivitas ekosistem</h2></div>
+                <div class="chart-legend"><span class="whatsapp">WhatsApp</span><span class="discord">Discord</span><span class="minecraft">Minecraft</span></div>
+            </header>
+            <div class="chart-wrap" data-series='<%- JSON.stringify(data.activitySeries || null) %>'>
+                <canvas id="activity-chart" aria-label="Grafik aktivitas platform"></canvas>
+                <% if (!data.activitySeries) { %><span class="chart-demo-badge">DATA DEMO</span><% } %>
+            </div>
+        </article>
 
-        function scheduleStats() {
-            window.clearTimeout(statsTimer);
-            if (!document.hidden) statsTimer = window.setTimeout(function () {
-                updateStats().finally(scheduleStats);
-            }, statsInterval);
-        }
+        <aside class="panel health-panel">
+            <header class="panel-header">
+                <div><span class="panel-kicker">SYSTEM HEALTH</span><h2>Core services</h2></div>
+                <a href="/status" class="panel-link">Lihat semua <i class="fas fa-arrow-right"></i></a>
+            </header>
+            <div class="health-score">
+                <div class="health-ring" id="health-ring" style="--score: <%= (data.summary.onlineServices / data.summary.totalServices) * 360 %>deg">
+                    <span><b id="health-percentage"><%= Math.round((data.summary.onlineServices / data.summary.totalServices) * 100) %></b>%</span>
+                </div>
+                <div><strong>Operational score</strong><p>Ketersediaan empat layanan inti.</p></div>
+            </div>
+            <div class="compact-service-list" id="compact-service-list">
+                <% data.services.forEach(service => { %>
+                    <div class="compact-service" data-service-id="<%= service.id %>">
+                        <span class="service-icon <%= service.accent %>"><i class="<%= service.icon %>"></i></span>
+                        <div><strong><%= service.name %></strong><small><%= service.description %></small></div>
+                        <span class="service-state <%= service.status.toLowerCase() %>"><i></i><%= service.status %></span>
+                    </div>
+                <% }) %>
+            </div>
+        </aside>
+    </section>
 
-        window.addEventListener('visibilitychange', function () {
-            if (!document.hidden) {
-                updateStats().finally(scheduleStats);
-            } else {
-                window.clearTimeout(statsTimer);
-            }
-        });
+    <section class="services-section">
+        <header class="section-heading">
+            <div><span class="panel-kicker">CONNECTED PLATFORMS</span><h2>Shiroko ecosystem</h2></div>
+            <a href="/projects" class="btn btn-outline">Jelajahi ekosistem <i class="fas fa-arrow-right"></i></a>
+        </header>
+        <div class="service-grid" id="service-grid">
+            <% data.services.forEach(service => { %>
+                <article class="service-card <%= service.accent %>" data-service-id="<%= service.id %>">
+                    <div class="service-card-top">
+                        <span class="service-icon <%= service.accent %>"><i class="<%= service.icon %>"></i></span>
+                        <span class="service-state <%= service.status.toLowerCase() %>"><i></i><%= service.status %></span>
+                    </div>
+                    <h3><%= service.name %></h3>
+                    <p><%= service.description %></p>
+                    <div class="service-card-footer"><span>Heartbeat</span><strong><%= service.status === 'ONLINE' ? 'Connected' : 'Awaiting signal' %></strong></div>
+                </article>
+            <% }) %>
+        </div>
+    </section>
 
-        window.setTimeout(function () {
-            updateStats().finally(scheduleStats);
-        }, 2000);
-    }());
-</script>
+    <section class="bottom-grid">
+        <article class="panel terminal-panel">
+            <header class="panel-header"><div><span class="panel-kicker">RECENT SIGNALS</span><h2>Activity feed</h2></div><span class="terminal-live"><i></i> LIVE</span></header>
+            <div class="activity-feed" id="activity-feed">
+                <% if (data.activity.length) { %>
+                    <% data.activity.forEach(item => { %><div class="activity-row"><time><%= item.time || '--:--' %></time><i class="fas fa-circle-nodes"></i><p><%= item.message || item.title %></p></div><% }) %>
+                <% } else { %>
+                    <div class="activity-row"><time>NOW</time><i class="fas fa-satellite-dish"></i><p>Control Center terhubung dan menunggu event baru.</p></div>
+                    <div class="activity-row"><time>SYS</time><i class="fas fa-shield-halved"></i><p>Monitoring empat core service sedang aktif.</p></div>
+                    <div class="activity-row"><time>AI</time><i class="fas fa-brain"></i><p>AI provider siap menerima request dari bot.</p></div>
+                <% } %>
+            </div>
+        </article>
+        <article class="panel quick-panel">
+            <header class="panel-header"><div><span class="panel-kicker">QUICK ACCESS</span><h2>Command shortcuts</h2></div></header>
+            <div class="quick-links">
+                <a href="/status"><span><i class="fas fa-wave-square"></i></span><div><strong>System status</strong><small>Periksa semua layanan</small></div><i class="fas fa-chevron-right"></i></a>
+                <a href="/projects"><span><i class="fas fa-cubes"></i></span><div><strong>Project ecosystem</strong><small>Bot dan Minecraft</small></div><i class="fas fa-chevron-right"></i></a>
+                <a href="/admin"><span><i class="fas fa-shield-halved"></i></span><div><strong>Admin console</strong><small>Kontrol dan deployment</small></div><i class="fas fa-chevron-right"></i></a>
+            </div>
+        </article>
+    </section>
+</div>
 
 <%- include('partials/footer') %>
-
-

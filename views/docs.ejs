@@ -322,10 +322,16 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             const targetId = this.getAttribute('href');
             switchTab(targetId);
-            
-            // Update URL hash without jumping
-            history.pushState(null, null, targetId);
+            history.pushState(null, '', targetId);
+            if (window.innerWidth <= 768) {
+                document.querySelector('.docs-content').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
         });
+    });
+
+    window.addEventListener('popstate', () => {
+        const targetId = window.location.hash && document.querySelector(window.location.hash) ? window.location.hash : '#ai';
+        switchTab(targetId);
     });
 });
 </script>

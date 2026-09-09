@@ -1,283 +1,293 @@
 <%- include('partials/header') %>
 
-<section class="section-padding" style="padding-top: 150px; min-height: 80vh;">
-    <div class="container">
-        <div class="text-center mb-5" data-aos="fade-up">
-            <h1 class="glitch" data-text="Ecosystem Projects">Ecosystem Projects</h1>
-            <p class="subtitle">Detail lengkap mengenai setiap platform di dalam Shiroko Project.</p>
-        </div>
-
-        <div class="projects-wrapper">
-            <!-- WhatsApp Bot -->
-            <div class="project-detail-card" data-aos="fade-up" data-aos-delay="100">
-                <div class="project-icon"><i class="fab fa-whatsapp"></i></div>
-                <div class="project-content">
-                    <h2>WhatsApp Bot (Shiroko)</h2>
-                    <p class="desc">Bot WhatsApp cerdas yang dibangun menggunakan NodeJS dan Baileys. Memiliki fitur lengkap mulai dari percakapan AI, roleplay, hingga pembuatan gambar.</p>
-                    
-                    <div class="features-list">
-                        <span class="feature"><i class="fas fa-check"></i> AI Assistant</span>
-                        <span class="feature"><i class="fas fa-check"></i> Roleplay</span>
-                        <span class="feature"><i class="fas fa-check"></i> ComfyUI (Image Gen)</span>
-                        <span class="feature"><i class="fas fa-check"></i> Pembayaran QRIS Otomatis</span>
-                        <span class="feature"><i class="fas fa-check"></i> Mode Akademik</span>
-                    </div>
-
-                    <div class="project-links mt-3">
-                        <a href="/status" class="btn btn-outline"><i class="fas fa-signal"></i> Status</a>
-                        <a href="/docs" class="btn btn-outline"><i class="fas fa-book"></i> Demo/Docs</a>
-                        <a href="https://github.com/ibnunurbarokah148-wq/bot-shiroko" target="_blank" class="btn btn-primary"><i class="fab fa-github"></i> GitHub</a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Discord Bot -->
-            <div class="project-detail-card" data-aos="fade-up" data-aos-delay="200">
-                <div class="project-icon" style="color: #5865F2;"><i class="fab fa-discord"></i></div>
-                <div class="project-content">
-                    <h2>Discord Bot</h2>
-                    <p class="desc">Bot Discord yang mendukung server komunitas, dengan ruang khusus waifu dan memori percakapan yang di-share dengan bot WhatsApp.</p>
-                    
-                    <div class="features-list">
-                        <span class="feature"><i class="fas fa-check"></i> Waifu Room</span>
-                        <span class="feature"><i class="fas fa-check"></i> Shared Memory (SQLite)</span>
-                        <span class="feature"><i class="fas fa-check"></i> Model Picker</span>
-                        <span class="feature"><i class="fas fa-check"></i> Voice / Music</span>
-                    </div>
-
-                    <div class="project-links mt-3">
-                        <a href="https://discord.gg/k33xPSwWyx" target="_blank" class="btn btn-secondary"><i class="fab fa-discord"></i> Join Server</a>
-                    </div>
-                </div>
-            </div>
-
-                        <!-- Server Minecraft -->
-            <div class="project-detail-card mc-card" data-aos="fade-up" data-aos-delay="300">
-                <div class="mc-card-bg"></div>
-                <div class="mc-card-content">
-                    <div class="project-content" style="flex: 1;">
-                        <h2>Server Minecraft</h2>
-                        <p class="desc">Bermain bersama di dunia Minecraft lintas platform (Java & Bedrock). Server survival yang didukung oleh komunitas dengan fitur-fitur seru.</p>
-                        
-                        <div class="features-list">
-                            <span class="feature"><i class="fas fa-check"></i> Cross-play (Java/Bedrock)</span>
-                            <span class="feature"><i class="fas fa-check"></i> 24/7 Uptime</span>
-                            <span class="feature"><i class="fas fa-check"></i> Economy System</span>
-                        </div>
-                        
-                        <div class="project-links mt-3">
-                            <a href="/status" class="btn btn-outline"><i class="fas fa-signal"></i> Status Server</a>
-                        </div>
-                    </div>
-                    
-                    <div class="mc-server-details">
-                        <div class="mc-ip-box">
-                            <span class="mc-platform">Java:</span>
-                            <div class="mc-ip">mc.shiroko-project.my.id</div>
-                        </div>
-                        <div class="mc-ip-box mt-3">
-                            <span class="mc-platform">Bedrock:</span>
-                            <div class="mc-ip">mc.shiroko-project.my.id</div>
-                            <div class="mc-port">Port: <span style="color:var(--accent-color);">25713</span></div>
-                        </div>
-                        <a href="minecraft://?addExternalServer=Shiroko%20Project|mc.shiroko-project.my.id:25713" class="btn btn-primary mt-4" style="width: 100%; justify-content: center;">
-                            <i class="fas fa-gamepad"></i> Join Server
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- PixAI Web Auth -->
-            <div class="project-detail-card" data-aos="fade-up" data-aos-delay="500">
-                <div class="project-icon" style="color: #10b981;"><i class="fas fa-key"></i></div>
-                <div class="project-content">
-                    <h2>PixAI Web Auth</h2>
-                    <p class="desc">Sistem otentikasi terintegrasi antara akun PixAI.art dan Bot Shiroko. Dapatkan generator Bookmarklet khusus (Polymorphic) untuk menghubungkan token secara otomatis.</p>
-                    
-                    <div class="features-list">
-                        <span class="feature"><i class="fas fa-check"></i> OTP Protected</span>
-                        <span class="feature"><i class="fas fa-check"></i> Polymorphic Obfuscation</span>
-                        <span class="feature"><i class="fas fa-check"></i> 1-Click Auto Connect</span>
-                    </div>
-
-                    <div class="project-links mt-3">
-                        <a href="/pixai-api" class="btn btn-primary"><i class="fas fa-magic"></i> Buka Generator</a>
-                    </div>
-                </div>
+<% const serviceById = id => data.services.find(service => service.id === id) || { status: 'OFFLINE' }; %>
+<div class="ecosystem-page">
+    <header class="ecosystem-hero">
+        <div class="ecosystem-intro">
+            <div class="eyebrow"><span class="eyebrow-line"></span> CONNECTED ECOSYSTEM</div>
+            <h1>Empat platform.<br><span>Satu persona Shiroko.</span></h1>
+            <p>Shiroko hadir sebagai asisten lintas platform yang menghubungkan percakapan, komunitas, otomasi game, dan server Minecraft.</p>
+            <div class="ecosystem-actions">
+                <a href="/status" class="btn btn-primary"><i class="fas fa-wave-square"></i> Periksa status</a>
+                <a href="/docs" class="btn btn-outline"><i class="fas fa-book-open"></i> Dokumentasi</a>
             </div>
         </div>
-    </div>
-</section>
+        <div class="persona-profile">
+            <div class="profile-orbit" aria-hidden="true"><i></i><i></i><i></i></div>
+            <img src="/assets/img/logo.jpeg" alt="Persona Shiroko">
+            <div class="profile-status"><span></span><div><small>PERSONA CORE</small><strong>SHIROKO ONLINE</strong></div></div>
+        </div>
+    </header>
+
+    <section class="ecosystem-map" aria-label="Layanan Shiroko">
+        <% const whatsappService = serviceById('whatsapp'); %>
+        <article class="ecosystem-product whatsapp-product">
+            <header class="product-header">
+                <span class="product-number">01</span>
+                <span class="service-state <%= whatsappService.status.toLowerCase() %>"><i></i><%= whatsappService.status %></span>
+            </header>
+            <div class="product-main">
+                <div class="product-icon"><i class="fab fa-whatsapp"></i></div>
+                <span class="product-type">CONVERSATIONAL AI</span>
+                <h2>WhatsApp Bot</h2>
+                <p class="product-description">Asisten utama untuk chat AI, roleplay, kebutuhan akademik, pembayaran, dan image generation.</p>
+                <ul class="product-features">
+                    <li><i class="fas fa-check"></i><span>AI assistant & shared memory</span></li>
+                    <li><i class="fas fa-check"></i><span>ComfyUI image generation</span></li>
+                    <li><i class="fas fa-check"></i><span>QRIS & academic tools</span></li>
+                </ul>
+            </div>
+            <footer class="product-footer">
+                <a href="https://wa.me/6285134342695?text=nak%20coba" target="_blank" rel="noopener noreferrer">Mulai percakapan <i class="fas fa-arrow-up-right-from-square"></i></a>
+            </footer>
+        </article>
+
+        <% const discordService = serviceById('discord'); %>
+        <article class="ecosystem-product discord-product">
+            <header class="product-header">
+                <span class="product-number">02</span>
+                <span class="service-state <%= discordService.status.toLowerCase() %>"><i></i><%= discordService.status %></span>
+            </header>
+            <div class="product-main">
+                <div class="product-icon"><i class="fab fa-discord"></i></div>
+                <span class="product-type">COMMUNITY PLATFORM</span>
+                <h2>Discord Bot</h2>
+                <p class="product-description">Persona Shiroko untuk komunitas Discord dengan memori bersama, model selector, voice, dan music.</p>
+                <ul class="product-features">
+                    <li><i class="fas fa-check"></i><span>Waifu room & AI chat</span></li>
+                    <li><i class="fas fa-check"></i><span>Shared cross-platform memory</span></li>
+                    <li><i class="fas fa-check"></i><span>Voice & music features</span></li>
+                </ul>
+            </div>
+            <footer class="product-footer">
+                <a href="https://discord.gg/k33xPSwWyx" target="_blank" rel="noopener noreferrer">Masuk komunitas <i class="fas fa-arrow-up-right-from-square"></i></a>
+            </footer>
+        </article>
+
+        <% const minecraftBotService = serviceById('minecraft-bot'); %>
+        <article class="ecosystem-product minecraft-bot-product">
+            <header class="product-header">
+                <span class="product-number">03</span>
+                <span class="service-state <%= minecraftBotService.status.toLowerCase() %>"><i></i><%= minecraftBotService.status %></span>
+            </header>
+            <div class="product-main">
+                <div class="product-icon"><i class="fas fa-robot"></i></div>
+                <span class="product-type">GAME AUTOMATION</span>
+                <h2>Minecraft Bot</h2>
+                <p class="product-description">Lapisan otomasi yang menghubungkan persona Shiroko dengan chat, event, dan command di dalam game.</p>
+                <ul class="product-features">
+                    <li><i class="fas fa-check"></i><span>In-game chat integration</span></li>
+                    <li><i class="fas fa-check"></i><span>Command automation</span></li>
+                    <li><i class="fas fa-check"></i><span>Reconnect & event monitoring</span></li>
+                </ul>
+            </div>
+            <footer class="product-footer">
+                <a href="/status">Pantau koneksi <i class="fas fa-arrow-right"></i></a>
+            </footer>
+        </article>
+
+        <% const minecraftServerService = serviceById('minecraft-server'); %>
+        <article class="ecosystem-product minecraft-server-product">
+            <header class="product-header">
+                <span class="product-number">04</span>
+                <span class="service-state <%= minecraftServerService.status.toLowerCase() %>"><i></i><%= minecraftServerService.status %></span>
+            </header>
+            <div class="product-main">
+                <div class="product-icon"><i class="fas fa-cube"></i></div>
+                <span class="product-type">COMMUNITY SERVER</span>
+                <h2>Minecraft Server</h2>
+                <p class="product-description">Server survival komunitas dengan dukungan cross-play untuk pemain Java dan Bedrock.</p>
+                <div class="server-addresses">
+                    <div class="server-address">
+                        <span>JAVA</span>
+                        <button type="button" data-copy="mc.shiroko-project.my.id" aria-label="Salin alamat server Java">
+                            <code>mc.shiroko-project.my.id</code><i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                    <div class="server-address">
+                        <span>BEDROCK</span>
+                        <button type="button" data-copy="mc.shiroko-project.my.id:25713" aria-label="Salin alamat server Bedrock">
+                            <code>mc.shiroko-project.my.id:25713</code><i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <footer class="product-footer">
+                <a href="minecraft://?addExternalServer=Shiroko%20Project|mc.shiroko-project.my.id:25713">Join server <i class="fas fa-gamepad"></i></a>
+            </footer>
+        </article>
+    </section>
+
+    <section class="integration-panel">
+        <div class="integration-copy">
+            <span class="panel-kicker">SHARED INTELLIGENCE</span>
+            <h2>Satu identitas di setiap platform</h2>
+            <p>Persona, layanan AI, dan memori dirancang untuk memberikan pengalaman Shiroko yang konsisten di WhatsApp, Discord, dan Minecraft.</p>
+        </div>
+        <div class="integration-flow" aria-label="Arsitektur integrasi ringkas">
+            <span><i class="fas fa-comments"></i>Platforms</span><b><i class="fas fa-chevron-right"></i></b>
+            <span><i class="fas fa-database"></i>Shared Memory</span><b><i class="fas fa-chevron-right"></i></b>
+            <span><i class="fas fa-brain"></i>AI Providers</span><b><i class="fas fa-chevron-right"></i></b>
+            <span><i class="fas fa-user-astronaut"></i>Shiroko</span>
+        </div>
+    </section>
+</div>
 
 <style>
-.mb-5 { margin-bottom: 3rem; }
-.mt-3 { margin-top: 1.5rem; }
+.ecosystem-page {
+    width: min(1240px, calc(100% - 48px));
+    margin: 0 auto;
+    padding: 58px 0 76px;
+}
+.ecosystem-hero {
+    min-height: 390px;
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(280px, .65fr);
+    align-items: center;
+    gap: 60px;
+    padding: 40px 5%;
+    margin-bottom: 24px;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    background: linear-gradient(120deg, rgba(23,35,58,.97), rgba(10,17,31,.96));
+}
+.ecosystem-intro { min-width: 0; }
+.ecosystem-intro h1 { font-size: clamp(38px, 6vw, 68px); line-height: 1.02; letter-spacing: -.065em; }
+.ecosystem-intro h1 span { color: var(--accent-color); }
+.ecosystem-intro > p { max-width: 650px; margin: 20px 0 26px; color: var(--text-secondary); font-size: 14px; line-height: 1.75; }
+.ecosystem-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.persona-profile { position: relative; display: grid; place-items: center; min-height: 300px; }
+.persona-profile > img { position: relative; z-index: 1; width: 210px; height: 210px; object-fit: cover; border: 2px solid rgba(84,184,255,.6); border-radius: 50%; box-shadow: 0 0 0 14px rgba(84,184,255,.04), 0 0 70px rgba(84,184,255,.22); }
+.profile-orbit { position: absolute; width: 290px; height: 290px; border: 1px solid rgba(84,184,255,.18); border-radius: 50%; animation: orbit 20s linear infinite; }
+.profile-orbit::before, .profile-orbit::after { content: ''; position: absolute; inset: 28px; border: 1px dashed rgba(139,124,255,.16); border-radius: 50%; }
+.profile-orbit::after { inset: 70px; }
+.profile-orbit i { position: absolute; width: 8px; height: 8px; border-radius: 50%; background: var(--accent-cyan); box-shadow: 0 0 14px var(--accent-cyan); }
+.profile-orbit i:nth-child(1) { top: 22px; left: 60px; }
+.profile-orbit i:nth-child(2) { right: -4px; top: 140px; }
+.profile-orbit i:nth-child(3) { bottom: 16px; left: 80px; }
+@keyframes orbit { to { transform: rotate(360deg); } }
+.profile-status { position: absolute; z-index: 2; bottom: 15px; display: flex; align-items: center; gap: 9px; padding: 10px 14px; border: 1px solid rgba(54,216,121,.3); border-radius: 10px; background: rgba(7,11,22,.92); box-shadow: 0 10px 30px rgba(0,0,0,.4); }
+.profile-status > span { width: 7px; height: 7px; border-radius: 50%; background: var(--online-color); box-shadow: 0 0 10px var(--online-color); }
+.profile-status small, .profile-status strong { display: block; font: 700 9px 'JetBrains Mono', monospace; letter-spacing: .08em; }
+.profile-status small { color: var(--text-muted); }
+.profile-status strong { margin-top: 3px; color: var(--online-color); }
 
-.projects-wrapper {
+.ecosystem-map {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: stretch;
+    gap: 18px;
+    margin-bottom: 24px;
+}
+.ecosystem-product {
+    min-width: 0;
+    min-height: 430px;
     display: flex;
     flex-direction: column;
-    gap: 2.5rem;
-    max-width: 900px;
-    margin: 0 auto;
-}
-
-.project-detail-card {
-    display: flex;
-    gap: 2rem;
-    background: var(--surface-color);
-    border: 1px solid var(--border-color);
-    border-radius: 15px;
-    padding: 2.5rem;
-    transition: all 0.3s ease;
-}
-
-.project-detail-card:hover {
-    border-color: var(--accent-color);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-}
-
-.project-icon {
-    font-size: 5rem;
-    color: var(--accent-color);
-    flex-shrink: 0;
-    width: 100px;
-    text-align: center;
-}
-
-.project-content h2 {
-    font-size: 2rem;
-    margin-bottom: 10px;
-    color: var(--text-primary);
-}
-
-.desc {
-    color: var(--text-secondary);
-    line-height: 1.6;
-    margin-bottom: 1.5rem;
-}
-
-.features-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-    margin-bottom: 1.5rem;
-}
-
-.feature {
-    background: rgba(255,255,255,0.05);
-    padding: 6px 12px;
-    border-radius: 8px;
-    font-size: 0.9rem;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    border: 1px solid var(--border-color);
-}
-
-.feature i {
-    color: var(--accent-color);
-}
-
-.project-links {
-    display: flex;
-    gap: 1rem;
-    flex-wrap: wrap;
-}
-
-@media (max-width: 768px) {
-    .project-detail-card {
-        flex-direction: column;
-        text-align: center;
-    }
-    .project-icon {
-        margin: 0 auto;
-    }
-    .features-list {
-        justify-content: center;
-    }
-    .project-links {
-        justify-content: center;
-    }
-}
-.mc-card {
-    position: relative;
+    padding: 26px;
     overflow: hidden;
-    padding: 0;
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    background: linear-gradient(145deg, rgba(23,35,58,.97), rgba(12,19,34,.98));
+    transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
 }
-.mc-card-bg {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-image: url('/assets/img/mc-bg.jpeg');
-    background-size: cover;
-    background-position: left center;
-    z-index: 0;
+.ecosystem-product:hover { transform: translateY(-3px); border-color: rgba(84,184,255,.4); box-shadow: var(--shadow); }
+.product-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.product-number { color: var(--text-muted); font: 600 11px 'JetBrains Mono', monospace; }
+.product-main { min-width: 0; display: flex; flex: 1; flex-direction: column; }
+.product-icon { width: 58px; height: 58px; display: grid; place-items: center; margin: 25px 0 18px; flex: 0 0 auto; border-radius: 15px; color: var(--accent-color); background: rgba(84,184,255,.1); font-size: 25px; }
+.whatsapp-product .product-icon { color: var(--online-color); background: rgba(54,216,121,.1); }
+.discord-product .product-icon { color: var(--accent-purple); background: rgba(139,124,255,.1); }
+.minecraft-bot-product .product-icon { color: var(--accent-cyan); }
+.minecraft-server-product .product-icon { color: #9be66f; background: rgba(155,230,111,.1); }
+.product-type { color: var(--accent-color); font: 700 10px 'JetBrains Mono', monospace; letter-spacing: .13em; }
+.ecosystem-product h2 { margin: 7px 0 9px; font-size: 24px; line-height: 1.2; }
+.product-description { max-width: 520px; color: var(--text-secondary); font-size: 13px; line-height: 1.7; }
+.product-features { display: grid; gap: 10px; margin-top: 20px; list-style: none; }
+.product-features li { display: grid; grid-template-columns: 18px minmax(0, 1fr); align-items: start; gap: 4px; color: var(--text-secondary); font-size: 12px; line-height: 1.5; }
+.product-features li i { padding-top: 3px; color: var(--online-color); }
+.product-footer { flex: 0 0 auto; margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border-color); }
+.product-footer a { display: flex; align-items: center; justify-content: space-between; gap: 16px; color: var(--text-primary); font-size: 12px; font-weight: 700; }
+.product-footer a:hover { color: var(--accent-color); }
+.server-addresses { display: grid; gap: 10px; margin-top: 20px; }
+.server-address { min-width: 0; display: grid; grid-template-columns: 70px minmax(0, 1fr); align-items: center; gap: 10px; }
+.server-address > span { color: var(--text-muted); font: 700 9px 'JetBrains Mono', monospace; letter-spacing: .08em; }
+.server-address button { min-width: 0; width: 100%; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 10px; padding: 10px 12px; overflow: hidden; border: 1px solid var(--border-color); border-radius: 8px; background: rgba(7,11,22,.55); color: var(--text-secondary); text-align: left; cursor: pointer; }
+.server-address button:hover { color: var(--accent-color); border-color: var(--accent-color); }
+.server-address code { min-width: 0; overflow: hidden; color: inherit; font: 500 10px 'JetBrains Mono', monospace; text-overflow: ellipsis; white-space: nowrap; }
+.server-address button i { flex: 0 0 auto; }
+
+.integration-panel { display: grid; grid-template-columns: minmax(260px,.85fr) minmax(0,1.15fr); align-items: center; gap: 40px; padding: 30px; border: 1px solid rgba(84,184,255,.2); border-radius: 16px; background: linear-gradient(110deg, rgba(84,184,255,.08), rgba(17,26,45,.95)); }
+.integration-copy { min-width: 0; }
+.integration-panel h2 { margin: 5px 0 9px; font-size: 21px; }
+.integration-panel p { color: var(--text-secondary); font-size: 13px; line-height: 1.7; }
+.integration-flow { min-width: 0; display: grid; grid-template-columns: 1fr auto 1fr auto 1fr auto 1fr; align-items: center; gap: 8px; }
+.integration-flow span { min-width: 0; min-height: 72px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 12px 8px; border: 1px solid var(--border-color); border-radius: 10px; background: rgba(7,11,22,.4); color: var(--text-secondary); font-size: 10px; text-align: center; }
+.integration-flow span i { color: var(--accent-color); font-size: 16px; }
+.integration-flow > b { color: var(--text-muted); font-size: 9px; }
+.copy-toast { position: fixed; right: 20px; bottom: 20px; z-index: 2000; padding: 12px 16px; border: 1px solid rgba(54,216,121,.3); border-radius: 10px; background: #111a2d; color: var(--online-color); font-size: 12px; box-shadow: var(--shadow); }
+
+@media (max-width: 900px) {
+    .ecosystem-hero { grid-template-columns: 1fr; gap: 30px; text-align: center; }
+    .ecosystem-intro > p { margin-right: auto; margin-left: auto; }
+    .ecosystem-actions { justify-content: center; }
+    .persona-profile { min-height: 260px; }
+    .persona-profile > img { width: 180px; height: 180px; }
+    .profile-orbit { width: 240px; height: 240px; }
+    .integration-panel { grid-template-columns: 1fr; }
 }
-.mc-card-bg::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(to right, transparent 0%, var(--surface-color) 70%, var(--surface-color) 100%);
+@media (max-width: 700px) {
+    .ecosystem-page { width: calc(100% - 28px); padding: 32px 0 54px; }
+    .ecosystem-hero { min-height: 0; padding: 34px 20px; }
+    .ecosystem-intro h1 { font-size: clamp(36px, 11vw, 46px); }
+    .ecosystem-actions { flex-direction: column; }
+    .ecosystem-actions .btn { width: 100%; }
+    .ecosystem-map { grid-template-columns: 1fr; }
+    .ecosystem-product { min-height: 0; padding: 22px; }
+    .product-footer { margin-top: 24px; }
+    .integration-panel { padding: 22px; }
+    .integration-flow { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .integration-flow > b { display: none; }
 }
-.mc-card-content {
-    position: relative;
-    z-index: 1;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 2rem;
-    padding: 2.5rem;
-    width: 100%;
-}
-.mc-server-details {
-    background: rgba(0, 0, 0, 0.3);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
-    padding: 1.5rem;
-    min-width: 280px;
-    flex-shrink: 0;
-    backdrop-filter: blur(10px);
-}
-.mc-ip-box {
-    margin-bottom: 0.5rem;
-}
-.mc-platform {
-    font-size: 0.85rem;
-    color: var(--text-secondary);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    font-weight: bold;
-}
-.mc-ip {
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 1.15rem;
-    color: #fff;
-    margin-top: 4px;
-    background: rgba(255,255,255,0.05);
-    padding: 5px 10px;
-    border-radius: 5px;
-    border-left: 3px solid var(--accent-color);
-}
-.mc-port {
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 0.95rem;
-    color: #ccc;
-    margin-top: 4px;
-    padding-left: 10px;
-}
-@media (max-width: 768px) {
-    .mc-card-bg::after {
-        background: linear-gradient(to bottom, transparent 0%, var(--surface-color) 50%, var(--surface-color) 100%);
-    }
-    .mc-server-details {
-        width: 100%;
-    }
+@media (max-width: 420px) {
+    .persona-profile { min-height: 225px; }
+    .persona-profile > img { width: 150px; height: 150px; }
+    .profile-orbit { width: 200px; height: 200px; }
+    .profile-status { bottom: 4px; }
+    .server-address { grid-template-columns: 1fr; gap: 5px; }
+    .server-address code { font-size: 9px; }
 }
 </style>
+<script>
+document.querySelectorAll('[data-copy]').forEach(function (button) {
+    button.addEventListener('click', async function () {
+        const value = button.dataset.copy;
+        try {
+            if (navigator.clipboard && window.isSecureContext) {
+                await navigator.clipboard.writeText(value);
+            } else {
+                const input = document.createElement('textarea');
+                input.value = value;
+                input.setAttribute('readonly', '');
+                input.style.position = 'fixed';
+                input.style.opacity = '0';
+                document.body.appendChild(input);
+                input.select();
+                document.execCommand('copy');
+                input.remove();
+            }
+            const toast = document.createElement('div');
+            toast.className = 'copy-toast';
+            toast.setAttribute('role', 'status');
+            toast.textContent = 'Alamat server berhasil disalin';
+            document.body.appendChild(toast);
+            setTimeout(function () { toast.remove(); }, 2200);
+        } catch (error) {
+            window.prompt('Salin alamat server berikut:', value);
+        }
+    });
+});
+</script>
 
 <%- include('partials/footer') %>
-
