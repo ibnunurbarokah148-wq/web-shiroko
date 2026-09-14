@@ -41,12 +41,8 @@
     } catch (error) {
         serverSeries = null;
     }
-    const platformHistory = serverSeries || {
-        labels: ['00', '02', '04', '06', '08', '10', '12', '14', '16', '18', '20', '22'],
-        whatsapp: [21, 30, 27, 42, 38, 53, 49, 65, 58, 72, 69, 81],
-        discord: [12, 16, 19, 18, 28, 24, 35, 32, 41, 38, 45, 50],
-        minecraft: [5, 7, 6, 9, 8, 11, 13, 12, 16, 14, 18, 17]
-    };
+    const emptySeries = { labels: [], whatsapp: [], discord: [], minecraft: [] };
+    const platformHistory = serverSeries && Array.isArray(serverSeries.labels) ? serverSeries : emptySeries;
     let activityChart = null;
     let refreshTimer = null;
     let requestInFlight = false;
@@ -64,9 +60,9 @@
             data: {
                 labels: Array.isArray(platformHistory.labels) ? platformHistory.labels : [],
                 datasets: [
-                    { label: 'WhatsApp', data: platformHistory.whatsapp, borderColor: '#00d9ff', backgroundColor: cyanGradient, fill: true, tension: .42, pointRadius: 0, borderWidth: 2 },
-                    { label: 'Discord', data: platformHistory.discord, borderColor: '#8b7cff', backgroundColor: 'transparent', fill: false, tension: .42, pointRadius: 0, borderWidth: 1.5 },
-                    { label: 'Minecraft', data: platformHistory.minecraft, borderColor: '#36d879', backgroundColor: 'transparent', fill: false, tension: .42, pointRadius: 0, borderWidth: 1.5 }
+                    { label: 'WhatsApp', data: platformHistory.whatsapp || [], borderColor: '#00d9ff', backgroundColor: cyanGradient, fill: true, tension: .42, pointRadius: 0, borderWidth: 2 },
+                    { label: 'Discord', data: platformHistory.discord || [], borderColor: '#8b7cff', backgroundColor: 'transparent', fill: false, tension: .42, pointRadius: 0, borderWidth: 1.5 },
+                    { label: 'Minecraft', data: platformHistory.minecraft || [], borderColor: '#36d879', backgroundColor: 'transparent', fill: false, tension: .42, pointRadius: 0, borderWidth: 1.5 }
                 ]
             },
             options: {
@@ -102,6 +98,7 @@
     function statusLabel(status) {
         if (status === 'OPERATIONAL') return 'All systems operational';
         if (status === 'DEGRADED') return 'Some services degraded';
+        if (status === 'UNKNOWN') return 'Telemetry unavailable';
         return 'Core services offline';
     }
 

@@ -12,7 +12,7 @@
                 <span class="status-dot"></span>
                 <div>
                     <small>ECOSYSTEM STATUS</small>
-                    <strong id="global-status-label"><%= data.summary.globalStatus === 'OPERATIONAL' ? 'All systems operational' : data.summary.globalStatus %></strong>
+                    <strong id="global-status-label"><%= data.summary.globalStatus === 'OPERATIONAL' ? 'All systems operational' : data.summary.globalStatus === 'UNKNOWN' ? 'Telemetry unavailable' : data.summary.globalStatus %></strong>
                 </div>
             </div>
             <button class="icon-button" id="refresh-dashboard" type="button" aria-label="Perbarui dashboard"><i class="fas fa-rotate" aria-hidden="true"></i></button>
@@ -113,9 +113,7 @@
                 <% if (data.activity.length) { %>
                     <% data.activity.forEach(item => { %><div class="activity-row"><time><%= item.time || '--:--' %></time><i class="fas fa-circle-nodes"></i><p><%= item.message || item.title %></p></div><% }) %>
                 <% } else { %>
-                    <div class="activity-row"><time>NOW</time><i class="fas fa-satellite-dish"></i><p>Control Center terhubung dan menunggu event baru.</p></div>
-                    <div class="activity-row"><time>SYS</time><i class="fas fa-shield-halved"></i><p>Monitoring empat core service sedang aktif.</p></div>
-                    <div class="activity-row"><time>AI</time><i class="fas fa-brain"></i><p>AI provider siap menerima request dari bot.</p></div>
+                    <div class="activity-row is-empty"><time>--:--</time><i class="fas fa-satellite-dish"></i><p>Belum ada event telemetry yang diterima dari bot.</p></div>
                 <% } %>
             </div>
         </article>

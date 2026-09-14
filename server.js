@@ -91,8 +91,8 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
-// Dummy data for fallback if VPS is offline
-const dummyStats = {
+// Fallback ketika API bot tidak dapat dijangkau (tidak ada data palsu)
+const emptyStats = {
     totalChat: 0,
     imageGenerated: 0,
     discordUsers: 0,
@@ -101,48 +101,37 @@ const dummyStats = {
     commands: 0
 };
 
-const dummyServices = [
-    { name: 'WhatsApp Bot', status: 'ONLINE', icon: 'fab fa-whatsapp' },
-    { name: 'Discord Bot', status: 'ONLINE', icon: 'fab fa-discord' },
-    { name: 'Google Gemini', status: 'ONLINE', icon: 'fas fa-brain' },
-    { name: 'OpenRouter AI', status: 'ONLINE', icon: 'fas fa-network-wired' },
-    { name: 'Cloudflare AI', status: 'ONLINE', icon: 'fas fa-cloud' },
-    { name: 'ArisuSoft AI', status: 'ONLINE', icon: 'fas fa-robot' },
-    { name: 'PixAI Engine', status: 'ONLINE', icon: 'fas fa-palette' },
-    { name: 'Minecraft Bot', status: 'STANDBY', icon: 'fas fa-robot' },
-    { name: 'Server Minecraft', status: 'ONLINE', icon: 'fas fa-cube' },
-    { name: 'Local AI (Ollama)', status: 'STANDBY', icon: 'fas fa-server' }
-];
-
 // Helper to fetch data from VPS
 async function getVPSData() {
     try {
         const response = await axios.get(`${VPS_API_URL}/api/dashboard`, { timeout: 5000 });
         return response.data;
     } catch (error) {
-        console.error('Failed to fetch from VPS, using dummy data:', error.message);
-        return { stats: dummyStats, services: dummyServices, isFallback: true };
+        console.error('Failed to fetch from VPS, telemetry marked as unknown:', error.message);
+        return { stats: emptyStats, services: [], activity: [], isFallback: true };
     }
 }
 
 function normalizeServiceStatus(status) {
-    const normalized = String(status || 'OFFLINE').toUpperCase();
+    const normalized = String(status || 'UNKNOWN').toUpperCase();
     if (['ONLINE', 'OPERATIONAL', 'RUNNING'].includes(normalized)) return 'ONLINE';
     if (['STANDBY', 'STARTING', 'CONNECTING'].includes(normalized)) return 'STANDBY';
-    return 'OFFLINE';
+    if (['OFFLINE', 'DOWN', 'STOPPED', 'DEGRADED'].includes(normalized)) return 'OFFLINE';
+    return 'UNKNOWN';
 }
 
-function findService(services, keywords, fallback) {
-    const service = services.find(item => {
+function findService(services, id, keywords) {
+    const byId = services.find(item => String(item.id || '') === id);
+    if (byId) return byId;
+    return services.find(item => {
         const name = String(item.name || '').toLowerCase();
         return keywords.some(keyword => name.includes(keyword));
-    });
-    return service || fallback;
+    }) || null;
 }
 
 function buildDashboardData(rawData = {}) {
-    const stats = { ...dummyStats, ...(rawData.stats || {}) };
-    const sourceServices = Array.isArray(rawData.services) ? rawData.services : dummyServices;
+    const stats = { ...emptyStats, ...(rawData.stats || {}) };
+    const sourceServices = Array.isArray(rawData.services) ? rawData.services : [];
     const isFallback = rawData.isFallback === true;
     const definitions = [
         {
@@ -180,19 +169,23 @@ function buildDashboardData(rawData = {}) {
     ];
 
     const services = definitions.map(definition => {
-        const matched = findService(sourceServices, definition.keywords, null);
+        const matched = isFallback ? null : findService(sourceServices, definition.id, definition.keywords);
+        const latencyValue = matched ? Number(matched.latency ?? matched.latencyMs) : NaN;
         return {
             ...definition,
-            status: normalizeServiceStatus(matched && matched.status),
-            latency: matched && Number.isFinite(Number(matched.latency)) ? Number(matched.latency) : null,
+            status: matched ? normalizeServiceStatus(matched.status) : 'UNKNOWN',
+            latency: Number.isFinite(latencyValue) ? latencyValue : null,
+            heartbeatAt: matched && matched.heartbeatAt ? matched.heartbeatAt : null,
             detail: matched && matched.detail ? matched.detail : null
         };
     });
 
     const onlineCount = services.filter(service => service.status === 'ONLINE').length;
-    const globalStatus = onlineCount === services.length
-        ? 'OPERATIONAL'
-        : onlineCount > 0 ? 'DEGRADED' : 'OFFLINE';
+    const globalStatus = isFallback
+        ? 'UNKNOWN'
+        : onlineCount === services.length
+            ? 'OPERATIONAL'
+            : onlineCount > 0 ? 'DEGRADED' : 'OFFLINE';
 
     return {
         summary: {
@@ -327,7 +320,7 @@ app.post('/admin/api/deploy', (req, res) => {
     if (target === 'bot') {
         command = 'cd /root/bot-shiroko && git pull && npm install --legacy-peer-deps --omit=dev && pm2 restart index';
     } else if (target === 'web') {
-        command = 'cd "/root/Web Shiroko Project" && git pull && npm install --legacy-peer-deps --omit=dev && pm2 restart web-shiroko';
+        command = 'cd /root/web-shiroko && git pull && npm install --legacy-peer-deps --omit=dev && pm2 restart web-shiroko';
     } else {
         return res.status(400).json({ error: 'Invalid target' });
     }

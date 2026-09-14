@@ -11,13 +11,13 @@
     </header>
 
     <section class="status-overview <%= data.summary.globalStatus.toLowerCase() %>">
-        <div class="overview-icon"><i class="fas <%= data.summary.globalStatus === 'OPERATIONAL' ? 'fa-circle-check' : data.summary.globalStatus === 'DEGRADED' ? 'fa-triangle-exclamation' : 'fa-circle-xmark' %>"></i></div>
+        <div class="overview-icon"><i class="fas <%= data.summary.globalStatus === 'OPERATIONAL' ? 'fa-circle-check' : data.summary.globalStatus === 'DEGRADED' ? 'fa-triangle-exclamation' : data.summary.globalStatus === 'UNKNOWN' ? 'fa-circle-question' : 'fa-circle-xmark' %>"></i></div>
         <div>
             <span class="panel-kicker">CURRENT CONDITION</span>
-            <h2><%= data.summary.globalStatus === 'OPERATIONAL' ? 'All systems operational' : data.summary.globalStatus === 'DEGRADED' ? 'Some services are degraded' : 'Core services unavailable' %></h2>
-            <p><%= data.summary.onlineServices %> dari <%= data.summary.totalServices %> layanan inti mengirimkan sinyal online.</p>
+            <h2><%= data.summary.globalStatus === 'OPERATIONAL' ? 'All systems operational' : data.summary.globalStatus === 'DEGRADED' ? 'Some services are degraded' : data.summary.globalStatus === 'UNKNOWN' ? 'Telemetry unavailable' : 'Core services unavailable' %></h2>
+            <p><%= data.dataSource === 'live' ? data.summary.onlineServices + ' dari ' + data.summary.totalServices + ' layanan inti mengirimkan sinyal online.' : 'API bot tidak dapat dijangkau, status layanan tidak diketahui.' %></p>
         </div>
-        <div class="overview-score"><strong><%= Math.round((data.summary.onlineServices / data.summary.totalServices) * 100) %>%</strong><span>availability</span></div>
+        <div class="overview-score"><strong><%= data.dataSource === 'live' ? Math.round((data.summary.onlineServices / data.summary.totalServices) * 100) + '%' : '--' %></strong><span>availability</span></div>
     </section>
 
     <section class="status-content-grid">
@@ -28,8 +28,9 @@
                     <div class="status-service-row">
                         <span class="service-icon <%= service.accent %>"><i class="<%= service.icon %>"></i></span>
                         <div class="status-service-copy"><strong><%= service.name %></strong><p><%= service.description %></p></div>
-                        <div class="status-bars" aria-label="Riwayat uptime dekoratif">
-                            <% for (let index = 0; index < 22; index++) { %><i class="<%= service.status.toLowerCase() %>"></i><% } %>
+                        <div class="status-metric">
+                            <span>Latency</span>
+                            <strong><%= service.latency !== null && service.latency !== undefined ? service.latency + ' ms' : '--' %></strong>
                         </div>
                         <span class="service-state <%= service.status.toLowerCase() %>"><i></i><%= service.status %></span>
                     </div>
@@ -64,7 +65,7 @@
 .status-overview { display:grid; grid-template-columns:58px 1fr auto; align-items:center; gap:18px; padding:24px; margin-bottom:16px; border:1px solid rgba(54,216,121,.25); border-radius:16px; background:linear-gradient(90deg,rgba(54,216,121,.08),rgba(17,26,45,.96)); }
 .overview-icon { width:52px; height:52px; display:grid; place-items:center; border-radius:14px; color:var(--online-color); background:rgba(54,216,121,.1); font-size:22px; }.status-overview h2 { margin:4px 0; font-size:20px; }.status-overview p { color:var(--text-secondary); font-size:11px; }.overview-score { text-align:right; }.overview-score strong { display:block; color:var(--online-color); font:700 26px 'JetBrains Mono',monospace; }.overview-score span { color:var(--text-muted); font-size:9px; }
 .status-overview.degraded { border-color:rgba(246,200,95,.3); background:linear-gradient(90deg,rgba(246,200,95,.08),rgba(17,26,45,.96)); }.status-overview.degraded .overview-icon,.status-overview.degraded .overview-score strong { color:var(--warning-color); }.status-overview.offline { border-color:rgba(255,95,100,.3); }.status-overview.offline .overview-icon,.status-overview.offline .overview-score strong { color:var(--offline-color); }
-.status-content-grid { display:grid; grid-template-columns:1.65fr .7fr; gap:16px; margin-bottom:16px; }.status-service-list { padding:4px 20px 12px; }.status-service-row { min-height:78px; display:grid; grid-template-columns:40px minmax(180px,1fr) 180px 70px; align-items:center; gap:12px; border-bottom:1px solid rgba(38,55,84,.65); }.status-service-row:last-child { border:0; }.status-service-copy strong { font-size:14px; }.status-service-copy p { margin-top:4px; color:var(--text-muted); font-size:11px; line-height:1.5; }.status-bars { display:flex; gap:3px; height:20px; align-items:stretch; }.status-bars i { flex:1; border-radius:2px; background:var(--online-color); opacity:.7; }.status-bars i.standby { background:var(--warning-color); }.status-bars i.offline { background:var(--offline-color); }
+.status-content-grid { display:grid; grid-template-columns:1.65fr .7fr; gap:16px; margin-bottom:16px; }.status-service-list { padding:4px 20px 12px; }.status-service-row { min-height:78px; display:grid; grid-template-columns:40px minmax(180px,1fr) 180px 70px; align-items:center; gap:12px; border-bottom:1px solid rgba(38,55,84,.65); }.status-service-row:last-child { border:0; }.status-service-copy strong { font-size:14px; }.status-service-copy p { margin-top:4px; color:var(--text-muted); font-size:11px; line-height:1.5; }.status-bars { display:flex; gap:3px; height:20px; align-items:stretch; }.status-bars i { flex:1; border-radius:2px; background:var(--online-color); opacity:.7; }.status-bars i.standby { background:var(--warning-color); }.status-bars i.offline { background:var(--offline-color); }.status-metric span { display:block; color:var(--text-muted); font:700 8px 'JetBrains Mono',monospace; letter-spacing:.16em; }.status-metric strong { display:block; margin-top:4px; font:600 13px 'JetBrains Mono',monospace; color:var(--text-secondary); }
 .monitor-list { padding:8px 20px 16px; }.monitor-list div { display:flex; justify-content:space-between; gap:16px; padding:15px 0; border-bottom:1px solid rgba(38,55,84,.65); font-size:12px; }.monitor-list dt { color:var(--text-muted); }.monitor-list dd { color:var(--text-secondary); font-family:'JetBrains Mono',monospace; }.monitor-list dd.positive { color:var(--online-color); }.status-note { display:flex; gap:10px; margin:0 18px 18px; padding:12px; border:1px solid rgba(84,184,255,.16); border-radius:10px; color:var(--accent-color); background:rgba(84,184,255,.06); }.status-note p { color:var(--text-secondary); font-size:9px; }
 .incident-clear { color:var(--online-color); font:600 9px 'JetBrains Mono',monospace; }.empty-incident { display:flex; align-items:center; justify-content:center; gap:14px; min-height:130px; color:var(--accent-color); }.empty-incident > i { font-size:25px; }.empty-incident strong { font-size:12px; color:var(--text-primary); }.empty-incident p { color:var(--text-muted); font-size:9px; margin-top:4px; }
 @media(max-width:900px){.status-content-grid{grid-template-columns:1fr}.status-service-row{grid-template-columns:40px 1fr auto}.status-bars{display:none}}
