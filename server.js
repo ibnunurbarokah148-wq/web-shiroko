@@ -27,13 +27,16 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 const session = require('express-session');
+app.set('trust proxy', 1);
 app.use(session({
+    name: 'shiroko.sid',
     secret: process.env.SESSION_SECRET || 'rahasia-shiroko-super-aman',
     resave: false,
     saveUninitialized: false,
     cookie: {
         maxAge: 24 * 60 * 60 * 1000, // 1 day
         httpOnly: true, // Anti-XSS Cookie Theft
+        secure: IS_PRODUCTION, // Wajib HTTPS di produksi
         sameSite: 'lax'  // Anti-CSRF
     }
 }));
@@ -46,11 +49,20 @@ const loginLimiter = rateLimit({
     legacyHeaders: false,
     handler: (req, res) => {
         res.status(429).render('admin', {
-            title: 'Admin Login',
+            title: 'Admin - Shiroko Control Center',
             authenticated: false,
             error: 'Terlalu banyak percobaan login gagal. Harap tunggu 15 menit lagi.'
         });
     }
+});
+
+// Rate limiter untuk endpoint PixAI Web Auth (anti brute-force OTP/nonce)
+const pixaiLimiter = rateLimit({
+    windowMs: 10 * 60 * 1000,
+    max: 12,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { status: 'error', message: 'Terlalu banyak permintaan. Coba lagi beberapa menit lagi.' }
 });
 
 // Setup EJS
@@ -176,7 +188,10 @@ function buildDashboardData(rawData = {}) {
             status: matched ? normalizeServiceStatus(matched.status) : 'UNKNOWN',
             latency: Number.isFinite(latencyValue) ? latencyValue : null,
             heartbeatAt: matched && matched.heartbeatAt ? matched.heartbeatAt : null,
-            detail: matched && matched.detail ? matched.detail : null
+            detail: matched && matched.detail ? matched.detail : null,
+            version: matched && matched.version ? matched.version : null,
+            players: matched && Number.isFinite(Number(matched.players)) ? Number(matched.players) : null,
+            maxPlayers: matched && Number.isFinite(Number(matched.maxPlayers)) ? Number(matched.maxPlayers) : null
         };
     });
 
@@ -213,21 +228,26 @@ function buildDashboardData(rawData = {}) {
 // ==========================================
 app.get('/admin', async (req, res) => {
     if (!req.session.isAdmin) {
-        return res.render('admin', { title: 'Admin Login', authenticated: false, error: null });
+        return res.render('admin', { title: 'Admin - Shiroko Control Center', authenticated: false, error: null });
     }
     const data = await getVPSData();
-    res.render('admin', { title: 'Control Panel', authenticated: true, data });
+    res.render('admin', { title: 'Admin Console - Shiroko Control Center', authenticated: true, data });
 });
 
 app.post('/admin/login', loginLimiter, (req, res) => {
     const { password } = req.body;
     const adminPassword = process.env.ADMIN_PASSWORD;
     if (adminPassword && password && password === adminPassword) {
-        req.session.isAdmin = true;
-        res.redirect('/admin');
-    } else {
-        res.render('admin', { title: 'Admin Login', authenticated: false, error: 'Password salah!' });
+        // Regenerasi session untuk mencegah session fixation
+        return req.session.regenerate(error => {
+            if (error) {
+                return res.render('admin', { title: 'Admin - Shiroko Control Center', authenticated: false, error: 'Gagal membuat sesi. Coba lagi.' });
+            }
+            req.session.isAdmin = true;
+            res.redirect('/admin');
+        });
     }
+    res.render('admin', { title: 'Admin - Shiroko Control Center', authenticated: false, error: 'Password salah!' });
 });
 
 app.post('/admin/logout', (req, res) => {
@@ -626,22 +646,39 @@ app.get('/api/dashboard', async (req, res) => {
 
 app.get('/', async (req, res) => {
     const data = await getPublicDashboardData();
-    res.render('home', { title: 'Shiroko Control Center', data, isHome: true, currentPath: '/' });
+    res.render('home', { title: 'Overview - Shiroko Control Center', data, isHome: true, currentPath: '/' });
 });
 
 app.get('/projects', async (req, res) => {
     const data = await getPublicDashboardData();
-    res.render('projects', { title: 'Shiroko Ecosystem', currentPath: '/projects', data });
+    res.render('projects', { title: 'Ecosystem - Shiroko Control Center', currentPath: '/projects', data });
 });
-app.get('/docs', (req, res) => res.render('docs', { title: 'Documentation', currentPath: '/docs' }));
-app.get('/pixai-api', (req, res) => res.render('pixai-api', { title: 'PixAI Web Auth', currentPath: '/pixai-api' }));
+app.get('/docs', (req, res) => res.render('docs', { title: 'Docs - Shiroko Control Center', currentPath: '/docs' }));
+app.get('/pixai-api', (req, res) => res.render('pixai-api', { title: 'PixAI Web Auth - Shiroko Control Center', currentPath: '/pixai-api' }));
 
 // Proxy API ke Bot VPS (Menghindari CORS & Mixed Content)
-app.post('/api/get-pixai-payload', async (req, res) => {
+const PIXAI_ALLOWED_ORIGINS = (process.env.PIXAI_ALLOWED_ORIGINS || 'https://pixai.art,https://www.pixai.art')
+    .split(',')
+    .map(origin => origin.trim())
+    .filter(Boolean);
+
+function applyPixaiCors(req, res) {
+    const origin = req.headers.origin;
+    if (origin && PIXAI_ALLOWED_ORIGINS.includes(origin)) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+    }
+    res.setHeader('Vary', 'Origin');
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+}
+
+app.post('/api/get-pixai-payload', pixaiLimiter, async (req, res) => {
     try {
-        const { otp } = req.body;
-        // VPS_API_URL secara default adalah http://localhost:3000 jika satu VPS
-        const response = await axios.post(`${VPS_API_URL}/api/generate-bookmarklet`, { otp });
+        const otp = typeof req.body?.otp === 'string' ? req.body.otp.trim() : '';
+        if (!otp || otp.length > 40) {
+            return res.status(400).json({ status: 'error', message: 'Kode OTP tidak valid.' });
+        }
+        const response = await axios.post(`${VPS_API_URL}/api/generate-bookmarklet`, { otp }, { timeout: 8000 });
         res.json(response.data);
     } catch (error) {
         if (error.response) {
@@ -654,16 +691,19 @@ app.post('/api/get-pixai-payload', async (req, res) => {
 
 // Proxy API untuk save token (Dipanggil oleh Bookmarklet di pixai.art)
 app.options('/api/save-pixai-token', (req, res) => {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    res.send();
+    applyPixaiCors(req, res);
+    res.status(204).end();
 });
 
-app.post('/api/save-pixai-token', async (req, res) => {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+app.post('/api/save-pixai-token', pixaiLimiter, async (req, res) => {
+    applyPixaiCors(req, res);
     try {
-        const response = await axios.post(`${VPS_API_URL}/api/save-pixai-token`, req.body);
+        const token = typeof req.body?.token === 'string' ? req.body.token.trim() : '';
+        const nonce = typeof req.body?.nonce === 'string' ? req.body.nonce.trim() : '';
+        if (!token || !nonce || token.length > 4096 || nonce.length > 128) {
+            return res.status(400).json({ status: 'error', message: 'Payload token tidak valid.' });
+        }
+        const response = await axios.post(`${VPS_API_URL}/api/save-pixai-token`, { token, nonce }, { timeout: 8000 });
         res.json(response.data);
     } catch (error) {
         if (error.response) {
@@ -675,74 +715,21 @@ app.post('/api/save-pixai-token', async (req, res) => {
 });
 
 app.get('/status', async (req, res) => {
-    let botOnline = false;
-    let mcOnline = false;
-    
-    // Check PM2 for bot status
-    try {
-        const util = require('util');
-        const execPromise = util.promisify(require('child_process').exec);
-        const { stdout } = await execPromise('pm2 jlist');
-        const pm2List = JSON.parse(stdout);
-        const botProc = pm2List.find(p => p.name === 'index' || p.name === 'bot-shiroko');
-        if (botProc && botProc.pm2_env && botProc.pm2_env.status === 'online') {
-            botOnline = true;
-        }
-    } catch(e) {
-        console.error('Error checking pm2:', e.message);
-    }
-
-    // Check Minecraft Server status via Pterodactyl API
-    try {
-        const axios = require('axios');
-        const pteroUrl = process.env.PTERODACTYL_URL;
-        const pteroId = process.env.PTERODACTYL_SERVER_ID;
-        const pteroKey = process.env.PTERODACTYL_API_KEY;
-        
-        if (pteroUrl && pteroId && pteroKey) {
-            const mcRes = await axios.get(`${pteroUrl}/api/client/servers/${pteroId}/resources`, {
-                headers: {
-                    'Authorization': `Bearer ${pteroKey}`,
-                    'Accept': 'application/json'
-                },
-                timeout: 3000
-            });
-            if (mcRes.data && mcRes.data.attributes && mcRes.data.attributes.current_state === 'running') {
-                mcOnline = true;
-            }
-        }
-    } catch(e) {
-        console.error('Error checking Pterodactyl MC:', e.message);
-    }
-
     const data = await getPublicDashboardData();
-    data.services = data.services.map(service => ({ ...service }));
-    data.summary = { ...data.summary };
-    const applyProbeStatus = (id, isOnline) => {
-        const service = data.services.find(item => item.id === id);
-        if (service && isOnline) service.status = 'ONLINE';
-    };
-    applyProbeStatus('whatsapp', botOnline);
-    applyProbeStatus('minecraft-server', mcOnline);
-    data.summary.onlineServices = data.services.filter(service => service.status === 'ONLINE').length;
-    data.summary.globalStatus = data.summary.onlineServices === data.summary.totalServices
-        ? 'OPERATIONAL'
-        : data.summary.onlineServices > 0 ? 'DEGRADED' : 'OFFLINE';
-
     res.render('status', {
-        title: 'System Status - Shiroko',
+        title: 'System Status - Shiroko Control Center',
         data,
         currentPath: '/status'
     });
 });
 app.get('/gallery', (req, res) => {
     const galleryData = getAllGallery();
-    res.render('gallery', { title: 'Gallery', galleryData, currentPath: '/gallery' });
+    res.render('gallery', { title: 'Gallery - Shiroko Control Center', galleryData, currentPath: '/gallery' });
 });
-app.get('/download', (req, res) => res.render('download', { title: 'Download', currentPath: '/download' }));
-app.get('/changelog', (req, res) => res.render('changelog', { title: 'Changelog', currentPath: '/changelog' }));
-app.get('/about', (req, res) => res.render('about', { title: 'About', currentPath: '/about' }));
-app.get('/contact', (req, res) => res.render('contact', { title: 'Contact', currentPath: '/contact' }));
+app.get('/download', (req, res) => res.render('download', { title: 'Download - Shiroko Control Center', currentPath: '/download' }));
+app.get('/changelog', (req, res) => res.render('changelog', { title: 'Changelog - Shiroko Control Center', currentPath: '/changelog' }));
+app.get('/about', (req, res) => res.render('about', { title: 'About - Shiroko Control Center', currentPath: '/about' }));
+app.get('/contact', (req, res) => res.render('contact', { title: 'Contact - Shiroko Control Center', currentPath: '/contact' }));
 
 app.listen(PORT, () => {
     console.log(`Web Portal Shiroko Project berjalan di http://localhost:${PORT}`);

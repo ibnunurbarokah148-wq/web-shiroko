@@ -113,7 +113,7 @@ document.getElementById('btn-save-token').addEventListener('click', async () => 
 
     if(!tokenInput) {
         alertDiv.className = 'alert alert-error';
-        alertDiv.innerHTML = 'Harap paste Token JWT terlebih dahulu.';
+        alertDiv.textContent = 'Harap paste Token JWT terlebih dahulu.';
         alertDiv.style.display = 'block';
         return;
     }
@@ -135,15 +135,15 @@ document.getElementById('btn-save-token').addEventListener('click', async () => 
 
         if (res.ok && data.status === 'ok') {
             alertDiv.className = 'alert alert-success';
-            alertDiv.innerHTML = '<b>Sukses!</b><br>' + (data.message || 'Token berhasil dihubungkan ke Bot.');
+            alertDiv.textContent = 'Sukses! ' + (data.message || 'Token berhasil dihubungkan ke Bot.');
             document.getElementById('manual-token-input').value = '';
         } else {
             alertDiv.className = 'alert alert-error';
-            alertDiv.innerHTML = '<b>Gagal:</b> ' + (data.message || 'Error tidak diketahui');
+            alertDiv.textContent = 'Gagal: ' + (data.message || 'Error tidak diketahui');
         }
     } catch(err) {
         alertDiv.className = 'alert alert-error';
-        alertDiv.innerHTML = '<b>Error:</b> Koneksi ke proxy server terputus.';
+        alertDiv.textContent = 'Error: Koneksi ke proxy server terputus.';
     } finally {
         btn.innerText = 'Hubungkan ke Bot';
         btn.disabled = false;

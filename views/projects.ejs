@@ -37,8 +37,9 @@
                     <li><i class="fas fa-check"></i><span>QRIS & academic tools</span></li>
                 </ul>
             </div>
-            <footer class="product-footer">
-                <a href="https://wa.me/6285134342695?text=nak%20coba" target="_blank" rel="noopener noreferrer">Mulai percakapan <i class="fas fa-arrow-up-right-from-square"></i></a>
+            <footer class="product-footer product-footer-actions">
+                <a class="product-action primary" href="https://wa.me/6285134342695?text=nak%20coba" target="_blank" rel="noopener noreferrer"><span><i class="fab fa-whatsapp"></i> Mulai percakapan</span><i class="fas fa-arrow-up-right-from-square"></i></a>
+                <a class="product-action" href="/docs#whatsapp"><span><i class="fas fa-book-open"></i> Panduan pakai</span><i class="fas fa-arrow-right"></i></a>
             </footer>
         </article>
 
@@ -59,8 +60,9 @@
                     <li><i class="fas fa-check"></i><span>Voice & music features</span></li>
                 </ul>
             </div>
-            <footer class="product-footer">
-                <a href="https://discord.gg/k33xPSwWyx" target="_blank" rel="noopener noreferrer">Masuk komunitas <i class="fas fa-arrow-up-right-from-square"></i></a>
+            <footer class="product-footer product-footer-actions">
+                <a class="product-action primary" href="https://discord.gg/k33xPSwWyx" target="_blank" rel="noopener noreferrer"><span><i class="fab fa-discord"></i> Masuk komunitas</span><i class="fas fa-arrow-up-right-from-square"></i></a>
+                <a class="product-action" href="/docs#discord"><span><i class="fas fa-book-open"></i> Panduan pakai</span><i class="fas fa-arrow-right"></i></a>
             </footer>
         </article>
 
@@ -81,8 +83,9 @@
                     <li><i class="fas fa-check"></i><span>Reconnect & event monitoring</span></li>
                 </ul>
             </div>
-            <footer class="product-footer">
-                <a href="/status">Pantau koneksi <i class="fas fa-arrow-right"></i></a>
+            <footer class="product-footer product-footer-actions">
+                <a class="product-action primary" href="/status"><span><i class="fas fa-wave-square"></i> Pantau koneksi</span><i class="fas fa-arrow-right"></i></a>
+                <a class="product-action" href="/docs#minecraft"><span><i class="fas fa-book-open"></i> Panduan pakai</span><i class="fas fa-arrow-right"></i></a>
             </footer>
         </article>
 
@@ -100,20 +103,46 @@
                 <div class="server-addresses">
                     <div class="server-address">
                         <span>JAVA</span>
-                        <button type="button" data-copy="mc.shiroko-project.my.id" aria-label="Salin alamat server Java">
-                            <code>mc.shiroko-project.my.id</code><i class="fas fa-copy"></i>
+                        <button type="button" data-copy="id-1.zknesia.app:25675" aria-label="Salin alamat server Java">
+                            <code>id-1.zknesia.app:25675</code><i class="fas fa-copy"></i>
                         </button>
                     </div>
                     <div class="server-address">
                         <span>BEDROCK</span>
-                        <button type="button" data-copy="mc.shiroko-project.my.id:25713" aria-label="Salin alamat server Bedrock">
-                            <code>mc.shiroko-project.my.id:25713</code><i class="fas fa-copy"></i>
+                        <button type="button" data-copy="id-1.zknesia.app:25713" aria-label="Salin alamat server Bedrock">
+                            <code>id-1.zknesia.app:25713</code><i class="fas fa-copy"></i>
                         </button>
                     </div>
                 </div>
+                <% if (minecraftServerService.detail) { %>
+                    <p class="server-meta"><i class="fas fa-users"></i> <%= minecraftServerService.detail %><% if (minecraftServerService.version) { %> &middot; <%= minecraftServerService.version %><% } %></p>
+                <% } %>
             </div>
-            <footer class="product-footer">
-                <a href="minecraft://?addExternalServer=Shiroko%20Project|mc.shiroko-project.my.id:25713">Join server <i class="fas fa-gamepad"></i></a>
+            <footer class="product-footer product-footer-actions">
+                <a class="product-action primary" href="minecraft://?addExternalServer=Shiroko%20Project|id-1.zknesia.app:25675"><span><i class="fas fa-gamepad"></i> Join server</span><i class="fas fa-arrow-right"></i></a>
+                <button type="button" class="product-action" data-copy="id-1.zknesia.app:25675"><span><i class="fas fa-copy"></i> Salin IP Java</span><i class="fas fa-arrow-right"></i></button>
+            </footer>
+        </article>
+
+        <article class="ecosystem-product pixai-product">
+            <header class="product-header">
+                <span class="product-number">05</span>
+                <span class="service-state standby"><i></i>TOOL</span>
+            </header>
+            <div class="product-main">
+                <div class="product-icon"><i class="fas fa-key"></i></div>
+                <span class="product-type">API KEY TOOLING</span>
+                <h2>PixAI Web Auth</h2>
+                <p class="product-description">Halaman resmi untuk menukar OTP dari WhatsApp Bot menjadi API key PixAI yang tersimpan aman di server bot.</p>
+                <ul class="product-features">
+                    <li><i class="fas fa-check"></i><span>OTP sekali pakai dari perintah !api-pixai</span></li>
+                    <li><i class="fas fa-check"></i><span>Bookmarklet pengambil token otomatis</span></li>
+                    <li><i class="fas fa-check"></i><span>Nonce kriptografis &amp; validasi JWT</span></li>
+                </ul>
+            </div>
+            <footer class="product-footer product-footer-actions">
+                <a class="product-action primary" href="/pixai-api"><span><i class="fas fa-key"></i> Buat API key</span><i class="fas fa-arrow-right"></i></a>
+                <a class="product-action" href="/docs#pixai"><span><i class="fas fa-book-open"></i> Cara pakai</span><i class="fas fa-arrow-right"></i></a>
             </footer>
         </article>
     </section>
@@ -210,6 +239,20 @@
 .product-footer { flex: 0 0 auto; margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border-color); }
 .product-footer a { display: flex; align-items: center; justify-content: space-between; gap: 16px; color: var(--text-primary); font-size: 12px; font-weight: 700; }
 .product-footer a:hover { color: var(--accent-color); }
+.product-footer-actions { display: grid; gap: 8px; }
+.product-action { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 11px 14px; border: 1px solid var(--border-color); border-radius: 10px; background: rgba(7,11,22,.5); color: var(--text-secondary); font: 700 12px 'Inter', sans-serif; text-align: left; cursor: pointer; transition: transform 140ms ease, border-color 140ms ease, color 140ms ease, background 140ms ease, box-shadow 140ms ease; }
+.product-action span { display: inline-flex; align-items: center; gap: 9px; }
+.product-action > i { transition: transform 160ms ease; }
+.product-action:hover { transform: translateY(-2px); color: var(--text-primary); border-color: var(--accent-color); background: rgba(84,184,255,.09); box-shadow: 0 8px 22px rgba(0,0,0,.35); }
+.product-action:hover > i { transform: translateX(4px); }
+.product-action:focus-visible { outline: 2px solid var(--accent-color); outline-offset: 2px; }
+.product-action:active { transform: translateY(0) scale(.99); }
+.product-action.primary { color: var(--text-primary); border-color: rgba(84,184,255,.35); background: linear-gradient(120deg, rgba(84,184,255,.16), rgba(84,184,255,.05)); }
+.product-action.primary:hover { border-color: var(--accent-color); background: linear-gradient(120deg, rgba(84,184,255,.26), rgba(84,184,255,.08)); }
+.product-action.is-copied { color: var(--online-color); border-color: rgba(54,216,121,.45); background: rgba(54,216,121,.12); }
+.pixai-product .product-icon { color: #ffb648; background: rgba(255,182,72,.1); }
+.server-meta { margin-top: 12px; color: var(--text-muted); font: 500 11px 'JetBrains Mono', monospace; }
+.server-meta i { margin-right: 6px; color: var(--online-color); }
 .server-addresses { display: grid; gap: 10px; margin-top: 20px; }
 .server-address { min-width: 0; display: grid; grid-template-columns: 70px minmax(0, 1fr); align-items: center; gap: 10px; }
 .server-address > span { color: var(--text-muted); font: 700 9px 'JetBrains Mono', monospace; letter-spacing: .08em; }
@@ -277,10 +320,22 @@ document.querySelectorAll('[data-copy]').forEach(function (button) {
                 document.execCommand('copy');
                 input.remove();
             }
+            const label = button.querySelector('span');
+            if (label && !button.dataset.originalLabel) {
+                button.dataset.originalLabel = label.innerHTML;
+            }
+            if (label) {
+                label.innerHTML = '<i class="fas fa-check"></i> Tersalin';
+                button.classList.add('is-copied');
+                setTimeout(function () {
+                    label.innerHTML = button.dataset.originalLabel;
+                    button.classList.remove('is-copied');
+                }, 1800);
+            }
             const toast = document.createElement('div');
             toast.className = 'copy-toast';
             toast.setAttribute('role', 'status');
-            toast.textContent = 'Alamat server berhasil disalin';
+            toast.textContent = 'Alamat server berhasil disalin: ' + value;
             document.body.appendChild(toast);
             setTimeout(function () { toast.remove(); }, 2200);
         } catch (error) {

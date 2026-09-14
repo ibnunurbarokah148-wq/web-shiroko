@@ -8,7 +8,80 @@
         </div>
 
         <div class="timeline" data-aos="fade-up" data-aos-delay="100">
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                    <span class="timeline-date">14 September 2026</span>
+                    <h3>v3.0.0 - Real-Time Telemetry &amp; Security Hardening</h3>
+                    <ul>
+                        <li><span class="tag feature">FEATURE</span> Status server Minecraft kini memakai ping protokol asli, lengkap dengan jumlah pemain, versi, dan latensi.</li>
+                        <li><span class="tag feature">FEATURE</span> Halaman PixAI Web Auth masuk ke navigasi utama dan kartu khusus di halaman Ecosystem.</li>
+                        <li><span class="tag feature">FEATURE</span> Tombol pada kartu Ecosystem dibuat interaktif dengan aksi ganda dan umpan balik saat menyalin alamat.</li>
+                        <li><span class="tag update">UPDATE</span> Alamat server diperbarui: Java <code>id-1.zknesia.app:25675</code> dan Bedrock <code>id-1.zknesia.app</code> port <code>25713</code>.</li>
+                        <li><span class="tag update">UPDATE</span> Halaman Docs ditulis ulang menjadi dokumentasi project dan cara penggunaan, bukan lagi daftar perintah bot.</li>
+                        <li><span class="tag update">UPDATE</span> Penamaan judul seluruh halaman diselaraskan dengan menu navigasi.</li>
+                        <li><span class="tag fix">FIX</span> Seluruh data contoh dihapus. Bila telemetry tidak tersedia, status ditampilkan sebagai UNKNOWN.</li>
+                        <li><span class="tag fix">FIX</span> Perbedaan status Minecraft antara Overview, Ecosystem, dan System Status diperbaiki dengan satu sumber data.</li>
+                        <li><span class="tag fix">FIX</span> Jalur deployment portal web diperbaiki agar proses pembaruan berjalan normal.</li>
+                        <li><span class="tag security">SECURITY</span> Penukaran token PixAI diperkuat: OTP dan nonce kriptografis, wajib kedaluwarsa, sekali pakai, dan dibatasi laju percobaan.</li>
+                        <li><span class="tag security">SECURITY</span> Asal permintaan endpoint PixAI dibatasi, token divalidasi sebelum disimpan, dan hasil respons tidak lagi disisipkan sebagai HTML mentah.</li>
+                        <li><span class="tag security">SECURITY</span> Sesi admin memakai cookie khusus, aman saat produksi, serta diperbarui setiap login berhasil.</li>
+                        <li><span class="tag security">SECURITY</span> Perintah sensitif bot dibatasi untuk pemilik dan hanya dapat dijalankan pada percakapan pribadi.</li>
+                    </ul>
+                </div>
+            </div>
+
             <!-- Item 1 -->
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                    <span class="timeline-date">9 September 2026</span>
+                    <h3>v2.8.0 - Control Center Redesign</h3>
+                    <ul>
+                        <li><span class="tag feature">FEATURE</span> Tampilan baru bergaya pusat kendali untuk Overview, Ecosystem, dan System Status.</li>
+                        <li><span class="tag sync">SYNC</span> Data dashboard ditarik langsung dari API bot dengan pembaruan berkala dan soket langsung.</li>
+                        <li><span class="tag update">UPDATE</span> Navigasi, tipografi, dan tata letak responsif dirapikan menyeluruh.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                    <span class="timeline-date">26 Agustus 2026</span>
+                    <h3>v2.6.0 - Performance Pass</h3>
+                    <ul>
+                        <li><span class="tag update">UPDATE</span> Pemuatan halaman utama dipercepat.</li>
+                        <li><span class="tag fix">FIX</span> Perbaikan galat animasi yang muncul pada halaman beranda.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Item 2 -->
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                    <span class="timeline-date">12 Agustus 2026</span>
+                    <h3>v2.5.5 - Services &amp; Hardening</h3>
+                    <ul>
+                        <li><span class="tag update">UPDATE</span> Daftar layanan ekosistem disusun ulang mengikuti penyedia yang benar-benar dipakai.</li>
+                        <li><span class="tag security">SECURITY</span> Pembatasan percobaan login admin dan penguatan cookie sesi.</li>
+                        <li><span class="tag fix">FIX</span> Perbaikan proses pemasangan dependensi saat deployment.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                    <span class="timeline-date">10 Agustus 2026</span>
+                    <h3>v2.5.2 - PixAI Web Auth</h3>
+                    <ul>
+                        <li><span class="tag feature">FEATURE</span> Alur penukaran OTP menjadi API key PixAI beserta tombol salin sekali klik.</li>
+                    </ul>
+                </div>
+            </div>
+
             <div class="timeline-item">
                 <div class="timeline-dot"></div>
                 <div class="timeline-content">
@@ -171,6 +244,9 @@
 .tag.fix { background: rgba(231, 76, 60, 0.15); color: #e74c3c; border-color: #e74c3c; }
 .tag.sync { background: rgba(155, 89, 182, 0.15); color: #9b59b6; border-color: #9b59b6; }
 .tag.release { background: rgba(0, 176, 240, 0.15); color: var(--accent-color); border-color: var(--accent-color); }
+.tag.security { background: rgba(0, 176, 240, 0.12); color: #7dd3fc; border-color: #38bdf8; }
+.timeline-content li code { padding: 2px 6px; border-radius: 5px; background: rgba(0,176,240,.12); color: var(--accent-color); font-family: monospace; font-size: .88em; }
+.timeline-content li { align-items: flex-start; line-height: 1.6; }
 
 @media (max-width: 600px) {
     .timeline::before { left: 15px; }

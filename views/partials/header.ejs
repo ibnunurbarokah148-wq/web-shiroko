@@ -34,11 +34,12 @@
                 <div class="nav-more">
                     <button type="button" aria-expanded="false">More <i class="fas fa-chevron-down" aria-hidden="true"></i></button>
                     <div class="nav-more-menu">
-                        <a href="/gallery">Gallery</a>
-                        <a href="/download">Download</a>
-                        <a href="/changelog">Changelog</a>
-                        <a href="/about">About</a>
-                        <a href="/contact">Contact</a>
+                        <a href="/pixai-api" class="<%= typeof currentPath !== 'undefined' && currentPath === '/pixai-api' ? 'active' : '' %>">PixAI Web Auth</a>
+                        <a href="/gallery" class="<%= typeof currentPath !== 'undefined' && currentPath === '/gallery' ? 'active' : '' %>">Gallery</a>
+                        <a href="/download" class="<%= typeof currentPath !== 'undefined' && currentPath === '/download' ? 'active' : '' %>">Download</a>
+                        <a href="/changelog" class="<%= typeof currentPath !== 'undefined' && currentPath === '/changelog' ? 'active' : '' %>">Changelog</a>
+                        <a href="/about" class="<%= typeof currentPath !== 'undefined' && currentPath === '/about' ? 'active' : '' %>">About</a>
+                        <a href="/contact" class="<%= typeof currentPath !== 'undefined' && currentPath === '/contact' ? 'active' : '' %>">Contact</a>
                     </div>
                 </div>
             </div>
