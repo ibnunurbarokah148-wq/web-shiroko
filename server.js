@@ -18,8 +18,23 @@ let rateLimit;
 try {
     rateLimit = require('express-rate-limit');
 } catch (e) {
-    console.warn('[SERVER] express-rate-limit belum terinstall di VPS node_modules. Menggunakan fallback dummy limiter.');
-    rateLimit = () => (req, res, next) => next();
+    console.warn('[SERVER] express-rate-limit belum terinstall di VPS node_modules. Menggunakan in-memory limiter.');
+    rateLimit = options => {
+        const hits = new Map();
+        return (req, res, next) => {
+            const key = req.ip || req.socket?.remoteAddress || 'unknown';
+            const now = Date.now();
+            const current = hits.get(key);
+            if (!current || now >= current.resetAt) {
+                hits.set(key, { count: 1, resetAt: now + (options.windowMs || 60000) });
+                return next();
+            }
+            current.count += 1;
+            if (current.count <= (options.max || 5)) return next();
+            if (options.handler) return options.handler(req, res, next);
+            return res.status(429).json(options.message || { status: 'error', message: 'Too many requests.' });
+        };
+    };
 }
 
 // Middleware
@@ -219,7 +234,8 @@ function buildDashboardData(rawData = {}) {
         activity: Array.isArray(rawData.activity) ? rawData.activity.slice(0, 6) : [],
         activitySeries: rawData.activitySeries && typeof rawData.activitySeries === 'object' ? rawData.activitySeries : null,
         dataSource: isFallback ? 'fallback' : 'live',
-        updatedAt: new Date().toISOString()
+        generatedAt: rawData.generatedAt || rawData.updatedAt || null,
+        updatedAt: rawData.updatedAt || rawData.generatedAt || new Date().toISOString()
     };
 }
 

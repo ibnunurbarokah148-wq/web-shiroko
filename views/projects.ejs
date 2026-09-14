@@ -1,6 +1,6 @@
 <%- include('partials/header') %>
 
-<% const serviceById = id => data.services.find(service => service.id === id) || { status: 'OFFLINE' }; %>
+<% const serviceById = id => data.services.find(service => service.id === id) || { status: 'UNKNOWN' }; %>
 <div class="ecosystem-page">
     <header class="ecosystem-hero">
         <div class="ecosystem-intro">
@@ -15,7 +15,7 @@
         <div class="persona-profile">
             <div class="profile-orbit" aria-hidden="true"><i></i><i></i><i></i></div>
             <img src="/assets/img/logo.jpeg" alt="Persona Shiroko">
-            <div class="profile-status"><span></span><div><small>PERSONA CORE</small><strong>SHIROKO ONLINE</strong></div></div>
+            <div class="profile-status"><span></span><div><small>PERSONA CORE</small><strong>SHIROKO MONITORING</strong></div></div>
         </div>
     </header>
 

@@ -23,7 +23,7 @@
         <img src="/assets/img/logo.jpeg" alt="Persona Shiroko" class="persona-avatar">
         <div class="persona-copy">
             <span class="persona-name">SHIROKO</span>
-            <p id="shiroko-message"><%= data.dataSource === 'live' ? 'Semua kanal sedang kupantau.' : 'VPS belum terhubung; sementara kutampilkan status fallback.' %> Data terakhir diperbarui <time id="last-updated">baru saja</time>.</p>
+            <p id="shiroko-message"><%= data.dataSource === 'live' ? 'Semua kanal sedang kupantau.' : 'Telemetry bot belum terhubung; status belum dapat dipastikan.' %> Data terakhir diperbarui <time id="last-updated"><%= data.updatedAt ? new Date(data.updatedAt).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : '--:--:--' %></time>.</p>
         </div>
         <div class="signal-bars" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
     </section>
@@ -69,8 +69,8 @@
                 <a href="/status" class="panel-link">Lihat semua <i class="fas fa-arrow-right"></i></a>
             </header>
             <div class="health-score">
-                <div class="health-ring" id="health-ring" style="--score: <%= (data.summary.onlineServices / data.summary.totalServices) * 360 %>deg">
-                    <span><b id="health-percentage"><%= Math.round((data.summary.onlineServices / data.summary.totalServices) * 100) %></b>%</span>
+                <div class="health-ring" id="health-ring" style="--score: <%= data.summary.totalServices ? (data.summary.onlineServices / data.summary.totalServices) * 360 : 0 %>deg">
+                    <span><b id="health-percentage"><%= data.summary.totalServices ? Math.round((data.summary.onlineServices / data.summary.totalServices) * 100) : '--' %></b><%= data.summary.totalServices ? '%' : '' %></span>
                 </div>
                 <div><strong>Operational score</strong><p>Ketersediaan empat layanan inti.</p></div>
             </div>

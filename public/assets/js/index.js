@@ -123,7 +123,7 @@
         setText('stat-aiRequests', formatter.format(summary.aiRequests || 0));
         setText('stat-commands', formatter.format(summary.commands || 0));
         setText('online-count', (summary.onlineServices || 0) + '/' + (summary.totalServices || 0));
-        const healthPercentage = Math.round(((summary.onlineServices || 0) / (summary.totalServices || 1)) * 100);
+        const healthPercentage = summary.totalServices ? Math.round(((summary.onlineServices || 0) / summary.totalServices) * 100) : 0;
         setText('health-percentage', healthPercentage);
         setText('global-status-label', statusLabel(summary.globalStatus));
         const healthRing = document.getElementById('health-ring');
