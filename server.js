@@ -131,7 +131,12 @@ const emptyStats = {
 // Helper to fetch data from VPS
 async function getVPSData() {
     try {
-        const response = await axios.get(`${VPS_API_URL}/api/dashboard`, { timeout: 5000 });
+        const response = await axios.get(`${VPS_API_URL}/api/dashboard`, {
+            headers: {
+                'x-api-key': process.env.WEB_SECRET_KEY
+            },
+            timeout: 5000
+        });
         return response.data;
     } catch (error) {
         console.error('Failed to fetch from VPS, telemetry marked as unknown:', error.message);
@@ -750,7 +755,6 @@ app.get('/contact', (req, res) => res.render('contact', { title: 'Contact - Shir
 app.listen(PORT, () => {
     console.log(`Web Portal Shiroko Project berjalan di http://localhost:${PORT}`);
 });
-
 
 
 
