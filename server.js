@@ -359,9 +359,9 @@ app.post('/admin/api/deploy', (req, res) => {
     let command = '';
     
     if (target === 'bot') {
-        command = 'cd /root/bot-shiroko && git pull && npm install --legacy-peer-deps --omit=dev && pm2 restart index';
+        command = 'cd /root/bot-shiroko && git pull && npm install --legacy-peer-deps --omit=dev && pm2 restart shiroko-wa';
     } else if (target === 'web') {
-        command = 'cd /root/web-shiroko && git pull && npm install --legacy-peer-deps --omit=dev && pm2 restart web-shiroko';
+        command = 'cd "/root/Web Shiroko Project" && git pull && npm install --legacy-peer-deps --omit=dev && pm2 restart web-shiroko';
     } else {
         return res.status(400).json({ error: 'Invalid target' });
     }
@@ -593,7 +593,7 @@ app.get('/admin/api/vps-stats', (req, res) => {
 app.get('/admin/api/logs', (req, res) => {
     if (!req.session.isAdmin) return res.status(401).json({ error: 'Unauthorized' });
     const { target } = req.query; // 'bot' or 'web'
-    const appName = target === 'bot' ? 'index' : 'web-shiroko';
+    const appName = target === 'bot' ? 'shiroko-wa' : 'web-shiroko';
     
     exec(`pm2 logs ${appName} --lines 50 --nostream`, (error, stdout, stderr) => {
         if (error) {
